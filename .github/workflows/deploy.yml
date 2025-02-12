@@ -13,6 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Добавление сервера в known_hosts
+        run: |
+          if [ -n "${{ secrets.SSH_HOST }}" ]; then
+            ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Не удалось получить ключи сервера"
+          else
+            echo "Ошибка: SSH_HOST не задан" && exit 1
+          fi
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh

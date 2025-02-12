@@ -44,11 +44,11 @@ class TlgSendMessage:
         print(f"{spot.close_price_sell} {spot.tp} {spot.sl}")
         print(f"spot.close_price_sell {spot.close_price_sell}")
         if spot.close_price_sell == "":
-            result_of_deal = "🤝 Сделка была отменена."
+            result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {spot.symbol} была отменена."
         elif float(spot.close_price_sell) >= float(spot.tp):
-            result_of_deal = "🎉 Сделка закрыта с прибылью!"
+            result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {spot.symbol} закрыта с прибылью!"
         elif float(spot.close_price_sell) <= float(spot.sl):
-            result_of_deal = "😢 Сделка закрыта с убытком..."
+            result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {spot.symbol} закрыта с убытком..."
 
         #message_title = (f"{PROJECT_NAME}\n🎉 TP/SL ордер для {spot.symbol} закрыт. Сделка завершена!\n"
         message_title = (f"{result_of_deal}\n"
