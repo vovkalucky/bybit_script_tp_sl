@@ -1,6 +1,6 @@
 from typing import List
 from tradingview_ta import Interval
-PROJECT_NAME = "#bybit_tp_sl_11_02_25"
+PROJECT_NAME = "#bybit_tp_sl_12_02_25"
 
 TIMEFRAMES: List[str] = [Interval.INTERVAL_1_HOUR, Interval.INTERVAL_15_MINUTES]
 
@@ -15,3 +15,4 @@ DEMO_TRADE = True
 STATE_FILE = "classes/list_of_deals.json"
 CSV_FILE = "classes/money.csv"
 COINS_LIST = "classes/coins.json"
+

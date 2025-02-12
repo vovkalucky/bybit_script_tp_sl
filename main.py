@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 from classes.TradeManager import TradeManager
 from settings import DELAY, UTC_PLUS_TIMEZONE
 
-
 if __name__ == "__main__":
     print("🔍 Запуск анализа сигналов...")
     try:
