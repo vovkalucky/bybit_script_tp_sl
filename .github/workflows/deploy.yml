@@ -22,10 +22,9 @@ jobs:
 
       - name: Deploy via SSH
         run: |
-          ssh user@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh root@${{ secrets.VPS_HOST }} << 'EOF'
           cd /scripts/bybit_tp_sl
           git pull origin main
           docker compose down
-          docker compose build
           docker compose up -d
           EOF
