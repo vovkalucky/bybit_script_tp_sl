@@ -12,6 +12,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug key format
+      run: |
+        echo "Key content:"
+        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
     - name: Verify secrets availability
       run: |
         echo "List of secrets used in this job:"
