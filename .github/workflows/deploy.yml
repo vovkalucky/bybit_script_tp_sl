@@ -19,12 +19,12 @@ jobs:
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
 
-    - name: Setup SSH key
-      run: |
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-        chmod 600 ~/.ssh/deploy_key
+#    - name: Setup SSH key
+#      run: |
+#        mkdir -p ~/.ssh
+#        chmod 700 ~/.ssh
+#        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+#        chmod 600 ~/.ssh/deploy_key
 #    - name: Setup SSH
 #      run: |
 #        mkdir -p ~/.ssh
@@ -33,17 +33,17 @@ jobs:
 #        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
 
-    - name: Debug key format
-      run: |
-        echo "Key content:"
-        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
+#    - name: Debug key format
+#      run: |
+#        echo "Key content:"
+#        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        key: ${{ github.workspace }}/.ssh/deploy_key
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           cd /scripts/
           docker compose down
