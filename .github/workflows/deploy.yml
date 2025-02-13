@@ -2,47 +2,33 @@ name: Deploy to VPS
 
 on:
   push:
-    branches:
-      - main  # Деплой при пуше в main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Добавление сервера в known_hosts
-        run: |
-          if [ -n "${{ secrets.SSH_HOST }}" ]; then
-            ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Не удалось получить ключи сервера"
-          else
-            echo "Ошибка: SSH_HOST не задан" && exit 1
-          fi
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@v0.1.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        source: "./"
+        target: "/scripts/bybit_tp_sl"
 
-      # - name: Set up SSH
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 600 ~/.ssh/id_rsa
-      #     ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Настройка SSH
-        run: |
-          mkdir -p ~/.ssh  # Создаем папку, если она не существует
-          chmod 700 ~/.ssh  # Даем ей корректные права
-          if [ -n "${{ secrets.SSH_HOST }}" ]; then
-            ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || echo "Не удалось получить ключи сервера"
-          else
-            echo "Ошибка: SSH_HOST не задан" && exit 1
-          fi
-
-      - name: Deploy via SSH
-        run: |
-          ssh root@${{ secrets.VPS_HOST }} << 'EOF'
+    - name: SSH and deploy
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
           cd /scripts/bybit_tp_sl
-          git pull origin main
           docker compose down
+          docker compose pull
           docker compose up -d
-          EOF
