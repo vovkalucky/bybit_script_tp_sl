@@ -12,6 +12,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Verify secrets availability
+      run: |
+        echo "List of secrets used in this job:"
+        echo "SSH_HOST: ${{ secrets.SSH_HOST != '' && 'SET' || 'NOT SET' }}"
+        echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
+        echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
+
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
