@@ -12,30 +12,48 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug SSH
+    - name: Setup SSH
       run: |
-        echo "Проверка ключа:"
-        ls -la ~/.ssh/id_rsa
-        ssh -vT ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Copy files to VPS
-      uses: appleboy/scp-action@v0.1.3
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "./"
-        target: "/scripts/bybit_tp_sl"
+#    - name: Debug SSH
+#      run: |
+#        echo "Проверка ключа:"
+#        ls -la ~/.ssh/id_rsa
+#        ssh -vT ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
 
-    - name: SSH and deploy
+#    - name: Copy files to VPS
+#      uses: appleboy/scp-action@v0.1.3
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        source: "./"
+#        target: "/scripts/"
+    - name: Deploy via SSH
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        key: ~/.ssh/deploy_key
         script: |
-          cd /scripts/bybit_tp_sl
+          cd /scripts/
           docker compose down
           docker compose pull
           docker compose up -d
+
+#    - name: SSH and deploy
+#      uses: appleboy/ssh-action@v0.1.10
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        script: |
+#          cd /scripts/
+#          docker compose down
+#          docker compose pull
+#          docker compose up -d
 
