@@ -12,11 +12,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug key format
-      run: |
-        echo "Key content:"
-        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
-
     - name: Verify secrets availability
       run: |
         echo "List of secrets used in this job:"
@@ -30,6 +25,11 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
         chmod 600 ~/.ssh/deploy_key
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Debug key format
+      run: |
+        echo "Key content:"
+        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
