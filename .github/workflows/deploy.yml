@@ -16,6 +16,7 @@ jobs:
       run: |
         echo "Key content:"
         cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
+
     - name: Verify secrets availability
       run: |
         echo "List of secrets used in this job:"
