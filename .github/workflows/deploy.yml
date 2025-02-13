@@ -15,45 +15,18 @@ jobs:
     - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
         chmod 600 ~/.ssh/deploy_key
-        ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-#    - name: Debug SSH
-#      run: |
-#        echo "Проверка ключа:"
-#        ls -la ~/.ssh/id_rsa
-#        ssh -vT ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
-
-#    - name: Copy files to VPS
-#      uses: appleboy/scp-action@v0.1.3
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        source: "./"
-#        target: "/scripts/"
     - name: Deploy via SSH
-      uses: appleboy/ssh-action@v0.1.10
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        key: ~/.ssh/deploy_key
+        key: ${{ github.workspace }}/.ssh/deploy_key
         script: |
           cd /scripts/
           docker compose down
           docker compose pull
           docker compose up -d
-
-#    - name: SSH and deploy
-#      uses: appleboy/ssh-action@v0.1.10
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        script: |
-#          cd /scripts/
-#          docker compose down
-#          docker compose pull
-#          docker compose up -d
-
