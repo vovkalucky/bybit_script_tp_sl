@@ -56,3 +56,9 @@ jobs:
           cd scripts/bybit_tp_sl
           docker compose down
           docker compose up -d
+
+    - name: Send Telegram Notification
+      run: |
+        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+        -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+        -d text="✅ Деплой проекта успешно завершен!"
