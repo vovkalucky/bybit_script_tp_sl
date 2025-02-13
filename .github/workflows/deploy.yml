@@ -37,6 +37,14 @@ jobs:
 #      run: |
 #        echo "Key content:"
 #        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "."  # Копируем весь репозиторий
+        target: "/scripts/"  # Указываем папку на сервере
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
@@ -45,7 +53,6 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /scripts/
+          cd scripts/bybit_tp_sl
           docker compose down
-          docker compose pull
           docker compose up -d
