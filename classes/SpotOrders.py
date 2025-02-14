@@ -33,6 +33,7 @@ class SpotOrders:
         self.order_id_sell = self.side_sell = self.close_price_sell = self.money_sell = self.status_sell = self.tax_sell = None
         self.earn = None
         self.time_sell = self.time_close = None
+        self.triggerPrice = None
 
 
     def get_current_price_of_coin(self) -> float:
@@ -90,6 +91,7 @@ class SpotOrders:
                     self.tp = open_order['takeProfit']
                     self.sl = open_order['stopLoss']
                     self.basePrice = open_order['basePrice']
+                    self.triggerPrice = open_order['triggerPrice']
                     CoinsClass.add_coin(SpotOrders.coins, self.symbol)
                     orders_to_remove.append(order_id)
                     WorkWithCSV.update_order_to_csv(self)
@@ -202,6 +204,7 @@ class SpotOrders:
                 self.time_buy = limit_order['createdTime']
                 self.tp = limit_order['takeProfit']
                 self.sl = limit_order['stopLoss']
+
                 # print(f"(get_info_about_limit_order) {self.qty} {self.status_buy} {self.close_price_buy} {self.money_buy} "
                 #       f"{self.tax_buy} {self.symbol} {self.side_buy} {self.time_buy}")
 

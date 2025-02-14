@@ -1,13 +1,13 @@
 from typing import List
 from tradingview_ta import Interval
-PROJECT_NAME = "#bybit_tp_sl_12_02_25"
+PROJECT_NAME = "#bybit_tp_sl_14_02_25"
 
 TIMEFRAMES: List[str] = [Interval.INTERVAL_1_HOUR, Interval.INTERVAL_15_MINUTES]
 
 
 UTC_PLUS_TIMEZONE = 3 #определяем добавку в часах для UTC
 DELAY = 60 #задержка между запросами к tradingview
-MAX_COUNT_OF_DEALS = 1
+MAX_COUNT_OF_DEALS = 5
 MONEY_FOR_ONE_ORDER = 50
 PERCENT_OF_EARN = 1.01
 STOP_LOSS = 0.98

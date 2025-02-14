@@ -41,13 +41,12 @@ class TlgSendMessage:
         #     count_open_limit_orders = len(spot.list_of_deals)
         # else:
         result_of_deal = ""
-        print(f"{spot.close_price_sell} {spot.tp} {spot.sl}")
-        print(f"spot.close_price_sell {spot.close_price_sell}")
+        print(f"spot.close_price_sell {spot.close_price_sell} spot.basePrice {spot.basePrice} spot.triggerPrice {spot.triggerPrice}")
         if spot.close_price_sell == "":
             result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {spot.symbol} была отменена."
-        elif float(spot.close_price_sell) >= float(spot.tp):
+        elif float(spot.basePrice) <= float(spot.triggerPrice):
             result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {spot.symbol} закрыта с прибылью!"
-        elif float(spot.close_price_sell) <= float(spot.sl):
+        elif float(spot.basePrice) >= float(spot.triggerPrice):
             result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {spot.symbol} закрыта с убытком..."
 
         #message_title = (f"{PROJECT_NAME}\n🎉 TP/SL ордер для {spot.symbol} закрыт. Сделка завершена!\n"

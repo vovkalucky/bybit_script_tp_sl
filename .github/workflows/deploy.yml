@@ -19,24 +19,6 @@ jobs:
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
 
-#    - name: Setup SSH key
-#      run: |
-#        mkdir -p ~/.ssh
-#        chmod 700 ~/.ssh
-#        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-#        chmod 600 ~/.ssh/deploy_key
-#    - name: Setup SSH
-#      run: |
-#        mkdir -p ~/.ssh
-#        echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
-#        chmod 600 ~/.ssh/deploy_key
-#        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-
-#    - name: Debug key format
-#      run: |
-#        echo "Key content:"
-#        cat ~/.ssh/deploy_key | awk '{print "Line "NR": "$0}'
     - name: Copy files to VPS
       uses: appleboy/scp-action@master
       with:
