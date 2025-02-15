@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_tp_sl_14_02_25
-    container_name: bybit_tp_sl_14_02_25
+    image: bybit_tp_sl_15_02_25
+    container_name: bybit_tp_sl_15_02_25
     restart: "always"
     volumes:
       - .:/app

@@ -1,6 +1,10 @@
 from http.client import responses
 from typing import List
+
+import requests
 from pybit.unified_trading import HTTP
+
+from classes.SpotOrders import SpotOrders
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from settings import DEMO_TRADE
 
@@ -46,35 +50,60 @@ class TechAnalysis:
             print(f"(check_volumes): {e}")
 
     @classmethod
-    def count_atr(cls, symbol: str, interval: str, count: int):
-        response_klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval)
+    def count_atr(cls, symbol: str, interval: str, limit: int):
+        response_klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval, limit=limit)
         klines = response_klines['result']['list'][::-1]
         #print(klines)
         all_candles = []
         for i in klines:
             #Вычисляем длину свечи high - low
             all_candles.append(abs(round(float(i[2]) - float(i[3]), 3)))
-        print(f"{len(all_candles)} {all_candles}")
+        #print(f"{len(all_candles)} {all_candles}")
         avg_candle = round(sum(all_candles)/len(all_candles), 3)
-        print(f"(avg_candle) {avg_candle}")
+        #print(f"(avg_candle) {avg_candle}")
         sorted_candles = []
         for candle in all_candles:
-            # if candle > 2 * avg_candle:
-            #     continue
             sorted_candles.append(candle)
-        print(f"(sorted_candles) {len(sorted_candles)} {sorted_candles}")
-        print(sorted_candles[-6:-1]) # 29.06, 29.73, 22.18, 34.73, 37.0
+        #print(f"(sorted_candles) {len(sorted_candles)} {sorted_candles}")
+        #print(sorted_candles[-6:-1]) # 29.06, 29.73, 22.18, 34.73, 37.0
         atr = round(sum(sorted_candles[-6:-1])/5, 3)
         current_kline = sorted_candles[-1]
-        print(f"atr {atr}")
-        print(current_kline < atr)
+        print(f"atr_1 {atr}")
+        #print(current_kline < atr)
         return current_kline < atr
 
+    def get_candles(symbol, interval, limit=14):
+        url = f"https://api.bybit.com/v5/market/kline?category=linear&symbol={symbol}&interval={interval}&limit={limit}"
+        response = requests.get(url).json()
+        return response['result']['list']
+
+    @classmethod
+    def get_klines(cls, symbol: str, interval: str, limit: int):
+        klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval, limit=limit)
+        return klines['result']['list']
+
+    @classmethod
+    def calculate_atr(cls, candles, period=14):
+        tr_values = []
+        for i in range(1, len(candles)):
+            high = float(candles[i][2])
+            low = float(candles[i][3])
+            close_prev = float(candles[i - 1][4])
+
+            tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
+            tr_values.append(tr)
+        atr = sum(tr_values[-period:]) / period
+        return atr
 
 
-
-
-atr = TechAnalysis.count_atr("ETHUSDT", "60", 20)
+# spot = SpotOrders("ETHUSDT")
+# atr_1 = TechAnalysis.count_atr("ETHUSDT", "15", 14)
+# klines = TechAnalysis.get_klines("ETHUSDT", "15", 14)
+# atr_2 = TechAnalysis.calculate_atr(klines)
+# price = spot.get_current_price_of_coin()
+# print(f"{price}")
+# print("ATR_1:", atr_1)
+# print("ATR_2:", atr_2)
 
 
 # sma20_volume = TechAnalysis.check_volumes("ETHUSDT", "60", 20)

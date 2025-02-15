@@ -154,8 +154,10 @@ class SpotOrders:
             #triggerPrice="3076",
             takeProfit=tp_price,
             stopLoss=sl_price,
-            tpOrderType="Market",
-            slOrderType="Market",
+            #slLimitPrice=sl_price,
+            #tpLimitPrice=tp_price,
+            tpOrderType="Market", #Limit
+            slOrderType="Market", # Limit
             orderFilter = "OCO",  # Фильтр для OCO-ордера
             timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
         )
@@ -231,7 +233,6 @@ class SpotOrders:
                 self.order_id_sell = tp_sl_order['orderId']
                 self.qty = tp_sl_order['cumExecQty']
                 self.status_sell = status
-                #self.close_price_sell = tp_sl_order['price']
                 self.close_price_sell = tp_sl_order['avgPrice']
                 self.money_sell = tp_sl_order['cumExecValue']
                 self.tax_sell = tp_sl_order['cumExecFee']

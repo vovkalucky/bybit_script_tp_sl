@@ -2,7 +2,7 @@ from pybit import exceptions
 from classes.CoinsClass import CoinsClass
 from classes.WorkWithCSV import WorkWithCSV
 from classes.SpotOrders import SpotOrders
-from settings import MONEY_FOR_ONE_ORDER, PERCENT_OF_EARN, MAX_COUNT_OF_DEALS
+from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
 from classes.analysis.AnalysisDeepSeek import AnalysisCoin
 
 
@@ -43,7 +43,7 @@ class TradeManager(CoinsClass, WorkWithCSV):
         try:
             spot = SpotOrders(coin_name=pair)
             spot.get_current_price_of_coin()
-            limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, PERCENT_OF_EARN)
+            limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT)
             if not limit_order_buy:
                 return
             spot.get_info_about_limit_order()
