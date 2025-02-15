@@ -3,7 +3,7 @@ from classes.CoinsClass import CoinsClass
 from classes.WorkWithCSV import WorkWithCSV
 from classes.SpotOrders import SpotOrders
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
-from classes.analysis.AnalysisDeepSeek import AnalysisCoin
+from classes.analysis.AnalysByRec import AnalysisCoin
 
 
 class TradeManager(CoinsClass, WorkWithCSV):

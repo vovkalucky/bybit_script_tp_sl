@@ -2,7 +2,7 @@ from typing import List
 from tradingview_ta import TA_Handler, Interval
 
 from classes.tech_analysis.TechAnalysis import TechAnalysis
-from settings import TIMEFRAMES
+#from settings import TIMEFRAMES
 
 # COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT",
 #         "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT",
