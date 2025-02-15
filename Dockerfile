@@ -1,6 +1,3 @@
-#docker-compose up -d.
-#docker-compose down
-
 # Используем базовый образ Python
 FROM python:3.12-slim
 

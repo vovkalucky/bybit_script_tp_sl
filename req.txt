@@ -8,3 +8,4 @@ requests==2.32.3
 tradingview-ta==3.3.0
 urllib3==2.3.0
 websocket-client==1.8.0
+pytest==8.3.4
