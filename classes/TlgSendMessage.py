@@ -36,10 +36,6 @@ class TlgSendMessage:
 
     @staticmethod
     def send_tlg_message_close_tp_sl_order(spot: SpotOrders) -> None:
-        # if spot.status_sell == "Untriggered":
-        #     message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {spot.symbol} успешно размещен\n"
-        #     count_open_limit_orders = len(spot.list_of_deals)
-        # else:
         result_of_deal = ""
         print(f"spot.close_price_sell {spot.close_price_sell} spot.basePrice {spot.basePrice} spot.triggerPrice {spot.triggerPrice}")
         if spot.close_price_sell == "":

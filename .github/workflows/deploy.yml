@@ -23,48 +23,90 @@ jobs:
           pip install -r req.txt
 
       - name: Run tests
-        run: pytest -s -v
+        run: pytest -s -v --alluredir=allure_results
 
-  deploy:
-    needs: test  # Запуск деплоя только после успешного прогона тестов
+      - name: Store allure_results
+        uses: actions/upload-artifact@v3 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
+        with:
+          name: allure_results
+          path: allure_results
+          retention-days: 7
+
+  generate-report:
     runs-on: ubuntu-latest
-
+    needs: test #job generate-report запустится после отработки job test
+    name: Generate report
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '17'
+      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.23.1/allure-2.23.1.tgz && sudo tar -zxvf allure-2.23.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.23.1/bin/allure /usr/bin/allure
+      - name: Download all workflow run artifacts #скачиваем ранее сгенерированные артефакты: allure-allure_results
+        uses: actions/download-artifact@v3
+      - run: allure generate -c allure_results -o _site #запускаем генерацию отчета -o - в какую папку сохранить
+      - name: Store generated report
+        uses: actions/upload-artifact@v3
+        with:
+          name: _site
+          path:
+            _site
+          retention-days: 7
 
-    - name: Verify secrets availability
-      run: |
-        echo "List of secrets used in this job:"
-        echo "SSH_HOST: ${{ secrets.SSH_HOST != '' && 'SET' || 'NOT SET' }}"
-        echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
-        echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
+  publish-report:
+    runs-on: ubuntu-latest
+    needs: generate-report
+    name: Report publication
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1.2.9
 
-    - name: Copy files to VPS
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 46952  # Указываем порт для SSH
-        source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
-
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 46952  # Указываем порт для SSH
-        script: |
-          cd scripts/bybit_tp_sl
-          docker compose down
-          docker system prune -af
-          docker compose up -d
-
-    - name: Send Telegram Notification
-      run: |
-        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-        -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-        -d text="🛠 Деплой проекта успешно завершен!"
+#  deploy:
+#    needs: test  # Запуск деплоя только после успешного прогона тестов
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Checkout code
+#      uses: actions/checkout@v4
+#
+#    - name: Verify secrets availability
+#      run: |
+#        echo "List of secrets used in this job:"
+#        echo "SSH_HOST: ${{ secrets.SSH_HOST != '' && 'SET' || 'NOT SET' }}"
+#        echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
+#        echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
+#
+#    - name: Copy files to VPS
+#      uses: appleboy/scp-action@master
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        port: 46952  # Указываем порт для SSH
+#        source: "."  # Копируем весь репозиторий
+#        target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
+#        exclude: "tests/**"  # Исключаем папку tests
+#
+#    - name: Deploy via SSH
+#      uses: appleboy/ssh-action@v1.0.0
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        port: 46952  # Указываем порт для SSH
+#        script: |
+#          cd scripts/bybit_tp_sl
+#          docker compose down
+#          docker system prune -af
+#          docker compose up -d
+#
+#    - name: Send Telegram Notification
+#      run: |
+#        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+#        -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+#        -d text="🛠 Деплой проекта успешно завершен!"

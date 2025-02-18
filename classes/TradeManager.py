@@ -46,6 +46,9 @@ class TradeManager(CoinsClass, WorkWithCSV):
             limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT)
             if not limit_order_buy:
                 return
+            if not spot.limit_order_with_tp_sl_retry:
+                spot.cancel_order(limit_order_buy)
+                return
             spot.get_info_about_limit_order()
             spot.get_info_about_tp_sl_order()
 

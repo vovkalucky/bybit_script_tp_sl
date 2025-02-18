@@ -123,17 +123,17 @@ class SpotOrders:
         except Exception as e:
             print(f"(get_filters) Exception:  {e}")
 
-    def cancel_order(self, order_id: str):
+    def cancel_order(self, order_id: str) -> str:
         try:
             canceled_order = self.session.cancel_order(category="spot", orderId=order_id) #, symbol=self.symbol,
             if canceled_order['retMsg'] == "OK":
-                print(f"Ордер {order_id} успешно отменен")
+                return f"Ордер {order_id} успешно отменен"
         except Exception as e:
             print(f"(cancel_order) Exception: {e}")
 
-    def limit_order_with_tp_sl(self, money_for_one_order: float, percent_of_earn: float,  max_retries: int = 3, retry_delay: int = 15) -> bool:
+    def limit_order_with_tp_sl(self, money_for_one_order: float, percent_of_earn: float) -> str:
         """Установка limit order на сумму qty $, 3 попытки (max_retries) получить состояние статуса
-         с паузой (retry_delay) 15 сек. Если market order не заполнен (FILLED) возвращаем False"""
+         с паузой (retry_delay) 15 сек. Если order не заполнен (FILLED) возвращаем False"""
         self.side_buy = "Buy"
         price = self.get_current_price_of_coin()
         qty = money_for_one_order/price
@@ -142,33 +142,46 @@ class SpotOrders:
         tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
         stop_loss_price = self.close_price_buy * STOP_LOSS
         sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
-        limit_order = self.session.place_order(
-            category=self.category,
-            symbol=self.coin_name,
-            side=self.side_buy,
-            orderType="Limit",
-            qty=qty,
-            price=price,
-            marketUnit="quoteCoin",
-            #timeInForce="PostOnly",
-            #triggerPrice="3076",
-            takeProfit=tp_price,
-            stopLoss=sl_price,
-            #slLimitPrice=sl_price,
-            #tpLimitPrice=tp_price,
-            tpOrderType="Market", #Limit
-            slOrderType="Market", # Limit
-            orderFilter = "OCO",  # Фильтр для OCO-ордера
-            timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
-        )
-        self.order_id_buy = limit_order['result']['orderId']
-        time.sleep(2)
+        try:
+            limit_order = self.session.place_order(
+                category=self.category,
+                symbol=self.coin_name,
+                side=self.side_buy,
+                orderType="Limit",
+                qty=qty,
+                price=price,
+                marketUnit="quoteCoin",
+                #timeInForce="PostOnly",
+                #triggerPrice="3076",
+                takeProfit=tp_price,
+                stopLoss=sl_price,
+                #slLimitPrice=sl_price,
+                #tpLimitPrice=tp_price,
+                tpOrderType="Market", #Limit
+                slOrderType="Market", # Limit
+                orderFilter = "OCO",  # Фильтр для OCO-ордера
+                timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+            )
+            time.sleep(2)
+            self.order_id_buy = limit_order['result']['orderId']
+            return self.order_id_buy
+
+        except exceptions.InvalidRequestError as e:
+            print("(limit_order_with_tp_sl_retry) ByBit API Request Error", e.status_code, e.message, sep=" | ")
+        except exceptions.FailedRequestError as e:
+            print("(limit_order_with_tp_sl_retry) HTTP Request Failed", e.status_code, e.message, sep=" | ")
+        except Exception as e:
+            print(f"(limit_order_with_tp_sl_retry) Other exception: {e}")
+
+
+    def limit_order_with_tp_sl_retry(self, max_retries: int = 3, retry_delay: int = 15) -> bool:
         retries = 0
         while retries < max_retries:
             try:
                 open_orders = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
                 status_order_buy = open_orders['result']['list'][0]['orderStatus']
                 if status_order_buy == "Filled":
+                    print("status_order_buy == filled")
                     return True
                 else:
                     print(f"🛑 Лимитный ордер не заполнен!\n"
@@ -177,23 +190,23 @@ class SpotOrders:
                     retries += 1
 
             except exceptions.InvalidRequestError as e:
-                print("(limit_order_with_tp_sl) ByBit API Request Error", e.status_code, e.message, sep=" | ")
+                print("(limit_order_with_tp_sl_retry) ByBit API Request Error", e.status_code, e.message, sep=" | ")
             except exceptions.FailedRequestError as e:
-                print("(limit_order_with_tp_sl) HTTP Request Failed", e.status_code, e.message, sep=" | ")
+                print("(limit_order_with_tp_sl_retry) HTTP Request Failed", e.status_code, e.message, sep=" | ")
             except Exception as e:
-                print(f"(limit_order_with_tp_sl) Other exception: {e}")
+                print(f"(limit_order_with_tp_sl_retry) Other exception: {e}")
         # Отмена лимитного ордера на покупку, если он не запонился!
-        self.cancel_order(self.order_id_buy)
+        #self.cancel_order(self.order_id_buy)
         return False
 
-
-    def get_info_about_limit_order(self) -> None:
+    def get_info_about_limit_order(self) -> bool:
         try:
             if self.order_id_buy is None:
                 print("‼️ Лимитный ордер не размещен! Проставь его самостоятельно!")
-                return
+                return False
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
             limit_order = response_limit_order['result']['list'][0]
+            print(limit_order)
             status = limit_order['orderStatus']
             if status == "Filled":
                 self.qty = limit_order['cumExecQty']
@@ -206,27 +219,27 @@ class SpotOrders:
                 self.time_buy = limit_order['createdTime']
                 self.tp = limit_order['takeProfit']
                 self.sl = limit_order['stopLoss']
-
+                return True
                 # print(f"(get_info_about_limit_order) {self.qty} {self.status_buy} {self.close_price_buy} {self.money_buy} "
                 #       f"{self.tax_buy} {self.symbol} {self.side_buy} {self.time_buy}")
 
         except Exception as e:
             print(f"(get_info_about_limit_order) Exception: {e}")
 
-    def find_tp_sl_order(self):
+    def find_tp_sl_order(self, take_profit_value) -> str:
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category,
-                                                                 orderFilter="BidirectionalTpslOrder")  # orderLinkId=self.orderLinkId,
+                                                                 orderFilter="BidirectionalTpslOrder") # tpslOrder
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
-            tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(self.tp)]
+            tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)] #self.
             return tp_sl_order_list[0]
         except Exception as e:
             print(f"(find_tp_sl_order) Exception: {e}")
 
 
-    def get_info_about_tp_sl_order(self) -> None:
+    def get_info_about_tp_sl_order(self) -> bool:
         try:
-            tp_sl_order = self.find_tp_sl_order()
+            tp_sl_order = self.find_tp_sl_order(self.tp)
             print(f"tp_sl Order: {tp_sl_order}")
             status = tp_sl_order['orderStatus']
             if status == "Untriggered": #or status == "Active"
@@ -247,6 +260,7 @@ class SpotOrders:
                 CoinsClass.remove_coin(SpotOrders.coins, self.symbol)
                 TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
                 WorkWithCSV.append_order_to_csv(self)
+                return True
         except Exception as e:
             print(f"(get_info_about_tp_sl_order) Exception: {e}")
 
