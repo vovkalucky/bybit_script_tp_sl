@@ -48,7 +48,7 @@ jobs:
         with:
           distribution: 'microsoft' # See 'Supported distributions' for available options
           java-version: '21'
-      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.23.1/allure-2.23.1.tgz && sudo tar -zxvf allure-2.23.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.23.1/bin/allure /usr/bin/allure
+      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.32.2/allure-2.32.2.tgz && sudo tar -zxvf allure-2.23.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.23.1/bin/allure /usr/bin/allure
       - name: Download all workflow run artifacts #скачиваем ранее сгенерированные артефакты: allure-allure_results
         uses: actions/download-artifact@v4
       - run: allure generate -c allure_results -o _site #запускаем генерацию отчета -o - в какую папку сохранить
