@@ -66,6 +66,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: generate-report
     name: Report publication
+    environment:
+      name: github-pages
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
@@ -74,7 +76,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
 
       - name: Deploy to GitHub Pages
-        #id: deployment
+        id: deployment
         uses: actions/deploy-pages@v4
 
 #  deploy:
