@@ -26,7 +26,7 @@ jobs:
         run: pytest -s -v --alluredir=allure_results
 
       - name: Store allure_results
-        uses: actions/upload-artifact@v3 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
+        uses: actions/upload-artifact@v4 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
         with:
           name: allure_results
           path: allure_results
@@ -43,10 +43,10 @@ jobs:
           java-version: '17'
       - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.23.1/allure-2.23.1.tgz && sudo tar -zxvf allure-2.23.1.tgz -C /opt/ && sudo ln -s /opt/allure-2.23.1/bin/allure /usr/bin/allure
       - name: Download all workflow run artifacts #скачиваем ранее сгенерированные артефакты: allure-allure_results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - run: allure generate -c allure_results -o _site #запускаем генерацию отчета -o - в какую папку сохранить
       - name: Store generated report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: _site
           path:
@@ -59,7 +59,7 @@ jobs:
     name: Report publication
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
       - name: Deploy to GitHub Pages
