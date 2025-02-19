@@ -101,7 +101,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46952  # Указываем порт для SSH
-        source: ".,!tests/*.py"  # Копируем весь репозиторий
+        source: ".,!bybit_script_tp_sl/tests/*.py"  # Копируем весь репозиторий
         target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
         #rm: true
         #exclude: "tests/**"  # Исключаем папку tests
