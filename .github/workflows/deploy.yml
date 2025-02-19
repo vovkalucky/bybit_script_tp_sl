@@ -101,9 +101,10 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46952  # Указываем порт для SSH
-        source: "."  # Копируем весь репозиторий
+        source: ". , !tests"  # Копируем весь репозиторий, кроме тестов
         target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
-        exclude: "tests/**"  # Исключаем папку tests
+        #rm: true
+        #exclude: "tests/**"  # Исключаем папку tests
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
