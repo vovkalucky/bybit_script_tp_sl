@@ -36,12 +36,12 @@ def test_limit_order_with_tp_sl_mock(spot, mocker):
     # Мокаем метод cancel_order, чтобы убедиться в его вызове
     mock_cancel = mocker.patch.object(spot, 'cancel_order')
     # Вызываем тестируемый метод
-    response = spot.limit_order_with_tp_sl(20, 1.01, 3, 15)
+    response = spot.limit_order_with_tp_sl(20, 1.01)
     # Проверяем результат
     assert response is True
 
     # Проверяем вызов метода с правильными аргументами
-    mock_order.assert_called_once_with(20, 1.01, 3, 15)
+    mock_order.assert_called_once_with(20, 1.01)
 
     # Проверяем вызов cancel_order с нужным order_id
     #mock_cancel.assert_called_once_with('mocked_order_id')
