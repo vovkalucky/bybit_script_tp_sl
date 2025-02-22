@@ -53,8 +53,30 @@ class TechAnalysis:
         return reverse_klines
 
     @classmethod
+    # def calculate_atr(cls, candles, period=14) -> float:
+    #     tr_values = []
+    #     for i in range(1, len(candles)):
+    #         high = float(candles[i][2])
+    #         low = float(candles[i][3])
+    #         close_prev = float(candles[i - 1][4])
+    #
+    #         tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
+    #         tr_values.append(tr)
+    #     atr = sum(tr_values[-period:]) / period
+    #     return round(atr, 3)
     def calculate_atr(cls, candles, period=14) -> float:
+        """
+        Рассчитывает Average True Range (ATR) для данного набора свечей.
+
+        :param candles: Список свечей в формате [timestamp, open, high, low, close, ...]
+        :param period: Период для расчета ATR (по умолчанию 14)
+        :return: Значение ATR, округленное до 3 знаков
+        """
+        if len(candles) < period:
+            raise ValueError("Недостаточно данных для расчета ATR")
+
         tr_values = []
+
         for i in range(1, len(candles)):
             high = float(candles[i][2])
             low = float(candles[i][3])
@@ -62,7 +84,14 @@ class TechAnalysis:
 
             tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
             tr_values.append(tr)
-        atr = sum(tr_values[-period:]) / period
+
+        # Вычисляем ATR через SMA первых period значений
+        atr = sum(tr_values[:period]) / period
+
+        # Используем формулу экспоненциального сглаживания
+        for i in range(period, len(tr_values)):
+            atr = (atr * (period - 1) + tr_values[i]) / period
+
         return round(atr, 3)
 
     @classmethod

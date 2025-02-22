@@ -52,24 +52,21 @@ class AnalysisCoin:
 
             #print(f"{RSI} {STOCH_K} {CCI} {ADX} {AO} {MOM} {MACD} {STOCH_RSI} {WR} {BBP} {UO}")
 
-            # if timeframe == "1d":
-            #     CONDITIONS_1D = REC > 0.3
+            # if timeframe == "1h":
+            #     REC = TechAnalysis.check_trend_by_atr(self.pair, "60")
+            #     #REC = analysis["RECOMMENDATION"]
             #     print(f"{self.pair} {timeframe} REC: {REC}")
-            #     return CONDITIONS_1D
-            if timeframe == "1h":
-                REC = TechAnalysis.check_trend_by_atr(self.pair, "60")
-                #REC = analysis["RECOMMENDATION"]
-                print(f"{self.pair} {timeframe} REC: {REC}")
-                #return REC in ["BUY","STRONG BUY"]
-                return REC
+            #     #return REC in ["BUY","STRONG BUY"]
+            #     return REC
 
             if timeframe == "15m":
+                TREND = TechAnalysis.check_trend_by_atr(self.pair, "60")
                 oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
                 REC = BUY + STRONG_BUY
-                print(f"{self.pair} {timeframe} REC: {REC}")
-                return REC >= 2
+                print(f"{self.pair} {timeframe} REC: {REC} TREND {TREND}")
+                return REC >= 2 and TREND
 
             elif timeframe in ["5m", "1m"]:
                 oscilators_list = [RSI, STOCH_K, MOM, ADX, AO]
@@ -86,9 +83,8 @@ class AnalysisCoin:
             return False
 
     def has_trade_signal(self) -> bool:
-        if not self.analyze_with_indicators("1h"):
-            return False
-
+        # if not self.analyze_with_indicators("1h"):
+        #     return False
         if not self.analyze_with_indicators("15m"):
             return False
 
