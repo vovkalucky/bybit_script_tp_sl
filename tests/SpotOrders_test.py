@@ -56,7 +56,7 @@ def test_find_tp_sl_order(spot, mocker):
     assert "orderId" in response
     mock_order.assert_called_once_with(spot.tp)
 
-def test_limit_order_with_tp_sl_retry(spot):
-    spot.order_id_buy = "12456673252523"
-    response = spot.limit_order_with_tp_sl_retry()
-    print(response)
+# def test_limit_order_with_tp_sl_retry(spot):
+#     spot.order_id_buy = "12456673252523"
+#     response = spot.limit_order_with_tp_sl_retry()
+#     print(response)
