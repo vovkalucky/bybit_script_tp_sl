@@ -1,9 +1,11 @@
+import time
+
 from pybit import exceptions
 from classes.CoinsClass import CoinsClass
 from classes.WorkWithCSV import WorkWithCSV
 from classes.SpotOrders import SpotOrders
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
-from classes.analysis.AnalysByRec import AnalysisCoin
+from classes.analysis.AnalysisCoin_new_version import AnalysisCoin
 
 
 class TradeManager(CoinsClass, WorkWithCSV):
@@ -50,6 +52,7 @@ class TradeManager(CoinsClass, WorkWithCSV):
                 spot.cancel_order(limit_order_buy)
                 return
             spot.get_info_about_limit_order()
+            time.sleep(2)
             spot.get_info_about_tp_sl_order()
 
         except exceptions.InvalidRequestError as e:

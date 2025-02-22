@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   bybit-trade_script:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_tp_sl_19_02_25
-    container_name: bybit_tp_sl_19_02_25
+    image: bybit_tp_sl_22_02_25
+    container_name: bybit_tp_sl_22_02_25
     restart: "always"
     volumes:
       - .:/app

@@ -42,7 +42,7 @@ class SpotOrders:
         if "result" in response and "list" in response["result"] and response["result"]["list"]:
             price = response["result"]["list"][0]["lastPrice"]
             #print(f"Актуальная цена {self.coin_name}: {price}, {type(price)}")
-            self.close_price_buy = float(price)
+            #self.close_price_buy = float(price)
             return float(price)
         else:
             print("(get_current_price_of_coin) Ошибка при получении данных")
@@ -135,11 +135,15 @@ class SpotOrders:
         """Установка limit order на сумму qty $, 3 попытки (max_retries) получить состояние статуса
          с паузой (retry_delay) 15 сек. Если order не заполнен (FILLED) возвращаем False"""
         self.side_buy = "Buy"
-        price = self.get_current_price_of_coin()
-        qty = money_for_one_order/price
+        #price = self.get_current_price_of_coin()
+        self.close_price_buy = self.get_current_price_of_coin()
+        #qty = money_for_one_order/price
+        qty = money_for_one_order/self.close_price_buy
         qty = SpotOrders.float_trunc(qty, self.qty_decimals)
+        #take_profit_price = self.close_price_buy * percent_of_earn
         take_profit_price = self.close_price_buy * percent_of_earn
         tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
+        #stop_loss_price = self.close_price_buy * STOP_LOSS
         stop_loss_price = self.close_price_buy * STOP_LOSS
         sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
         try:
@@ -149,16 +153,16 @@ class SpotOrders:
                 side=self.side_buy,
                 orderType="Limit",
                 qty=qty,
-                price=price,
+                price=self.close_price_buy,
                 marketUnit="quoteCoin",
                 #timeInForce="PostOnly",
                 #triggerPrice="3076",
                 takeProfit=tp_price,
                 stopLoss=sl_price,
-                #slLimitPrice=sl_price,
-                #tpLimitPrice=tp_price,
-                tpOrderType="Market", #Limit
-                slOrderType="Market", # Limit
+                slLimitPrice=sl_price,
+                tpLimitPrice=tp_price,
+                tpOrderType="Limit", #Limit
+                slOrderType="Limit", # Limit
                 orderFilter = "OCO",  # Фильтр для OCO-ордера
                 timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
             )
@@ -181,7 +185,6 @@ class SpotOrders:
                 open_orders = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
                 status_order_buy = open_orders['result']['list'][0]['orderStatus']
                 if status_order_buy == "Filled":
-                    print("status_order_buy == filled")
                     return True
                 else:
                     print(f"🛑 Лимитный ордер не заполнен!\n"
@@ -195,8 +198,6 @@ class SpotOrders:
                 print("(limit_order_with_tp_sl_retry) HTTP Request Failed", e.status_code, e.message, sep=" | ")
             except Exception as e:
                 print(f"(limit_order_with_tp_sl_retry) Other exception: {e}")
-        # Отмена лимитного ордера на покупку, если он не запонился!
-        #self.cancel_order(self.order_id_buy)
         return False
 
     def get_info_about_limit_order(self) -> bool:
@@ -226,14 +227,14 @@ class SpotOrders:
         except Exception as e:
             print(f"(get_info_about_limit_order) Exception: {e}")
 
-    def find_tp_sl_order(self, take_profit_value) -> str:
+    def find_tp_sl_order(self, take_profit_value: str) -> str:
         try:
-            response_tp_sl_orders = self.session.get_open_orders(category=self.category,
-                                                                 orderFilter="BidirectionalTpslOrder") # tpslOrder
+            response_tp_sl_orders = self.session.get_open_orders(category=self.category) # tpslOrder BidirectionalTpslOrder
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)] #self.
             return tp_sl_order_list[0]
         except Exception as e:
+            return "Order not find"
             print(f"(find_tp_sl_order) Exception: {e}")
 
 

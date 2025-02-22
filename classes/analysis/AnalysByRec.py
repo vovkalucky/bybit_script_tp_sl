@@ -1,8 +1,8 @@
 from typing import List
 from tradingview_ta import TA_Handler, Interval
-# COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT",
-#         "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT",
-#         "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT", "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"]
+COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT",
+        "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT",
+        "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT", "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"]
 TIMEFRAMES: List[str] = [Interval.INTERVAL_1_HOUR, Interval.INTERVAL_15_MINUTES]
 
 class AnalysisCoin:
@@ -19,6 +19,7 @@ class AnalysisCoin:
                 timeout=7
             )
             analysis = coin.get_analysis().oscillators
+            print(f"analysis {analysis}")
             indicators = coin.get_analysis().indicators
 
             REC = indicators['Recommend.All']
@@ -59,8 +60,8 @@ class AnalysisCoin:
                 return True  # Достаточно сигнала на одном из младших таймфреймов
         return False
 
-# for coin in COINS:
-#     spot = AnalysisCoin(coin)
-#     signal = spot.has_trade_signal()
-#     print(f"RESULT: {signal}")
-#     #break
+for coin in COINS:
+    spot = AnalysisCoin(coin)
+    signal = spot.has_trade_signal()
+    print(f"RESULT: {signal}")
+    #break
