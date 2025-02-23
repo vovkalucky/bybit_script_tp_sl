@@ -5,10 +5,16 @@ services:
       dockerfile: Dockerfile
     image: bybit_tp_sl_22_02_25
     container_name: bybit_tp_sl_22_02_25
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"    # Ротация при достижении 10 МБ
+        max-file: "3"      # Хранить 3 файла (логи + 2 архива)
     restart: "always"
     volumes:
       - .:/app
+      - ./logs:/app_logs  # Монтируем папку для логов
     working_dir: /app
-    command: python main.py
+    command: sh -c "python main.py 2>&1 | tee -a /app_logs/application.log"
     environment:
       - PYTHONUNBUFFERED=1

@@ -1,27 +1,17 @@
-from tradingview_ta import TA_Handler, Interval
+from typing import List
 
+from tradingview_ta import TA_Handler, Interval
 from classes.tech_analysis.TechAnalysis import TechAnalysis
 
-COINS = [
-    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-    "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
-    "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
-]
-
-
-TIMEFRAMES = {
-    "1m": {
-        "interval": Interval.INTERVAL_1_MINUTE,
-        "indicators": ["RSI", "W%R", "Stoch.RSI", "MACD", "BBP"],
-        "min_signal_count": 2
-    },
-    "5m": {
-        "interval": Interval.INTERVAL_5_MINUTES,
-        "indicators": ["RSI", "STOCH.K", "Mom", "ADX", "AO"],
-        "min_signal_count": 2
-    }
-}
+# COINS = [
+#     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
+#     "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
+#     "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
+#     "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
+# ]
+#
+#
+#TIMEFRAMES: List[str] = ['1h', '15m', '5m', '1m']
 
 class AnalysisCoin:
     def __init__(self, pair):
@@ -60,7 +50,7 @@ class AnalysisCoin:
             #     return REC
 
             if timeframe == "15m":
-                TREND = TechAnalysis.check_trend_by_atr(self.pair, "60")
+                TREND = TechAnalysis.check_trend_by_atr(self.pair, "15")
                 oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
@@ -95,8 +85,8 @@ class AnalysisCoin:
         return False
 
 #while True:
-for coin in COINS:
-    spot = AnalysisCoin(coin)
-    signal = spot.has_trade_signal()
-    print(f"RESULT: {signal}")
+# for coin in COINS:
+#     spot = AnalysisCoin(coin)
+#     signal = spot.has_trade_signal()
+#     print(f"RESULT: {signal}")
     #break
