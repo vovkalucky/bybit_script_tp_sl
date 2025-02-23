@@ -27,27 +27,12 @@ class AnalysisCoin:
                 timeout=7
             )
             analysis = coin.get_analysis().oscillators
-            #print(f"analysis {analysis}")
-            RSI = analysis['COMPUTE']['RSI']
-            STOCH_K = analysis['COMPUTE']['STOCH.K']
-            CCI = analysis['COMPUTE']['CCI']
-            ADX = analysis['COMPUTE']['ADX']
-            AO = analysis['COMPUTE']['AO']
-            MOM = analysis['COMPUTE']['Mom']
-            MACD = analysis['COMPUTE']['MACD']
-            STOCH_RSI = analysis['COMPUTE']['Stoch.RSI']
-            WR = analysis['COMPUTE']['W%R']
-            BBP = analysis['COMPUTE']['BBP']
-            UO = analysis['COMPUTE']['UO']
             RECCOMENDATION = analysis["RECOMMENDATION"]
             #print(f"{RSI} {STOCH_K} {CCI} {ADX} {AO} {MOM} {MACD} {STOCH_RSI} {WR} {BBP} {UO}")
 
             if timeframe == "1h":
-                #TREND = TechAnalysis.check_trend_by_atr(self.pair, "60")
-                #VOLUME = TechAnalysis.check_volumes(self.pair, "60", 20)
-                #print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION} TREND: {TREND} VOLUME: {VOLUME}")
-                return RECCOMENDATION in ["BUY","STRONG BUY"] #and TREND and VOLUME
-                #return REC
+                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"]
 
             elif timeframe == "15m":
                 print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
