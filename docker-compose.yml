@@ -13,8 +13,8 @@ services:
     restart: "always"
     volumes:
       - .:/app
-      - ./logs:/app_logs  # Монтируем папку для логов
+      - ./logs:/logs  # Монтируем папку для логов
     working_dir: /app
-    command: sh -c "python main.py 2>&1 | tee -a /app_logs/application.log"
+    command: sh -c "python main.py 2>&1 | tee -a /logs/application.log"
     environment:
       - PYTHONUNBUFFERED=1
