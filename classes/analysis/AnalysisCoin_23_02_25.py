@@ -76,8 +76,8 @@ class AnalysisCoin:
         return False
 
 #while True:
-for coin in COINS:
-    spot = AnalysisCoin(coin)
-    signal = spot.has_trade_signal()
-    print(f"RESULT: {signal}")
-    break
+# for coin in COINS:
+#     spot = AnalysisCoin(coin)
+#     signal = spot.has_trade_signal()
+#     print(f"RESULT: {signal}")
+#     break
