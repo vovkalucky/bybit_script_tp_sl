@@ -51,7 +51,7 @@ class AnalysisCoin:
 
             if timeframe == "15m":
                 TREND = TechAnalysis.check_trend_by_atr(self.pair, "15")
-                VOLUME = TechAnalysis.check_volumes(self.pair, "15", 30)
+                VOLUME = TechAnalysis.check_volumes(self.pair, "15", 14)
                 oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
@@ -60,7 +60,7 @@ class AnalysisCoin:
                 REC = BUY + STRONG_BUY
                 REC_SELL = SELL + STRONG_SELL
                 print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL} VOLUME {VOLUME} TREND {TREND}")
-                return REC >= 2 and REC_SELL ==0 and VOLUME
+                return REC >= 2 and REC_SELL <= 1 and VOLUME
 
             elif timeframe in ["5m", "1m"]:
                 oscilators_list = [RSI, STOCH_K, MOM, ADX, AO]
@@ -71,7 +71,7 @@ class AnalysisCoin:
                 REC = BUY + STRONG_BUY
                 REC_SELL = SELL + STRONG_SELL
                 print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL}")
-                return REC >= 2 and REC_SELL == 0
+                return REC >= 2 and REC_SELL <= 1
             return False
 
 
