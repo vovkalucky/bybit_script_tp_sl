@@ -2,7 +2,6 @@ import time
 from datetime import datetime, timedelta, timezone
 from classes.TradeManager import TradeManager
 from settings import DELAY, UTC_PLUS_TIMEZONE
-#from logs.logger import create_logger
 
 if __name__ == "__main__":
     #create_logger()
