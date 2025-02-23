@@ -33,9 +33,9 @@ class TechAnalysis:
             volumes_list = TechAnalysis.get_volume_from_klines(coin, interval, count)
             if not volumes_list:
                 return False
-            current_volume = float(volumes_list[-2])
+            current_volume = float(volumes_list[-1])
             avg_volume = TechAnalysis.avg_volume(volumes_list)
-            if current_volume > 1.2 * avg_volume:
+            if current_volume > avg_volume:
                 return True
             else:
                 return False

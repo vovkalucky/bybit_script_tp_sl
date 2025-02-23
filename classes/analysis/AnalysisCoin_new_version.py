@@ -71,7 +71,7 @@ class AnalysisCoin:
                 REC = BUY + STRONG_BUY
                 REC_SELL = SELL + STRONG_SELL
                 print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL}")
-                return REC >= 2 and REC_SELL <= 1
+                return REC >= 2 and REC_SELL == 0
             return False
 
 
