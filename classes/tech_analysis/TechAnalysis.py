@@ -15,14 +15,11 @@ class TechAnalysis:
     @classmethod
     def get_volume_from_klines(cls, symbol: str, interval: str, count: int) -> List[float]:
         klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval)
-        # print(klines)
         volumes = klines['result']['list']
         volumes_list = []
         for volume in volumes[0:count]:
             volumes_list.append(float(volume[5]))
-        # print(volumes_list)
         volumes_list = volumes_list[::-1]
-        #print(volumes_list)
         return volumes_list
 
     @staticmethod

@@ -3,14 +3,14 @@ from typing import List
 from tradingview_ta import TA_Handler, Interval
 from classes.tech_analysis.TechAnalysis import TechAnalysis
 
-# COINS = [
-#     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-#     "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
-#     "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-#     "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
-# ]
-#
-#
+COINS = [
+    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
+    "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
+    "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
+    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
+]
+
+
 #TIMEFRAMES: List[str] = ['1h', '15m', '5m', '1m']
 
 class AnalysisCoin:
@@ -51,12 +51,13 @@ class AnalysisCoin:
 
             if timeframe == "15m":
                 TREND = TechAnalysis.check_trend_by_atr(self.pair, "15")
+                VOLUME = TechAnalysis.check_volumes(self.pair, "15", 30)
                 oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
                 REC = BUY + STRONG_BUY
-                print(f"{self.pair} {timeframe} REC: {REC} TREND {TREND}")
-                return REC >= 2 and TREND
+                print(f"{self.pair} {timeframe} REC: {REC} VOLUME {VOLUME} TREND {TREND}")
+                return REC >= 2 and VOLUME
 
             elif timeframe in ["5m", "1m"]:
                 oscilators_list = [RSI, STOCH_K, MOM, ADX, AO]
@@ -85,8 +86,8 @@ class AnalysisCoin:
         return False
 
 #while True:
-# for coin in COINS:
-#     spot = AnalysisCoin(coin)
-#     signal = spot.has_trade_signal()
-#     print(f"RESULT: {signal}")
-    #break
+for coin in COINS:
+    spot = AnalysisCoin(coin)
+    signal = spot.has_trade_signal()
+    print(f"RESULT: {signal}")
+    break

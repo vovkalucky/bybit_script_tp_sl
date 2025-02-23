@@ -6,7 +6,6 @@ from settings import DELAY, UTC_PLUS_TIMEZONE
 
 if __name__ == "__main__":
     #create_logger()
-
     print("🔍 Запуск анализа сигналов...")
     try:
         while True:
