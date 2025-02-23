@@ -32,13 +32,13 @@ class TechAnalysis:
         try:
             volumes_list = TechAnalysis.get_volume_from_klines(coin, interval, count)
             if not volumes_list:
+                print(f"(check_volumes) Ошибка: пустой список объемов для {coin}")
                 return False
             current_volume = float(volumes_list[-1])
             avg_volume = TechAnalysis.avg_volume(volumes_list)
-            if current_volume > avg_volume:
-                return True
-            else:
-                return False
+            threshold = 1.2  # Допустим, сигнал дается при превышении на 20%
+            print(f"(current_volume) {current_volume} (avg_volume) {avg_volume}")
+            return current_volume > avg_volume * threshold
         except Exception as e:
             print(f"(check_volumes): {e}")
 
@@ -50,17 +50,6 @@ class TechAnalysis:
         return reverse_klines
 
     @classmethod
-    # def calculate_atr(cls, candles, period=14) -> float:
-    #     tr_values = []
-    #     for i in range(1, len(candles)):
-    #         high = float(candles[i][2])
-    #         low = float(candles[i][3])
-    #         close_prev = float(candles[i - 1][4])
-    #
-    #         tr = max(high - low, abs(high - close_prev), abs(low - close_prev))
-    #         tr_values.append(tr)
-    #     atr = sum(tr_values[-period:]) / period
-    #     return round(atr, 3)
     def calculate_atr(cls, candles, period=14) -> float:
         """
         Рассчитывает Average True Range (ATR) для данного набора свечей.
@@ -92,7 +81,7 @@ class TechAnalysis:
         return round(atr, 3)
 
     @classmethod
-    def check_trend_by_atr(cls, symbol: str, interval:str, limit:int = 14) -> bool:
+    def check_trend_by_atr(cls, symbol: str, interval:str, limit:int = 20) -> bool:
         klines = TechAnalysis.get_klines(symbol, interval, limit)
         atr = TechAnalysis.calculate_atr(klines)
         previous_close = float(klines[-2][4])
@@ -109,7 +98,7 @@ class TechAnalysis:
 #print(TechAnalysis.get_klines("BTCUSDT", "60", 14))
 #print(TechAnalysis.check_trend_by_atr("BTCUSDT", "60"))
 
-# sma20_volume = TechAnalysis.check_volumes("ETHUSDT", "60", 20)
+# sma20_volume = TechAnalysis.check_volumes("ETHUSDT", "15", 20)
 # print(sma20_volume)
 
 

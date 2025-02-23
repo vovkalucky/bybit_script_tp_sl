@@ -42,35 +42,20 @@ class AnalysisCoin:
             RECCOMENDATION = analysis["RECOMMENDATION"]
             #print(f"{RSI} {STOCH_K} {CCI} {ADX} {AO} {MOM} {MACD} {STOCH_RSI} {WR} {BBP} {UO}")
 
-            # if timeframe == "1h":
-            #     #REC = TechAnalysis.check_trend_by_atr(self.pair, "60")
-            #     print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
-            #     return RECCOMENDATION in ["BUY","STRONG BUY"]
+            if timeframe == "1h":
+                #TREND = TechAnalysis.check_trend_by_atr(self.pair, "60")
+                #VOLUME = TechAnalysis.check_volumes(self.pair, "60", 20)
+                #print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION} TREND: {TREND} VOLUME: {VOLUME}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"] #and TREND and VOLUME
                 #return REC
 
-            if timeframe == "15m":
-                TREND = TechAnalysis.check_trend_by_atr(self.pair, "15")
-                VOLUME = TechAnalysis.check_volumes(self.pair, "15", 20)
-                oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
-                BUY = oscilators_list.count("BUY")
-                STRONG_BUY = oscilators_list.count("STRONG BUY")
-                SELL = oscilators_list.count("SELL")
-                STRONG_SELL = oscilators_list.count("STRONG SELL")
-                REC = BUY + STRONG_BUY
-                REC_SELL = SELL + STRONG_SELL
-                print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL} VOLUME {VOLUME} TREND {TREND}")
-                return REC >= 2 and REC_SELL <= 1 and VOLUME
+            elif timeframe == "15m":
+                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"]
 
             elif timeframe in ["5m", "1m"]:
-                oscilators_list = [RSI, STOCH_K, MOM, ADX, AO]
-                BUY = oscilators_list.count("BUY")
-                STRONG_BUY = oscilators_list.count("STRONG BUY")
-                SELL = oscilators_list.count("SELL")
-                STRONG_SELL = oscilators_list.count("STRONG SELL")
-                REC = BUY + STRONG_BUY
-                REC_SELL = SELL + STRONG_SELL
-                print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL}")
-                return REC >= 2 and REC_SELL == 0
+                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"]
             return False
 
 
@@ -79,8 +64,8 @@ class AnalysisCoin:
             return False
 
     def has_trade_signal(self) -> bool:
-        # if not self.analyze_with_indicators("1h"):
-        #     return False
+        if not self.analyze_with_indicators("1h"):
+            return False
         if not self.analyze_with_indicators("15m"):
             return False
 
