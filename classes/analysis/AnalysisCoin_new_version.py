@@ -55,17 +55,23 @@ class AnalysisCoin:
                 oscilators_list = [RSI, WR, STOCH_RSI, MACD, BBP]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
+                SELL = oscilators_list.count("SELL")
+                STRONG_SELL = oscilators_list.count("STRONG SELL")
                 REC = BUY + STRONG_BUY
-                print(f"{self.pair} {timeframe} REC: {REC} VOLUME {VOLUME} TREND {TREND}")
-                return REC >= 2 and VOLUME
+                REC_SELL = SELL + STRONG_SELL
+                print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL} VOLUME {VOLUME} TREND {TREND}")
+                return REC >= 2 and REC_SELL ==0 and VOLUME
 
             elif timeframe in ["5m", "1m"]:
                 oscilators_list = [RSI, STOCH_K, MOM, ADX, AO]
                 BUY = oscilators_list.count("BUY")
                 STRONG_BUY = oscilators_list.count("STRONG BUY")
+                SELL = oscilators_list.count("SELL")
+                STRONG_SELL = oscilators_list.count("STRONG SELL")
                 REC = BUY + STRONG_BUY
-                print(f"{self.pair} {timeframe} REC: {REC}")
-                return REC >= 2
+                REC_SELL = SELL + STRONG_SELL
+                print(f"{self.pair} {timeframe} REC: {REC} REC_SELL: {REC_SELL}")
+                return REC >= 2 and REC_SELL == 0
             return False
 
 
