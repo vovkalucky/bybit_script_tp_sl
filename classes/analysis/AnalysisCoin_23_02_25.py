@@ -31,12 +31,14 @@ class AnalysisCoin:
             #print(f"{RSI} {STOCH_K} {CCI} {ADX} {AO} {MOM} {MACD} {STOCH_RSI} {WR} {BBP} {UO}")
 
             if timeframe == "1h":
-                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
-                return RECCOMENDATION in ["BUY","STRONG BUY"]
+                TREND = TechAnalysis.check_trend_by_atr(self.pair, "60")
+                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION} TREND: {TREND}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"] and TREND
 
             elif timeframe == "15m":
-                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
-                return RECCOMENDATION in ["BUY","STRONG BUY"]
+                VOLUME = TechAnalysis.check_volumes(self.pair, "15", 20)
+                print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION} VOLUME: {VOLUME}")
+                return RECCOMENDATION in ["BUY","STRONG BUY"] and VOLUME
 
             elif timeframe in ["5m", "1m"]:
                 print(f"{self.pair} {timeframe} RECCOMENDATION: {RECCOMENDATION}")
