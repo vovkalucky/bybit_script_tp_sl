@@ -135,15 +135,11 @@ class SpotOrders:
         """Установка limit order на сумму qty $, 3 попытки (max_retries) получить состояние статуса
          с паузой (retry_delay) 15 сек. Если order не заполнен (FILLED) возвращаем False"""
         self.side_buy = "Buy"
-        #price = self.get_current_price_of_coin()
         self.close_price_buy = self.get_current_price_of_coin()
-        #qty = money_for_one_order/price
         qty = money_for_one_order/self.close_price_buy
         qty = SpotOrders.float_trunc(qty, self.qty_decimals)
-        #take_profit_price = self.close_price_buy * percent_of_earn
         take_profit_price = self.close_price_buy * percent_of_earn
         tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
-        #stop_loss_price = self.close_price_buy * STOP_LOSS
         stop_loss_price = self.close_price_buy * STOP_LOSS
         sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
         try:
@@ -151,7 +147,7 @@ class SpotOrders:
                 category=self.category,
                 symbol=self.coin_name,
                 side=self.side_buy,
-                orderType="Limit",
+                orderType="limit", #limit
                 qty=qty,
                 price=self.close_price_buy,
                 marketUnit="quoteCoin",
@@ -207,7 +203,7 @@ class SpotOrders:
                 return False
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
             limit_order = response_limit_order['result']['list'][0]
-            print(limit_order)
+            print(f"(get_info_about_limit_order): {limit_order}")
             status = limit_order['orderStatus']
             if status == "Filled":
                 self.qty = limit_order['cumExecQty']
@@ -241,7 +237,7 @@ class SpotOrders:
     def get_info_about_tp_sl_order(self) -> bool:
         try:
             tp_sl_order = self.find_tp_sl_order(self.tp)
-            print(f"tp_sl Order: {tp_sl_order}")
+            print(f"(get_info_about_tp_sl_order): {tp_sl_order}")
             status = tp_sl_order['orderStatus']
             if status == "Untriggered": #or status == "Active"
                 self.order_id_sell = tp_sl_order['orderId']
@@ -264,5 +260,14 @@ class SpotOrders:
                 return True
         except Exception as e:
             print(f"(get_info_about_tp_sl_order) Exception: {e}")
+
+    @classmethod
+    def get_order_book(cls, symbol):
+        """Получение стакана ордеров"""
+        return cls.session.get_orderbook(
+            category="spot",
+            symbol=symbol,
+            limit=50
+        )
 
 

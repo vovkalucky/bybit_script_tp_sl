@@ -1,8 +1,13 @@
+import time
 from typing import List
 import requests
 from pybit.unified_trading import HTTP
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from settings import DEMO_TRADE
+
+import time
+from datetime import datetime, timedelta, timezone
+from settings import UTC_PLUS_TIMEZONE
 
 
 class TechAnalysis:
@@ -90,42 +95,44 @@ class TechAnalysis:
         #print(f"atr {atr}")
         return close > (previous_close + atr)
 
+    @classmethod
+    def find_imbalance(cls, symbol: str, interval:str, limit: int = 10) -> bool:
+        klines = TechAnalysis.get_klines(symbol, interval, limit)
+        #print(f"(klines) {klines}")
+        third_imb_kline = float(klines[-4][3]) #low
+        second_imb_kline = float(klines[-3][3]) #low
+        second_imb_kline_body = round(float(klines[-3][1]) - float(klines[-3][4]), 6)
+        first_imb_kline = float(klines[-2][2]) #high
+        first_imb_kline_close = float(klines[-2][4]) #first_imb_kline close price
+        current_kline = float(klines[-1][4]) #current_price
+        print(f"third_imb_kline: {third_imb_kline} second_imb_kline: {second_imb_kline} second_imb_kline_body {second_imb_kline_body}"
+              f" first_imb_kline: {first_imb_kline} first_imb_kline_close {first_imb_kline_close} current_kline: {current_kline}")
 
-# klines = TechAnalysis.get_klines("ETHUSDT", "15", 14)
-# atr = TechAnalysis.calculate_atr(klines)
-# print("ATR_2:", atr)
+        condition_0 = second_imb_kline < third_imb_kline
+        condition_1 = current_kline < first_imb_kline_close
+        condition_2 = (first_imb_kline - current_kline)/current_kline * 100 > 1
+        condition_3 = third_imb_kline - first_imb_kline > second_imb_kline_body/2
+        list_of_conditions = [condition_0, condition_1, condition_2, condition_3]
+        print(f"(list_of_conditions) {symbol} {list_of_conditions}")
+        if all(list_of_conditions):
+            print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
+            return True
 
-#print(TechAnalysis.get_klines("BTCUSDT", "60", 14))
-#print(TechAnalysis.check_trend_by_atr("BTCUSDT", "60"))
-
-# sma20_volume = TechAnalysis.check_volumes("ETHUSDT", "15", 20)
-# print(sma20_volume)
 
 
-# @classmethod
-# def count_atr(cls, symbol: str, interval: str, limit: int):
-#     response_klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval, limit=limit)
-#     klines = response_klines['result']['list'][::-1]
-#     #print(klines)
-#     all_candles = []
-#     for i in klines:
-#         #Вычисляем длину свечи high - low
-#         all_candles.append(abs(round(float(i[2]) - float(i[3]), 3)))
-#     #print(f"{len(all_candles)} {all_candles}")
-#     avg_candle = round(sum(all_candles)/len(all_candles), 3)
-#     #print(f"(avg_candle) {avg_candle}")
-#     sorted_candles = []
-#     for candle in all_candles:
-#         sorted_candles.append(candle)
-#     #print(f"(sorted_candles) {len(sorted_candles)} {sorted_candles}")
-#     #print(sorted_candles[-6:-1]) # 29.06, 29.73, 22.18, 34.73, 37.0
-#     atr = round(sum(sorted_candles[-6:-1])/5, 3)
-#     current_kline = sorted_candles[-1]
-#     print(f"atr_1 {atr}")
-#     #print(current_kline < atr)
-#     return current_kline < atr
+# coins = [
+#     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
+#     "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
+#     "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
+#     "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
+# ]
+#
+# while True:
+#     current_time = datetime.now(timezone(timedelta(hours=UTC_PLUS_TIMEZONE)))
+#     print(f"⏱️ Старт анализа: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
+#     for coin in coins:
+#         imb = TechAnalysis.find_imbalance(coin, "15", 10)
+#         #break
+#     time.sleep(300)
 
-# def get_candles(symbol, interval, limit=14):
-#     url = f"https://api.bybit.com/v5/market/kline?category=linear&symbol={symbol}&interval={interval}&limit={limit}"
-#     response = requests.get(url).json()
-#     return response['result']['list']
+
