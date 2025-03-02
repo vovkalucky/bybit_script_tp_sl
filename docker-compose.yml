@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_tp_sl_27_02_25
-    container_name: bybit_tp_sl_27_02_25
+    image: bybit_tp_sl_02_03_25
+    container_name: bybit_tp_sl_02_03_25
     logging:
       driver: json-file
       options:
@@ -15,6 +15,6 @@ services:
       - .:/app
       - ./logs:/app_logs  # Монтируем папку для логов
     working_dir: /app
-    command: sh -c "python main.py 2>&1 | tee -a /app_logs/application_new.log"
+    command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
     environment:
       - PYTHONUNBUFFERED=1

@@ -67,16 +67,18 @@ class SpotOrders:
 
     def check_limits_orders_status(self, orders: List[str]) -> List[str]:
         orders_to_remove = []
+        response_open_orders = self.session.get_order_history(category=self.category)
+        print(response_open_orders)
         for order_id in orders:
             try:
                 response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
-                #print(f"(response_open_orders) {response_open_orders}")
+                print(f"(response_open_orders) {response_open_orders}")
                 if len(response_open_orders['result']['list']) == 0:
                     break
                 open_order = response_open_orders['result']['list'][0]
                 status = open_order['orderStatus']
                 if status in ["Filled", "Deactivated"]:
-                    print(f"(open_order) {open_order}")
+                    print(f"(open_order) Filled! {open_order}")
                     self.qty = open_order['cumExecQty']
                     self.status_sell = status
                     self.order_id_sell = order_id
@@ -105,6 +107,11 @@ class SpotOrders:
         WorkWithCSV.save_deals({"list_of_deals": orders})
         print(f"📄 Список открытых лимитных ордеров {orders}")
         return orders
+
+    def get_orders_status_from_order_history(self):
+        response_open_orders = self.session.get_order_history(category=self.category)
+
+
 
     def get_filters(self) -> Tuple[int, int, str]:
         """Функция для получения лимитов для конкретной монеты (coin_name).
