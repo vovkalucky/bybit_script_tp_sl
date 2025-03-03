@@ -13,7 +13,7 @@ class SpotOrders:
     session = HTTP(api_key=BYBIT_API_KEY,
                    api_secret=BYBIT_SECRET_KEY,
                    demo=DEMO_TRADE,
-                   # recv_window=60000,
+                   recv_window=10000,
                    max_retries=10,
                    retry_delay=10)
 
@@ -67,14 +67,15 @@ class SpotOrders:
 
     def check_limits_orders_status(self, orders: List[str]) -> List[str]:
         orders_to_remove = []
-        response_open_orders = self.session.get_order_history(category=self.category)
-        print(response_open_orders)
+        #response_open_orders = self.session.get_order_history(category=self.category)
+        #print(response_open_orders)
         for order_id in orders:
             try:
                 response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
-                print(f"(response_open_orders) {response_open_orders}")
+                time.sleep(1)
+                #print(f"(response_open_orders) {response_open_orders}")
                 if len(response_open_orders['result']['list']) == 0:
-                    break
+                    continue
                 open_order = response_open_orders['result']['list'][0]
                 status = open_order['orderStatus']
                 if status in ["Filled", "Deactivated"]:
@@ -82,7 +83,6 @@ class SpotOrders:
                     self.qty = open_order['cumExecQty']
                     self.status_sell = status
                     self.order_id_sell = order_id
-                    #self.close_price_sell = open_order['price']
                     self.close_price_sell = open_order['avgPrice']
                     self.money_sell = open_order['cumExecValue']
                     self.tax_sell = float(open_order['cumExecFee'])
@@ -107,10 +107,6 @@ class SpotOrders:
         WorkWithCSV.save_deals({"list_of_deals": orders})
         print(f"📄 Список открытых лимитных ордеров {orders}")
         return orders
-
-    def get_orders_status_from_order_history(self):
-        response_open_orders = self.session.get_order_history(category=self.category)
-
 
 
     def get_filters(self) -> Tuple[int, int, str]:

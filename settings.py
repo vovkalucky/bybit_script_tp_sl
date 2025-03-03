@@ -1,7 +1,7 @@
 PROJECT_NAME = "#bybit_tp_sl_imba_03_02_25"
 UTC_PLUS_TIMEZONE = 3 #определяем добавку в часах для UTC
-DELAY = 60 #задержка между запросами к tradingview
-MAX_COUNT_OF_DEALS = 5
+DELAY = 60
+MAX_COUNT_OF_DEALS = 2
 MONEY_FOR_ONE_ORDER = 50
 TAKE_PROFIT = 1.01
 STOP_LOSS = 0.5
