@@ -158,8 +158,8 @@ class SpotOrders:
                 #triggerPrice="3076",
                 takeProfit=tp_price,
                 stopLoss=sl_price,
-                slLimitPrice=sl_price,
-                tpLimitPrice=tp_price,
+                slLimitPrice=0.8 * float(sl_price),
+                tpLimitPrice=0.8 * float(tp_price),
                 tpOrderType="Limit", #Limit
                 slOrderType="Limit", # Limit
                 orderFilter = "OCO",  # Фильтр для OCO-ордера
