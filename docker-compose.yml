@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_tp_sl_02_03_25
-    container_name: bybit_tp_sl_02_03_25
+    image: bybit_tp_sl_04_03_25
+    container_name: bybit_tp_sl_04_03_25
     logging:
       driver: json-file
       options:

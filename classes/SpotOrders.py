@@ -90,8 +90,10 @@ class SpotOrders:
                     self.side_sell = open_order['side']
                     self.time_sell = open_order['createdTime']
                     self.time_close = open_order['updatedTime']
-                    self.tp = open_order['takeProfit']
-                    self.sl = open_order['stopLoss']
+                    #self.tp = open_order['takeProfit']
+                    self.tp = open_order['tpLimitPrice']
+                    #self.sl = open_order['stopLoss']
+                    self.sl = open_order['slLimitPrice']
                     self.basePrice = open_order['basePrice']
                     self.triggerPrice = open_order['triggerPrice']
                     CoinsClass.add_coin(SpotOrders.coins, self.symbol)
@@ -142,26 +144,30 @@ class SpotOrders:
         qty = money_for_one_order/self.close_price_buy
         qty = SpotOrders.float_trunc(qty, self.qty_decimals)
         take_profit_price = self.close_price_buy * percent_of_earn
-        tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
         stop_loss_price = self.close_price_buy * STOP_LOSS
+        tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
         sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
+
+        #tp_trigger_price = SpotOrders.float_trunc(float(tp_price) * 0.99, self.price_decimals)
+        #sl_trigger_price = SpotOrders.float_trunc(float(sl_price) * 0.99, self.price_decimals)
+
         try:
             limit_order = self.session.place_order(
                 category=self.category,
                 symbol=self.coin_name,
                 side=self.side_buy,
-                orderType="limit", #limit
+                orderType="Limit", #limit
                 qty=qty,
                 price=self.close_price_buy,
                 marketUnit="quoteCoin",
-                #timeInForce="PostOnly",
-                #triggerPrice="3076",
-                takeProfit=tp_price,
+                takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
                 stopLoss=sl_price,
-                slLimitPrice=0.8 * float(sl_price),
-                tpLimitPrice=0.8 * float(tp_price),
-                tpOrderType="Limit", #Limit
-                slOrderType="Limit", # Limit
+                # slTriggerPrice=sl_trigger_price,
+                # tpTriggerPrice=tp_trigger_price,
+                slLimitPrice=sl_price,
+                tpLimitPrice=tp_price,
+                tpOrderType="Limit",
+                slOrderType="Limit",
                 orderFilter = "OCO",  # Фильтр для OCO-ордера
                 timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
             )
@@ -217,8 +223,10 @@ class SpotOrders:
                 self.symbol = limit_order['symbol']
                 self.side_buy = limit_order['side']
                 self.time_buy = limit_order['createdTime']
-                self.tp = limit_order['takeProfit']
-                self.sl = limit_order['stopLoss']
+                #self.tp = limit_order['takeProfit']
+                self.tp = limit_order['tpLimitPrice']
+                #self.sl = limit_order['stopLoss']
+                self.sl = limit_order['slLimitPrice']
                 return True
                 # print(f"(get_info_about_limit_order) {self.qty} {self.status_buy} {self.close_price_buy} {self.money_buy} "
                 #       f"{self.tax_buy} {self.symbol} {self.side_buy} {self.time_buy}")
@@ -228,19 +236,24 @@ class SpotOrders:
 
     def find_tp_sl_order(self, take_profit_value: str) -> str:
         try:
-            response_tp_sl_orders = self.session.get_open_orders(category=self.category) # tpslOrder BidirectionalTpslOrder
+            response_tp_sl_orders = self.session.get_open_orders(category=self.category)
+            print(f"(response_tp_sl_orders) {response_tp_sl_orders}")
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
-            tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)] #self.
+            #tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
+            tp_sl_order_list = [order for order in tp_sl_orders if order.get("tpLimitPrice") == str(take_profit_value)]
             return tp_sl_order_list[0]
         except Exception as e:
-            return "Order not find"
             print(f"(find_tp_sl_order) Exception: {e}")
+            return "Order not find"
+
 
 
     def get_info_about_tp_sl_order(self) -> bool:
         try:
             tp_sl_order = self.find_tp_sl_order(self.tp)
             print(f"(get_info_about_tp_sl_order): {tp_sl_order}")
+            if tp_sl_order == "Order not find":
+                return False
             status = tp_sl_order['orderStatus']
             if status == "Untriggered": #or status == "Active"
                 self.order_id_sell = tp_sl_order['orderId']
@@ -253,8 +266,10 @@ class SpotOrders:
                 self.symbol = tp_sl_order['symbol']
                 self.side_sell = tp_sl_order['side']
                 self.time_sell = tp_sl_order['createdTime']
-                self.tp = tp_sl_order['takeProfit']
-                self.sl = tp_sl_order['stopLoss']
+                #self.tp = tp_sl_order['takeProfit']
+                self.tp = tp_sl_order['tpLimitPrice']
+                #self.sl = tp_sl_order['stopLoss']
+                self.sl = tp_sl_order['slLimitPrice']
                 self.list_of_deals.append(self.order_id_sell)
                 WorkWithCSV.save_deals({"list_of_deals": self.list_of_deals})
                 CoinsClass.remove_coin(SpotOrders.coins, self.symbol)

@@ -1,4 +1,4 @@
-PROJECT_NAME = "#bybit_tp_sl_imba_03_02_25"
+PROJECT_NAME = "#bybit_tp_sl_imba_04_02_25"
 UTC_PLUS_TIMEZONE = 3 #определяем добавку в часах для UTC
 DELAY = 60
 MAX_COUNT_OF_DEALS = 2
