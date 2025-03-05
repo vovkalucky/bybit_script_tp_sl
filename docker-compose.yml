@@ -8,7 +8,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"    # Ротация при достижении 10 МБ
+        max-size: "2m"    # Ротация при достижении 10 МБ
         max-file: "3"      # Хранить 3 файла (логи + 2 архива)
     restart: "always"
     volumes:

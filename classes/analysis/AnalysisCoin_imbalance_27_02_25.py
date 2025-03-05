@@ -26,7 +26,7 @@ class AnalysisCoin:
             return False
 
     def has_trade_signal(self) -> bool:
-        if self.analyze_with_indicators("15"):
+        if self.analyze_with_indicators("15") or self.analyze_with_indicators("60"):
             return True
         else:
             return False
