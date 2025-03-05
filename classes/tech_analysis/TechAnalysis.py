@@ -109,8 +109,8 @@ class TechAnalysis:
               f" first_imb_kline: {first_imb_kline} first_imb_kline_close {first_imb_kline_close} current_kline: {current_kline}")
 
         condition_0 = second_imb_kline < third_imb_kline
-        condition_1 = (first_imb_kline - current_kline)/first_imb_kline > 0.01 #для входа в сделку чтобы прибыль составила 1%
-        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.01 #размера тела падающей свечи более 1%
+        condition_1 = (first_imb_kline - current_kline)/first_imb_kline > 0.01 # для входа в сделку чтобы прибыль составила 1%
+        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.007 # размера тела падающей свечи более 0.7%
 
 
         list_of_conditions = [condition_0, condition_1, condition_2]
