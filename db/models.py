@@ -4,18 +4,18 @@ from typing import Annotated, Optional
 from db.database import Base
 
 from sqlalchemy import (
-    #TIMESTAMP,
-    #CheckConstraint,
+    # TIMESTAMP,
+    # CheckConstraint,
     Column,
-    #Enum,
-    #ForeignKey,
-    #Index,
+    # Enum,
+    # ForeignKey,
+    # Index,
     Integer,
     MetaData,
-    #PrimaryKeyConstraint,
+    # PrimaryKeyConstraint,
     String,
     Table,
-    text,
+    text, Interval,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,10 +23,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"))]
-updated_at = Annotated[datetime.datetime, mapped_column(
-    server_default=text("TIMEZONE('utc', now())"),
-    onupdate=datetime.datetime.now,
-)]
+# updated_at = Annotated[datetime.datetime, mapped_column(
+#     server_default=text("TIMEZONE('utc', now())"),
+#     onupdate=datetime.datetime.now,
+# )]
 
 
 class Deals(Base):
@@ -41,9 +41,11 @@ class Deals(Base):
     money_sell: Mapped[float]
     tax_sell: Mapped[float]
     status: Mapped[str]
-    time_open: Mapped[created_at]
-    time_close: Mapped[updated_at]
-    time_in_deal: Mapped[str]
+    #time_open: Mapped[created_at]
+    time_open: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))
+    time_close: Mapped[datetime.datetime] = mapped_column(nullable=True)
+    time_in_deal: Mapped[datetime.timedelta] = mapped_column(Interval, nullable=True)
+    earn: Mapped[float] = mapped_column(nullable=True)
 
 class Coins(Base):
     __tablename__ = "coins"
@@ -56,6 +58,7 @@ class ListOfOpenDeals(Base):
     __tablename__ = "list_of_open_deals"
 
     id: Mapped[intpk]
+    coin: Mapped[str] = mapped_column(unique=True)
     order_id: Mapped[str] = mapped_column(unique=True)
 
 #metadata_obj = MetaData()

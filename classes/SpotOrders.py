@@ -18,7 +18,6 @@ class SpotOrders:
                    retry_delay=10)
 
     coins = CoinsClass.load_coins()
-
     def __init__(self, coin_name):
         super().__init__()
         self.state = WorkWithCSV.load_deals()
@@ -271,6 +270,8 @@ class SpotOrders:
                 #self.sl = tp_sl_order['stopLoss']
                 self.sl = tp_sl_order['slLimitPrice']
                 self.list_of_deals.append(self.order_id_sell)
+
+
                 WorkWithCSV.save_deals({"list_of_deals": self.list_of_deals})
                 CoinsClass.remove_coin(SpotOrders.coins, self.symbol)
                 TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
