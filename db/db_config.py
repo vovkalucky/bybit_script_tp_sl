@@ -1,8 +1,5 @@
-#from pydantic_settings import BaseSettings, SettingsConfigDict
 from config import POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB, POSTGRES_PORT
 
-# class Settings:
-#     @property
 def DATABASE_URL_psycopg() -> str:
     # DSN
     # postgresql+psycopg://postgres:postgres@localhost:5432/sa

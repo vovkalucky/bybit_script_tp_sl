@@ -23,10 +23,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"))]
-# updated_at = Annotated[datetime.datetime, mapped_column(
-#     server_default=text("TIMEZONE('utc', now())"),
-#     onupdate=datetime.datetime.now,
-# )]
 
 
 class Deals(Base):
@@ -54,12 +50,12 @@ class Coins(Base):
     coin: Mapped[str] = mapped_column(unique=True)
     in_deal: Mapped[bool] = mapped_column(default=False)
 
-class ListOfOpenDeals(Base):
-    __tablename__ = "list_of_open_deals"
-
-    id: Mapped[intpk]
-    coin: Mapped[str] = mapped_column(unique=True)
-    order_id: Mapped[str] = mapped_column(unique=True)
+# class ListOfOpenDeals(Base):
+#     __tablename__ = "list_of_open_deals"
+#
+#     id: Mapped[intpk]
+#     coin: Mapped[str] = mapped_column(unique=True)
+#     order_id: Mapped[str] = mapped_column(unique=True)
 
 #metadata_obj = MetaData()
 

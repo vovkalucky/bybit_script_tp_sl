@@ -3,8 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    #image: bybit_tp_sl_04_03_25
-    container_name: bybit_tp_sl_08_03_25
+    container_name: bybit_tp_sl_11_03_25
     logging:
       driver: json-file
       options:
@@ -15,8 +14,7 @@ services:
       - .:/app
       - ./logs:/app_logs
     working_dir: /app
-    #command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
-    command: sh -c "python db.py 2>&1 | tee -a /app_logs/script_logs.log"
+    command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB

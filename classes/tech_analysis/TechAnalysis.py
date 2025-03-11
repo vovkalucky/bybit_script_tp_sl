@@ -105,8 +105,8 @@ class TechAnalysis:
         first_imb_kline = float(klines[-2][2]) #high
         first_imb_kline_close = float(klines[-2][4]) #first_imb_kline close price
         current_kline = float(klines[-1][4]) #current_price
-        print(f"third_imb_kline: {third_imb_kline} second_imb_kline: {second_imb_kline}"
-              f" first_imb_kline: {first_imb_kline} first_imb_kline_close {first_imb_kline_close} current_kline: {current_kline}")
+        #print(f"third_imb_kline: {third_imb_kline} second_imb_kline: {second_imb_kline}"
+              #f" first_imb_kline: {first_imb_kline} first_imb_kline_close {first_imb_kline_close} current_kline: {current_kline}")
 
         condition_0 = second_imb_kline < third_imb_kline
         condition_1 = (first_imb_kline - current_kline)/first_imb_kline > 0.01 # для входа в сделку чтобы прибыль составила 1%
@@ -114,8 +114,9 @@ class TechAnalysis:
 
 
         list_of_conditions = [condition_0, condition_1, condition_2]
-        print(f"(list_of_conditions) {symbol} {list_of_conditions}")
-        if all(list_of_conditions):
+        #print(f"(list_of_conditions) {symbol} {list_of_conditions}")
+        #if all(list_of_conditions):
+        if all([True]):
             print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
             return True
 

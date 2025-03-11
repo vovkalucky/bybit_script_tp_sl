@@ -3,24 +3,25 @@ from pybit import exceptions
 from classes.CoinsClass import CoinsClass
 from classes.WorkWithCSV import WorkWithCSV
 from classes.SpotOrders import SpotOrders
+from db.queries.orm import ListOfOpenDealsOrm, CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
 from classes.analysis.AnalysisCoin_imbalance_27_02_25 import AnalysisCoin
 
 
-class TradeManager(CoinsClass, WorkWithCSV):
+#class TradeManager(CoinsClass, WorkWithCSV):
+class TradeManager:
 
     #coins = CoinsClass.load_coins()
 
     def __init__(self):
         super().__init__()
-        self.state = WorkWithCSV.load_deals()
-        self.list_of_deals = self.state.get("list_of_deals", [])
-        self.coins = CoinsClass.load_coins()
+        self.coins = CoinsOrm.select_coins()
 
-
-    def check_deal_limits(self) -> bool:
+    @staticmethod
+    def check_deal_limits() -> bool:
         spot_orders = SpotOrders(coin_name="DOGEUSDT")
-        active_deals = spot_orders.check_limits_orders_status(self.list_of_deals)
+        list_of_deals = DealsOrm.select_open_deals()
+        active_deals = spot_orders.check_limits_orders_status(list_of_deals)
         if len(active_deals) >= MAX_COUNT_OF_DEALS:
             print(f"🤖 Бот уже участвует в {len(active_deals)} сделках(е)!\n"
                   f"⏳ Подождите, пока закроется хотя бы одна из них")
@@ -28,7 +29,7 @@ class TradeManager(CoinsClass, WorkWithCSV):
         return True
 
     def find_and_execute_trade(self) -> None:
-        if not self.check_deal_limits():
+        if not TradeManager.check_deal_limits():
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)

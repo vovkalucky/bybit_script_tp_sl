@@ -3,9 +3,10 @@ from typing import Tuple, List
 from pybit import exceptions
 from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
-from classes.WorkWithCSV import WorkWithCSV
-from classes.CoinsClass import CoinsClass
+# from classes.WorkWithCSV import WorkWithCSV
+# from classes.CoinsClass import CoinsClass
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
+from db.queries.orm import CoinsOrm, DealsOrm
 from settings import DEMO_TRADE, STOP_LOSS
 
 
@@ -17,11 +18,13 @@ class SpotOrders:
                    max_retries=10,
                    retry_delay=10)
 
-    coins = CoinsClass.load_coins()
+    #coins = CoinsClass.load_coins()
+    coins = CoinsOrm.select_coins()
     def __init__(self, coin_name):
         super().__init__()
-        self.state = WorkWithCSV.load_deals()
-        self.list_of_deals = self.state.get("list_of_deals", [])
+        #self.state = WorkWithCSV.load_deals()
+        #self.list_of_deals = self.state.get("list_of_deals", [])
+        #self.list_of_deals = ListOfOpenDealsOrm.select_all_deals()
         self.category = "spot"
         self.coin_name = coin_name #это для пустого объекта для проверки статуса ордеров
         self.price_decimals, self.qty_decimals, self.min_qty = self.get_filters()
@@ -84,28 +87,30 @@ class SpotOrders:
                     self.order_id_sell = order_id
                     self.close_price_sell = open_order['avgPrice']
                     self.money_sell = open_order['cumExecValue']
-                    self.tax_sell = float(open_order['cumExecFee'])
+                    self.tax_sell = open_order['cumExecFee']
                     self.symbol = open_order['symbol']
                     self.side_sell = open_order['side']
                     self.time_sell = open_order['createdTime']
                     self.time_close = open_order['updatedTime']
-                    #self.tp = open_order['takeProfit']
                     self.tp = open_order['tpLimitPrice']
-                    #self.sl = open_order['stopLoss']
                     self.sl = open_order['slLimitPrice']
                     self.basePrice = open_order['basePrice']
                     self.triggerPrice = open_order['triggerPrice']
-                    CoinsClass.add_coin(SpotOrders.coins, self.symbol)
-                    orders_to_remove.append(order_id)
-                    WorkWithCSV.update_order_to_csv(self)
+                    #CoinsClass.add_coin(SpotOrders.coins, self.symbol)
+                    CoinsOrm.add_coin(self.symbol)
+                    #orders_to_remove.append(order_id)
+                    #ListOfOpenDealsOrm.delete_deal(order_id)
+                    #WorkWithCSV.update_order_to_csv(self)
+                    DealsOrm.update_deal(coin=self.symbol, status=self.status_sell,
+                                         money_sell=self.money_sell, tax_sell=self.tax_sell)
                     TlgSendMessage.send_tlg_message_close_tp_sl_order(self)
             except Exception as e:
                 print(f"(check_limits_orders_status) Exception: {e}")
 
         #Удаляем все заказы со статусом "Filled" and "Cancelled"
-        for order_id in orders_to_remove:
-            orders.remove(order_id)
-        WorkWithCSV.save_deals({"list_of_deals": orders})
+        #for order_id in orders_to_remove:
+            #orders.remove(order_id)
+        #WorkWithCSV.save_deals({"list_of_deals": orders})
         print(f"📄 Список открытых лимитных ордеров {orders}")
         return orders
 
@@ -269,13 +274,16 @@ class SpotOrders:
                 self.tp = tp_sl_order['tpLimitPrice']
                 #self.sl = tp_sl_order['stopLoss']
                 self.sl = tp_sl_order['slLimitPrice']
-                self.list_of_deals.append(self.order_id_sell)
+                #self.list_of_deals.append(self.order_id_sell)
+                #ListOfOpenDealsOrm.append_deal(self.symbol, self.order_id_sell)
 
-
-                WorkWithCSV.save_deals({"list_of_deals": self.list_of_deals})
-                CoinsClass.remove_coin(SpotOrders.coins, self.symbol)
+                #WorkWithCSV.save_deals({"list_of_deals": self.list_of_deals})
+                #CoinsClass.remove_coin(SpotOrders.coins, self.symbol)
+                CoinsOrm.delete_coin(self.symbol)
                 TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
-                WorkWithCSV.append_order_to_csv(self)
+                DealsOrm.append_deal(coin=self.symbol,order_id_buy=self.order_id_buy, order_id_sell=self.order_id_sell,
+                                     money_buy=self.money_buy, tax_buy=self.tax_buy, money_sell=self.money_sell,
+                                     tax_sell=self.tax_sell, status=self.status_sell)
                 return True
         except Exception as e:
             print(f"(get_info_about_tp_sl_order) Exception: {e}")
