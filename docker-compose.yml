@@ -3,18 +3,77 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_tp_sl_04_03_25
-    container_name: bybit_tp_sl_04_03_25
+    container_name: bybit_tp_sl_11_03_25
     logging:
       driver: json-file
       options:
-        max-size: "2m"    # Ротация при достижении 10 МБ
-        max-file: "3"      # Хранить 3 файла (логи + 2 архива)
-    restart: "always"
+        max-size: "2m"
+        max-file: "3"
+    restart: always
     volumes:
       - .:/app
-      - ./logs:/app_logs  # Монтируем папку для логов
+      - ./logs:/app_logs
     working_dir: /app
     command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=$POSTGRES_USER
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=$POSTGRES_DB
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=$PGADMIN_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD=$PGADMIN_PASSWORD
+    env_file:
+      - .env
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres_db
+
+volumes:
+  postgres_data:
+
+
+
+
+#services:
+#  bybit-trade_script:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    image: bybit_tp_sl_04_03_25
+#    container_name: bybit_tp_sl_04_03_25
+#    logging:
+#      driver: json-file
+#      options:
+#        max-size: "2m"    # Ротация при достижении 10 МБ
+#        max-file: "3"      # Хранить 3 файла (логи + 2 архива)
+#    restart: "always"
+#    volumes:
+#      - .:/app
+#      - ./logs:/app_logs  # Монтируем папку для логов
+#    working_dir: /app
+#    command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
+#    environment:
+#      - PYTHONUNBUFFERED=1
+
