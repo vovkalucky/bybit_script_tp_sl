@@ -5,10 +5,6 @@ from pybit.unified_trading import HTTP
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from settings import DEMO_TRADE
 
-import time
-from datetime import datetime, timedelta, timezone
-from settings import UTC_PLUS_TIMEZONE
-
 
 class TechAnalysis:
     session = HTTP(api_key=BYBIT_API_KEY,
@@ -115,8 +111,8 @@ class TechAnalysis:
 
         list_of_conditions = [condition_0, condition_1, condition_2]
         #print(f"(list_of_conditions) {symbol} {list_of_conditions}")
-        #if all(list_of_conditions):
-        if all([True]):
+        if all(list_of_conditions):
+        #if all([True]):
             print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
             return True
 
