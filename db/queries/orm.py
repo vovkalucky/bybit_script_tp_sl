@@ -134,32 +134,32 @@ class CoinsOrm:
             session.execute(query)
             session.commit()
 
-class ListOfOpenDealsOrm:
-    @staticmethod
-    def select_all_deals() -> List[str]:
-        with session_factory() as session:
-            query = select(ListOfOpenDeals)
-            res = session.execute(query)
-            session.commit()
-            result = res.scalars().all()
-            list_of_deals = []
-            for deal in result:
-                list_of_deals.append(deal.order_id)
-            return list_of_deals
-
-    @staticmethod
-    def append_deal(coin: str, order_id: str):
-        with session_factory() as session:
-            query = insert(ListOfOpenDeals).values(coin=coin, order_id=order_id)
-            session.execute(query)
-            session.commit()
-
-    @staticmethod
-    def delete_deal(order_id: str):
-        with session_factory() as session:
-            query = delete(ListOfOpenDeals).filter_by(order_id=order_id)
-            session.execute(query)
-            session.commit()
+# class ListOfOpenDealsOrm:
+#     @staticmethod
+#     def select_all_deals() -> List[str]:
+#         with session_factory() as session:
+#             query = select(ListOfOpenDeals)
+#             res = session.execute(query)
+#             session.commit()
+#             result = res.scalars().all()
+#             list_of_deals = []
+#             for deal in result:
+#                 list_of_deals.append(deal.order_id)
+#             return list_of_deals
+#
+#     @staticmethod
+#     def append_deal(coin: str, order_id: str):
+#         with session_factory() as session:
+#             query = insert(ListOfOpenDeals).values(coin=coin, order_id=order_id)
+#             session.execute(query)
+#             session.commit()
+#
+#     @staticmethod
+#     def delete_deal(order_id: str):
+#         with session_factory() as session:
+#             query = delete(ListOfOpenDeals).filter_by(order_id=order_id)
+#             session.execute(query)
+#             session.commit()
 
     # @staticmethod
     # def add_coin_random_place(coin: str):
