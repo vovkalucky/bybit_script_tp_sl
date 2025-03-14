@@ -1,7 +1,6 @@
 import datetime
 import random
 from typing import List
-
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
 from sqlalchemy.orm import aliased
 from db.database import sync_engine, session_factory, Base
@@ -93,16 +92,9 @@ class DealsOrm:
             list_of_deals = []
             for deal in result:
                 list_of_deals.append(deal.order_id_sell)
+            print(f"(select_open_deals) {list_of_deals}")
             return list_of_deals
 
-    # @staticmethod
-    # def find_deal_for_update(coin, status_sell):
-    #     with session_factory() as session:
-    #         query = select(Deals).filter_by(coin=coin, status=status_sell)
-    #         res = session.execute(query)
-    #         result = res.scalars().one()
-    #         session.commit()
-    #         return result #result.order_id_sell
 
 class CoinsOrm:
     @staticmethod

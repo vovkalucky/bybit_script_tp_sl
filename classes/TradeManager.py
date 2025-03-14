@@ -1,9 +1,7 @@
 import time
 from pybit import exceptions
-from classes.CoinsClass import CoinsClass
-from classes.WorkWithCSV import WorkWithCSV
 from classes.SpotOrders import SpotOrders
-from db.queries.orm import ListOfOpenDealsOrm, CoinsOrm, DealsOrm
+from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
 from classes.analysis.AnalysisCoin_imbalance_27_02_25 import AnalysisCoin
 
