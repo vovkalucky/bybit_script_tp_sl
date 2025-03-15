@@ -280,10 +280,10 @@ class SpotOrders:
                 #WorkWithCSV.save_deals({"list_of_deals": self.list_of_deals})
                 #CoinsClass.remove_coin(SpotOrders.coins, self.symbol)
                 CoinsOrm.delete_coin(self.symbol)
-                TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
                 DealsOrm.append_deal(coin=self.symbol,order_id_buy=self.order_id_buy, order_id_sell=self.order_id_sell,
                                      money_buy=self.money_buy, tax_buy=self.tax_buy, money_sell=self.money_sell,
                                      tax_sell=self.tax_sell, status=self.status_sell)
+                TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
                 return True
         except Exception as e:
             print(f"(get_info_about_tp_sl_order) Exception: {e}")
