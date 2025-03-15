@@ -19,7 +19,8 @@ services:
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
     depends_on:
-      - postgres_db
+      postgres_db:
+        condition: service_healthy
 
   postgres_db:
     image: postgres:15
