@@ -17,7 +17,7 @@ services:
     command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
+      #- DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
     depends_on:
       postgres_db:
         condition: service_healthy
