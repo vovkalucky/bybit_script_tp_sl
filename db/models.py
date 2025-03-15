@@ -54,15 +54,3 @@ class Coins(Base):
 #     order_id: Mapped[str] = mapped_column(unique=True)
 
 #metadata_obj = MetaData()
-
-
-
-# deals_table = Table(
-#     "deals",
-#     metadata_obj,
-#     Column("id", Integer, primary_key=True),
-#     Column("coin", String),
-#     Column("order_id_buy", String),
-#     Column("order_id_sell", String)
-# )
-print("Hi")

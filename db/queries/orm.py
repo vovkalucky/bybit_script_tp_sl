@@ -1,8 +1,6 @@
 import datetime
-import random
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
-from sqlalchemy.orm import aliased
 from db.database import sync_engine, session_factory, Base
 from db.models import Deals, Coins
 
@@ -10,8 +8,8 @@ class BaseOrm:
     @staticmethod
     def create_tables():
         try:
-            sync_engine.echo = False
-            Base.metadata.drop_all(sync_engine)
+            sync_engine.echo = True
+            #Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
             with session_factory() as session:
                 # Список монет
@@ -28,7 +26,7 @@ class BaseOrm:
                     session.add_all([Coins(coin=coin) for coin in coin_names])
                     session.commit()
 
-            sync_engine.echo = False
+            #sync_engine.echo = False
             print("✅ Таблицы coins, deals успешно созданы")
         except Exception as e:
             print(f"(create_tables) Не удалось создать таблицы: {e}")
