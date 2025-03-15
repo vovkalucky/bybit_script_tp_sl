@@ -2,14 +2,11 @@ import datetime
 import random
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import aliased
 from db.database import sync_engine, session_factory, Base
 from db.models import Deals, Coins
 
-Base = declarative_base()
-
-class BaseOrm(Base):
+class BaseOrm:
     @staticmethod
     def create_tables():
         try:
@@ -37,7 +34,7 @@ class BaseOrm(Base):
             print(f"(create_tables) Не удалось создать таблицы: {e}")
 
 
-class DealsOrm(Base):
+class DealsOrm:
     @staticmethod
     def append_deal(coin: str, order_id_buy: str, order_id_sell: str, money_buy: str,
                     tax_buy: str, money_sell: str, tax_sell: str, status: str):
@@ -54,7 +51,13 @@ class DealsOrm(Base):
     def update_deal(coin: str, status: str, money_sell: str, tax_sell: str):
         with session_factory() as session:
             #query = select(Deals).filter_by(coin=coin, status="Filled")
-            query = select(Deals).filter(or_(Deals.coin == coin, Deals.status == "Filled", Deals.status == "Deactivated"))
+            #query = select(Deals).filter(or_(Deals.coin == coin, Deals.status == "Filled", Deals.status == "Deactivated"))
+            query = select(Deals).filter(
+                and_(
+                    Deals.coin == coin,
+                    Deals.status.notin_(["Filled", "Deactivated"])
+                )
+            )
             res = session.execute(query)
             deal_for_update = res.scalars().first() #.one()
             print(f"deal_for_update: {deal_for_update}")
@@ -87,13 +90,17 @@ class DealsOrm(Base):
     @staticmethod
     def select_open_deals():
         with (session_factory() as session):
-            query = select(Deals).filter(and_(Deals.status != "Filled", Deals.status != "Deactivated"))
+            #query = select(Deals.order_id_sell).filter(and_(Deals.status != "Filled", Deals.status != "Deactivated"))
+            query = select(Deals.order_id_sell).filter(
+                Deals.status.notin_(["Filled", "Deactivated"])
+            )
             res = session.execute(query)
-            result = res.scalars().all()
-            session.commit()
-            list_of_deals = []
-            for deal in result:
-                list_of_deals.append(deal.order_id_sell)
+            #result = res.scalars().all()
+            #session.commit()
+            # list_of_deals = []
+            # for deal in result:
+            #     list_of_deals.append(deal.order_id_sell)
+            list_of_deals = res.scalars().all()
             print(f"(select_open_deals) {list_of_deals}")
             return list_of_deals
 
@@ -105,7 +112,7 @@ class CoinsOrm:
             query = select(Coins).filter_by(in_deal=False)
             res = session.execute(query)
             result = res.scalars().all()
-            session.commit()
+            #session.commit()
             coins = []
             for coin in result:
                 coins.append(coin.coin)
