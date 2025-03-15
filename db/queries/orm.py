@@ -2,12 +2,14 @@ import datetime
 import random
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import aliased
 from db.database import sync_engine, session_factory, Base
 from db.models import Deals, Coins
 
+Base = declarative_base()
 
-class BaseOrm:
+class BaseOrm(Base):
     @staticmethod
     def create_tables():
         try:
@@ -35,7 +37,7 @@ class BaseOrm:
             print(f"(create_tables) Не удалось создать таблицы: {e}")
 
 
-class DealsOrm:
+class DealsOrm(Base):
     @staticmethod
     def append_deal(coin: str, order_id_buy: str, order_id_sell: str, money_buy: str,
                     tax_buy: str, money_sell: str, tax_sell: str, status: str):
