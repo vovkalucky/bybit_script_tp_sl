@@ -1,8 +1,7 @@
 import asyncio
 from typing import Annotated
 from sqlalchemy import String, create_engine, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
 
 sync_engine = create_engine(
@@ -11,6 +10,14 @@ sync_engine = create_engine(
     # pool_size=5, размер количества соединений
     # max_overflow=10, дополнительные подключения к БД
 )
+
+try:
+    with sync_engine.connect() as connection:
+        result = connection.execute(text("SELECT version()"))
+        print("✅ Подключение к базе данных успешно")
+        print("Версия PostgreSQL:", result.scalar())
+except Exception as e:
+    print(f"❌ Ошибка подключения к базе данных: {e}")
 
 ## Проверка соединения ###
 # with sync_engine.connect() as conn:
@@ -27,14 +34,3 @@ class Base(DeclarativeBase):
     type_annotation_map = {
         str_256: String(256)
     }
-    # repr_cols_num = 3
-    # repr_cols = tuple()
-    #
-    # def __repr__(self):
-    #     """Relationships не используются в repr(), т.к. могут вести к неожиданным подгрузкам"""
-    #     cols = []
-    #     for idx, col in enumerate(self.__table__.columns.keys()):
-    #         if col in self.repr_cols or idx < self.repr_cols_num:
-    #             cols.append(f"{col}={getattr(self, col)}")
-    #
-    #     return f"<{self.__class__.__name__} {', '.join(cols)}>"
