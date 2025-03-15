@@ -8,7 +8,8 @@ class TlgSendMessage:
     @staticmethod
     def send_tlg_message_new_tp_sl_order(spot: SpotOrders) -> None:
         message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {spot.symbol} успешно размещен\n"
-        count_open_limit_orders = len(DealsOrm.select_open_deals())
+        list_of_open_deals = DealsOrm.select_open_deals()
+        count_open_limit_orders = len(list_of_open_deals)
         url = f"https://api.telegram.org/bot{TLG_TOKEN}/sendMessage"
         message = (f"{message_title}\n"
                    f"side: {spot.side_sell}\n"
@@ -49,7 +50,8 @@ class TlgSendMessage:
 
         message_title = (f"{result_of_deal}\n"
                          f"💰 Результат: {earn} $\n")
-        count_open_limit_orders = len(DealsOrm.select_open_deals())
+        list_of_open_deals = DealsOrm.select_open_deals()
+        count_open_limit_orders = len(list_of_open_deals)
         url = f"https://api.telegram.org/bot{TLG_TOKEN}/sendMessage"
         message = (f"{message_title}\n"
                    f"side: {spot.side_sell}\n"
