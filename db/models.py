@@ -65,3 +65,4 @@ class Coins(Base):
 #     Column("order_id_buy", String),
 #     Column("order_id_sell", String)
 # )
+print("Hi")
