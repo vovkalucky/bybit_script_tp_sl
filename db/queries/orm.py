@@ -111,11 +111,9 @@ class CoinsOrm:
             query = select(Coins).filter_by(in_deal=False)
             res = session.execute(query)
             result = res.scalars().all()
-            #session.commit()
             coins = []
             for coin in result:
                 coins.append(coin.coin)
-                print(f"(select_coins) {coins}")
             return coins
 
     @staticmethod
