@@ -111,8 +111,8 @@ class TechAnalysis:
 
         list_of_conditions = [condition_0, condition_1, condition_2]
         #print(f"(list_of_conditions) {symbol} {list_of_conditions}")
-        #if all(list_of_conditions):
-        if all([True]):
+        if all(list_of_conditions):
+        #if all([True]):
             print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
             return True
 
