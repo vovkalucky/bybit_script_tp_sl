@@ -1,4 +1,5 @@
 import datetime
+import time
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
 from db.database import sync_engine, session_factory, Base
@@ -11,6 +12,7 @@ class BaseOrm:
             sync_engine.echo = True
             #Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
+            time.sleep(2)
             with session_factory() as session:
                 # Список монет
                 coin_names = [
@@ -24,7 +26,7 @@ class BaseOrm:
                 if session.query(Coins).count() == 0:
                     # Добавляем монеты в базу данных
                     session.add_all([Coins(coin=coin) for coin in coin_names])
-                    session.commit()
+                session.commit()
 
             #sync_engine.echo = False
             print("✅ Таблицы coins, deals успешно созданы")
