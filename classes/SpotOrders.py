@@ -19,7 +19,7 @@ class SpotOrders:
                    retry_delay=10)
 
     #coins = CoinsClass.load_coins()
-    coins = CoinsOrm.select_coins()
+    #coins = CoinsOrm.select_coins()
     def __init__(self, coin_name):
         super().__init__()
         #self.state = WorkWithCSV.load_deals()

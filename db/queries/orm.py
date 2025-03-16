@@ -116,6 +116,7 @@ class CoinsOrm:
             coins = []
             for coin in result:
                 coins.append(coin.coin)
+                print(f"(select_coins) {coins}")
             return coins
 
     @staticmethod
