@@ -12,21 +12,21 @@ class BaseOrm:
             sync_engine.echo = True
             #Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
-            time.sleep(2)
-            with session_factory() as session:
-                # Список монет
-                coin_names = [
-                    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT",
-                    "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-                    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT",
-                    "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"
-                ]
-
-                # Проверяем, есть ли уже данные в таблице
-                if session.query(Coins).count() == 0:
-                    # Добавляем монеты в базу данных
-                    session.add_all([Coins(coin=coin) for coin in coin_names])
-                session.commit()
+            #time.sleep(2)
+            # with session_factory() as session:
+            #     # Список монет
+            #     coin_names = [
+            #         "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT",
+            #         "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
+            #         "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT",
+            #         "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"
+            #     ]
+            #
+            #     # Проверяем, есть ли уже данные в таблице
+            #     if session.query(Coins).count() == 0:
+            #         # Добавляем монеты в базу данных
+            #         session.add_all([Coins(coin=coin) for coin in coin_names])
+            #         session.commit()
 
             #sync_engine.echo = False
             print("✅ Таблицы coins, deals успешно созданы")
