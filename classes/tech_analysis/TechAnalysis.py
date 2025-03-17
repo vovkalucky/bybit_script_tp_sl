@@ -1,6 +1,4 @@
-import time
 from typing import List
-import requests
 from pybit.unified_trading import HTTP
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from settings import DEMO_TRADE
@@ -106,15 +104,16 @@ class TechAnalysis:
 
         condition_0 = second_imb_kline < third_imb_kline
         condition_1 = (first_imb_kline - current_kline)/first_imb_kline > 0.01 # для входа в сделку чтобы прибыль составила 1%
-        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.007 # размера тела падающей свечи более 0.7%
-
+        #condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.007 # размера тела падающей свечи более 0.7%
+        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.005 # размера тела падающей свечи более 0.5%
 
         list_of_conditions = [condition_0, condition_1, condition_2]
-        #print(f"(list_of_conditions) {symbol} {list_of_conditions}")
         if all(list_of_conditions):
         #if all([True]):
             print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
             return True
+        else:
+            return False
 
 
 

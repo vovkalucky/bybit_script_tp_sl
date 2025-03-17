@@ -5,14 +5,9 @@ from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
 from classes.analysis.AnalysisCoin_imbalance_27_02_25 import AnalysisCoin
 
-
-#class TradeManager(CoinsClass, WorkWithCSV):
 class TradeManager:
-
-    #coins = CoinsClass.load_coins()
-
     def __init__(self):
-        super().__init__()
+        #super().__init__()
         self.coins = CoinsOrm.select_coins()
 
     @staticmethod

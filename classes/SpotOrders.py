@@ -263,6 +263,8 @@ class SpotOrders:
                 return True
         except Exception as e:
             print(f"(get_info_about_tp_sl_order) Exception: {e}")
+            return False
+
 
     @classmethod
     def get_order_book(cls, symbol):
