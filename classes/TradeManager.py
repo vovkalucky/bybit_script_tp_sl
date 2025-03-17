@@ -31,7 +31,7 @@ class TradeManager:
                 self.execute_trade(pair)
                 return
 
-        print(f"🔴 Сигнал не найден для всех пар из списка: {self.coins}")
+        print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
     @staticmethod
     def execute_trade(pair):
