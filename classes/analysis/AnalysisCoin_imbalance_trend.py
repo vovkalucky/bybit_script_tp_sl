@@ -19,15 +19,19 @@ class AnalysisCoin:
 
     def analyze_with_indicators(self, timeframe: str) -> bool:
         try:
-            #TechAnalysis.determine_trend_ema(self.pair, timeframe)
-            return TechAnalysis.find_bear_imbalance(self.pair, timeframe)
-
+            condition_1 = TechAnalysis.find_bear_imbalance(self.pair, timeframe, 10,0.5, 0.8)
+            trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
+            if trend in ["Bull", "Flat"]:
+                condition_2 = True
+            else:
+                condition_2 = False
+            return condition_1 and condition_2
         except Exception as e:
             print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
             return False
 
     def has_trade_signal(self) -> bool:
-        if self.analyze_with_indicators("15") or self.analyze_with_indicators("60"):
+        if self.analyze_with_indicators("15"): #or self.analyze_with_indicators("60")
             return True
         else:
             return False

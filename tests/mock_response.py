@@ -29,7 +29,7 @@ find_tp_sl_order_mock_response = {
   'side': 'Sell',
   'smpGroup': 0,
   'triggerPrice': '0.00',
-  'tpLimitPrice': '0',
+  'tpLimitPrice': '2745.1',
   'trailingValue': '0',
   'cumExecFee': '0',
   'leavesQty': '0.01837',
@@ -45,3 +45,5 @@ find_tp_sl_order_mock_response = {
   'smpOrderId': '',
   'triggerBy': ''
 }
+
+limit_order_with_tp_sl_mock_response = '1912086819131100417'

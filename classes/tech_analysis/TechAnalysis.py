@@ -1,5 +1,7 @@
 from typing import List
 from pybit.unified_trading import HTTP
+from tradingview_ta import TA_Handler, Interval
+
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from settings import DEMO_TRADE
 
@@ -27,23 +29,30 @@ class TechAnalysis:
 
 
     @staticmethod
-    def check_volumes(coin: str, interval: str, count: int) -> bool:
+    def check_volumes(coin: str, interval: str, count: int, threshold: float = 1.2) -> bool:
         try:
             volumes_list = TechAnalysis.get_volume_from_klines(coin, interval, count)
             if not volumes_list:
-                print(f"(check_volumes) Ошибка: пустой список объемов для {coin}")
+                print(f"[check_volumes] Ошибка: пустой список объемов для {coin}")
                 return False
             current_volume = float(volumes_list[-1])
             avg_volume = TechAnalysis.avg_volume(volumes_list)
-            threshold = 1.2  # Допустим, сигнал дается при превышении на 20%
+            #threshold = 1.2  # Допустим, сигнал дается при превышении на 20%
             print(f"(current_volume) {current_volume} (avg_volume) {avg_volume}")
             return current_volume > avg_volume * threshold
         except Exception as e:
-            print(f"(check_volumes): {e}")
+            print(f"[check_volumes]: {e}")
+            return False
 
 
     @classmethod
-    def get_klines(cls, symbol: str, interval: str, limit: int):
+    def get_klines(cls, symbol: str, interval: str, limit: int = 14):
+        """Функция для получения свечей
+        :param symbol BTCUSDT,
+        :param interval 1,3,5,15,30,60,120,240,360,720,D,W,M
+        :param limit количество возвращаемых свечей
+        :return reverse_klines массив свечей в формате [tohlcv] в хронологическом порядке:
+        0 свеча - самая старая, последняя - текущая. Пример: ['1742501700000', '1971.43', '1978.18', '1971.43', '1977.37', '218.87295', '432217.0390999']"""
         klines = cls.session.get_kline(category="spot", symbol=symbol, interval=interval, limit=limit)
         reverse_klines = klines['result']['list'][::-1]
         return reverse_klines
@@ -90,46 +99,108 @@ class TechAnalysis:
         return close > (previous_close + atr)
 
     @classmethod
-    def find_imbalance(cls, symbol: str, interval:str, limit: int = 10) -> bool:
+    def find_bear_imbalance(cls, symbol: str, interval:str, limit: int = 10, imbalance: float = 0.5, profit: float = 1) -> bool:
+        """Функция поиска медвежьего имбаланса - падающие свечи. Для анализа берутся
+        три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
+        (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
         klines = TechAnalysis.get_klines(symbol, interval, limit)
-        #print(f"(klines) {klines}")
         third_imb_kline = float(klines[-4][3]) #low
         second_imb_kline = float(klines[-3][3]) #low
-        #second_imb_kline_body = round((float(klines[-3][1]) - float(klines[-3][4]))/float(klines[-3][1])*100, 6)
         first_imb_kline = float(klines[-2][2]) #high
-        first_imb_kline_close = float(klines[-2][4]) #first_imb_kline close price
         current_kline = float(klines[-1][4]) #current_price
-        #print(f"third_imb_kline: {third_imb_kline} second_imb_kline: {second_imb_kline}"
-              #f" first_imb_kline: {first_imb_kline} first_imb_kline_close {first_imb_kline_close} current_kline: {current_kline}")
 
         condition_0 = second_imb_kline < third_imb_kline
-        condition_1 = (first_imb_kline - current_kline)/first_imb_kline > 0.01 # для входа в сделку чтобы прибыль составила 1%
-        #condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.007 # размера тела падающей свечи более 0.7%
-        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > 0.005 # размера тела падающей свечи более 0.5%
+        condition_1 = (first_imb_kline - current_kline)/first_imb_kline > profit/100 # для входа в сделку чтобы прибыль составила profit (%)
+        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > imbalance/100 # размера тела падающей свечи более imbalance (%)
 
         list_of_conditions = [condition_0, condition_1, condition_2]
         if all(list_of_conditions):
         #if all([True]):
-            print(f"{symbol} 🥎🥎🥎🥎🥎🥎🥎 Imbalance find! 🥎🥎🥎🥎🥎🥎")
+            print(f"✅✅✅✅✅✅✅✅ Bear Imbalance for {symbol} in {interval} find! ✅✅✅✅✅✅✅✅")
+            return True
+        else:
+            return False
+
+    @classmethod
+    def find_bull_imbalance(cls, symbol: str, interval: str, limit: int = 10, imbalance: float = 0.5, profit: float = 0.5) -> bool:
+        """Функция поиска бычьего имбаланса - растущие свечи. Для анализа берутся
+        три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
+        (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
+        klines = TechAnalysis.get_klines(symbol, interval, limit)
+        third_imb_kline = float(klines[-4][2])  # high
+        second_imb_kline = float(klines[-3][2])  # high
+        first_imb_kline = float(klines[-2][3])  # low
+        current_kline = float(klines[-1][4])  # current_price
+
+        condition_0 = second_imb_kline > third_imb_kline
+        condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100  # условие для входа в сделку, чтобы прибыль составила profit (%)
+        condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100  # размер тела растущей свечи более imbalance (%)
+        list_of_conditions = [condition_0, condition_1, condition_2]
+        print(f"{symbol} {list_of_conditions}")
+        if all(list_of_conditions):
+            print(f"✅✅✅✅✅✅✅✅ Bull Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
             return True
         else:
             return False
 
 
+    @staticmethod
+    def determine_trend_ema(symbol: str, timeframe: str) -> str:
+        """Функция для анализа тренда при помощи EMA100 и EMA50 + ADX
+        :param symbol символ криптовалюты
+        :param timeframe таймфрейм для анализа
+        :return "Bull", "Bear", "Flat" """
+        try:
+            coin = TA_Handler(
+                symbol=symbol,
+                screener="crypto",
+                exchange="Bybit",
+                interval=timeframe,
+                timeout=7
+            )
+            analysis = coin.get_analysis().indicators
+            EMA50 =analysis['EMA50']
+            EMA100 =analysis['EMA100']
+            ADX = float(analysis['ADX'])
+            ADX_PLUS_DI = float(analysis['ADX+DI'])
+            ADX_MINUS_DI = float(analysis['ADX-DI'])
+            # Определяем тренд на основе EMA
+            if EMA50 > EMA100 and ADX > 25 and ADX_PLUS_DI > ADX_MINUS_DI:
+                #print(f"Bull EMA50 {EMA50} EMA100 {EMA100} ADX {ADX} ADX_PLUS_DI {ADX_PLUS_DI} ADX_MINUS_DI {ADX_MINUS_DI}")
+                return "Bull"  # Бычий тренд
+            elif EMA50 < EMA100 and ADX > 25 and ADX_PLUS_DI < ADX_MINUS_DI:
+                return "Bear"  # Медвежий тренд
+            else:
+                #print(f"Flat EMA50 {EMA50} EMA100 {EMA100} ADX {ADX} ADX_PLUS_DI {ADX_PLUS_DI} ADX_MINUS_DI {ADX_MINUS_DI}")
+                return "Flat"  # Флэт (боковое движение)
 
-# coins = [
-#     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-#     "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
-#     "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-#     "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
-# ]
-#
+        except Exception as e:
+            print(f"⚠️ Ошибка при анализе {symbol} на {timeframe}: {e}")
+            return False
+
+
+coins = [
+    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
+    "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
+    "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
+    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
+]
+
+
+#klines = TechAnalysis.get_klines("NEONUSDT", "15")
+#trend = TechAnalysis.determine_trend(klines)
+# trend_15 = TechAnalysis.determine_trend_ema("XRPUSDT", "15m")
+# print(trend_15)
+# trend_1h = TechAnalysis.determine_trend_ema("BTCUSDT", "1h")
+# print(trend_1h)
+
+
 # while True:
-#     current_time = datetime.now(timezone(timedelta(hours=UTC_PLUS_TIMEZONE)))
+#     current_time = datetime.datetime.now()
 #     print(f"⏱️ Старт анализа: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
 #     for coin in coins:
-#         imb = TechAnalysis.find_imbalance(coin, "15", 10)
+#         imb = TechAnalysis.find_bull_imbalance(coin, "15")
 #         #break
-#     time.sleep(300)
+#     time.sleep(60)
 
 

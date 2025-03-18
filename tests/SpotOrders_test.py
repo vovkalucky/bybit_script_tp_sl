@@ -1,6 +1,5 @@
 import pytest
 import random
-import requests
 from classes.SpotOrders import SpotOrders
 from tests.mock_response import find_tp_sl_order_mock_response
 
@@ -23,9 +22,10 @@ def test_limits(spot):
     print(price_decimals, qty_decimals, min_qty)
 
 def test_limit_order_with_tp_sl(spot):
-    response = spot.limit_order_with_tp_sl(20, 1.01, 3,15)
-    assert type(response) == bool
+    response = spot.limit_order_with_tp_sl(11, 10, 10)
     spot.cancel_order(spot.order_id_buy)
+    assert type(response) == str
+
 
 
 def test_limit_order_with_tp_sl_mock(spot, mocker):
@@ -36,27 +36,29 @@ def test_limit_order_with_tp_sl_mock(spot, mocker):
     # Мокаем метод cancel_order, чтобы убедиться в его вызове
     mock_cancel = mocker.patch.object(spot, 'cancel_order')
     # Вызываем тестируемый метод
-    response = spot.limit_order_with_tp_sl(20, 1.01)
+    response = spot.limit_order_with_tp_sl(11, 10,10)
     # Проверяем результат
     assert response is True
 
     # Проверяем вызов метода с правильными аргументами
-    mock_order.assert_called_once_with(20, 1.01)
+    mock_order.assert_called_once_with(11, 10, 10)
 
     # Проверяем вызов cancel_order с нужным order_id
     #mock_cancel.assert_called_once_with('mocked_order_id')
 
-def test_find_tp_sl_order(spot, mocker):
-    return_value = find_tp_sl_order_mock_response
-    mock_order = mocker.patch.object(spot, 'find_tp_sl_order', return_value=return_value)
-    mocker.patch.object(spot, 'tp', '2745.1')
+
+def test_find_tp_sl_order_mock(spot, mocker):
+    # Мокаем метод find_tp_sl_order объекта spot
+    mock_order = mocker.patch.object(spot, 'find_tp_sl_order', return_value=find_tp_sl_order_mock_response)
+    # Вызываем замоканный метод
     response = spot.find_tp_sl_order("2745.1")
-    assert type(response) == dict
+    assert isinstance(response, dict)
     assert len(response) == 45
     assert "orderId" in response
-    mock_order.assert_called_once_with(spot.tp)
+    assert response["tpLimitPrice"] == "2745.1"
 
-# def test_limit_order_with_tp_sl_retry(spot):
-#     spot.order_id_buy = "12456673252523"
-#     response = spot.limit_order_with_tp_sl_retry()
-#     print(response)
+
+def test_find_tp_sl_order(spot):
+    tp_price = "132.36"
+    order = spot.find_tp_sl_order(tp_price)
+    assert order["tpLimitPrice"] == tp_price

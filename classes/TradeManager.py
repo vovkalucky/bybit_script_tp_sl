@@ -2,17 +2,16 @@ import time
 from pybit import exceptions
 from classes.SpotOrders import SpotOrders
 from db.queries.orm import CoinsOrm, DealsOrm
-from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS
-from classes.analysis.AnalysisCoin_imbalance_27_02_25 import AnalysisCoin
+from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS
+from classes.analysis.AnalysisCoin_imbalance_trend import AnalysisCoin
 
 class TradeManager:
     def __init__(self):
-        #super().__init__()
         self.coins = CoinsOrm.select_coins()
 
     @staticmethod
     def check_deal_limits() -> bool:
-        spot_orders = SpotOrders(coin_name="DOGEUSDT")
+        spot_orders = SpotOrders(symbol="DOGEUSDT")
         list_of_deals = DealsOrm.select_open_deals()
         active_deals = spot_orders.check_limits_orders_status(list_of_deals)
         if len(active_deals) >= MAX_COUNT_OF_DEALS:
@@ -27,18 +26,18 @@ class TradeManager:
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
             if analysis.has_trade_signal():
-                print(f"🎯🎯🎯 Найден сигнал для {pair} на всех таймфреймах! 🎯🎯🎯")
+                print(f"🎯🎯🎯 Найден сигнал для {pair}! 🎯🎯🎯")
                 self.execute_trade(pair)
                 return
 
         print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
     @staticmethod
-    def execute_trade(pair):
+    def execute_trade(symbol):
         try:
-            spot = SpotOrders(coin_name=pair)
-            spot.get_current_price_of_coin()
-            limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT)
+            spot = SpotOrders(symbol=symbol)
+            spot.get_current_price_of_coin(symbol)
+            limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
             if not limit_order_buy:
                 return
             if not spot.limit_order_with_tp_sl_retry:
@@ -49,8 +48,8 @@ class TradeManager:
             spot.get_info_about_tp_sl_order()
 
         except exceptions.InvalidRequestError as e:
-            print("ByBit API Request Error", e.status_code, e.message, sep=" | ")
+            print("[execute_trade] ByBit API Request Error", e.status_code, e.message, sep=" | ")
         except exceptions.FailedRequestError as e:
-            print("HTTP Request Failed", e.status_code, e.message, sep=" | ")
+            print("[execute_trade] HTTP Request Failed", e.status_code, e.message, sep=" | ")
         except Exception as e:
-            print(f"❌ Ошибка при исполнении сделки для {pair}: {e}")
+            print(f"[execute_trade] ❌ Ошибка при исполнении сделки для {symbol}: {e}")

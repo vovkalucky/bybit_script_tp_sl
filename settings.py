@@ -1,10 +1,9 @@
 PROJECT_NAME = "#bybit_tp_sl_imba_17_03_25"
-UTC_PLUS_TIMEZONE = 3 #определяем добавку в часах для UTC
 DELAY = 60
 MAX_COUNT_OF_DEALS = 5
 MONEY_FOR_ONE_ORDER = 50
-TAKE_PROFIT = 1.01
-STOP_LOSS = 0.5
+TAKE_PROFIT = 1
+STOP_LOSS = 50
 DEMO_TRADE = True
 ATR_SL = 1.5
 ATR_TP = 2

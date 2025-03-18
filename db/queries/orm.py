@@ -1,16 +1,16 @@
 import datetime
-import time
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
 from db.database import sync_engine, session_factory, Base
 from db.models import Deals, Coins
+
 
 class BaseOrm:
     @staticmethod
     def create_tables():
         try:
             sync_engine.echo = True
-            #Base.metadata.drop_all(sync_engine)
+            Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
             with session_factory() as session:
                 # Список монет
@@ -65,6 +65,7 @@ class DealsOrm:
             deal_for_update.money_sell = round(float(money_sell), 3)
             deal_for_update.tax_sell = round(float(tax_sell), 3)
             deal_for_update.time_close = datetime.datetime.now()
+            #deal_for_update.time_close = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=UTC_PLUS_TIMEZONE)))
             deal_for_update.time_in_deal = deal_for_update.time_close - deal_for_update.time_open
             if deal_for_update.status == "Deactivated":
                 deal_for_update.earn = 0
@@ -90,7 +91,7 @@ class DealsOrm:
             )
             res = session.execute(query)
             list_of_deals = res.scalars().all()
-            print(f"(select_open_deals) {list_of_deals}")
+            print(f"📄 Список открытых лимитных ордеров {list_of_deals}")
             return list_of_deals
 
 

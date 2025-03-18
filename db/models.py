@@ -22,7 +22,6 @@ class Deals(Base):
     money_sell: Mapped[float]
     tax_sell: Mapped[float]
     status: Mapped[str]
-    #time_open: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('Europe/Moscow', now())"))
     time_open: Mapped[datetime.datetime] = mapped_column(server_default=text("now()"))
     time_close: Mapped[datetime.datetime] = mapped_column(nullable=True)
     time_in_deal: Mapped[datetime.timedelta] = mapped_column(Interval, nullable=True)
