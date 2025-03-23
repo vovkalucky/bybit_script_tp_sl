@@ -5,7 +5,7 @@ from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from db.queries.orm import CoinsOrm, DealsOrm
-from settings import DEMO_TRADE, STOP_LOSS
+from settings import DEMO_TRADE
 
 
 class SpotOrders:
@@ -172,6 +172,7 @@ class SpotOrders:
             )
             time.sleep(2)
             self.order_id_buy = limit_order['result']['orderId']
+            print(limit_order)
             return self.order_id_buy
 
         except exceptions.InvalidRequestError as e:

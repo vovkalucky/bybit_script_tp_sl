@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
-from db.database import sync_engine, session_factory, Base
+from db.database import session_factory, Base, get_engine #sync_engine
 from db.models import Deals, Coins
 
 
@@ -9,6 +9,7 @@ class BaseOrm:
     @staticmethod
     def create_tables():
         try:
+            sync_engine = get_engine()
             sync_engine.echo = True
             Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)

@@ -1,5 +1,4 @@
 import time
-
 import pytest
 import random
 from classes.SpotOrders import SpotOrders
