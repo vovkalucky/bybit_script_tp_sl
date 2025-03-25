@@ -36,12 +36,12 @@ class BaseOrm:
 
 class DealsOrm:
     @staticmethod
-    def append_deal(coin: str, order_id_buy: str, order_id_sell: str, money_buy: str,
-                    tax_buy: str, money_sell: str, tax_sell: str, status: str):
+    def append_deal(coin: str, order_id_open: str, order_id_close: str, money_open: str,
+                    tax_open: str, money_close: str, tax_close: str, status: str):
         with session_factory() as session:
-            query = insert(Deals).values(coin=coin, order_id_buy=order_id_buy, order_id_sell=order_id_sell,
-                                         money_buy=round(float(money_buy), 3), tax_buy=round(float(tax_buy), 3),
-                                         money_sell=round(float(money_sell), 3), tax_sell=round(float(tax_sell), 3),
+            query = insert(Deals).values(coin=coin, order_id_open=order_id_open, order_id_close=order_id_close,
+                                         money_open=round(float(money_open), 3), tax_open=round(float(tax_open), 3),
+                                         money_close=round(float(money_close), 3), tax_close=round(float(tax_close), 3),
                                          status=status, time_in_deal=datetime.timedelta(seconds=0), earn=0) #time_open=time_sell, time_close=0,
             session.execute(query)
             session.commit()
@@ -63,22 +63,22 @@ class DealsOrm:
                 return
             print(f"Найдена сделка: {deal_for_update}")
             deal_for_update.status = status
-            deal_for_update.money_sell = round(float(money_sell), 3)
-            deal_for_update.tax_sell = round(float(tax_sell), 3)
+            deal_for_update.money_close = round(float(money_sell), 3)
+            deal_for_update.tax_close = round(float(tax_sell), 3)
             deal_for_update.time_close = datetime.datetime.now()
             #deal_for_update.time_close = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=UTC_PLUS_TIMEZONE)))
             deal_for_update.time_in_deal = deal_for_update.time_close - deal_for_update.time_open
             if deal_for_update.status == "Deactivated":
                 deal_for_update.earn = 0
             else:
-                deal_for_update.earn = round(deal_for_update.money_sell - deal_for_update.money_buy - deal_for_update.tax_buy - deal_for_update.tax_sell, 3)
+                deal_for_update.earn = round(deal_for_update.money_close - deal_for_update.money_open - deal_for_update.tax_open - deal_for_update.tax_close, 3)
             session.commit()
             print("♻️ Данные по сделке успешно обновлены в таблице deals.")
 
     @staticmethod
     def get_earn(order_id_sell: str):
         with (session_factory() as session):
-            query = select(Deals).filter(Deals.order_id_sell == order_id_sell)
+            query = select(Deals).filter(Deals.order_id_close == order_id_sell)
             res = session.execute(query)
             deal_for_update = res.scalars().first()
             session.commit()
@@ -87,7 +87,7 @@ class DealsOrm:
     @staticmethod
     def select_open_deals():
         with (session_factory() as session):
-            query = select(Deals.order_id_sell).filter(
+            query = select(Deals.order_id_close).filter(
                 Deals.status.notin_(["Filled", "Deactivated"])
             ).order_by(Deals.id)
             res = session.execute(query)

@@ -15,11 +15,11 @@ class TlgSendMessage:
                    f"side: {spot.side_sell}\n"
                    f"tp: {spot.tp}\n"
                    f"sl: {spot.sl}\n"
-                   f"order_id: {spot.order_id_sell}\n"
+                   f"order_id: {spot.order_id}\n"
                    f"basePrice: {spot.basePrice}\n"
-                   f"money: {round(float(spot.money_buy), 3)}\n"
-                   f"status: {spot.status_sell}\n"
-                   f"tax: {round(float(spot.tax_buy), 3)}\n\n"
+                   f"money: {round(float(spot.money_open), 3)}\n"
+                   f"status: {spot.status}\n"
+                   f"tax: {round(float(spot.tax_open), 3)}\n\n"
                    f"Открытых позиций: {count_open_limit_orders}"
                    )
         payload = {
@@ -38,7 +38,7 @@ class TlgSendMessage:
 
     @staticmethod
     def send_tlg_message_close_tp_sl_order(spot: SpotOrders) -> None:
-        earn = DealsOrm.get_earn(spot.order_id_sell)
+        earn = DealsOrm.get_earn(spot.order_id)
         result_of_deal = ""
         print(f"spot.close_price_sell {spot.close_price_sell} spot.basePrice {spot.basePrice} spot.triggerPrice {spot.triggerPrice}")
         if spot.close_price_sell == "":
@@ -56,11 +56,11 @@ class TlgSendMessage:
         message = (f"{message_title}\n"
                    f"side: {spot.side_sell}\n"
                    f"qty: {spot.qty}\n"
-                   f"order_id: {spot.order_id_sell}\n"
+                   f"order_id: {spot.order_id}\n"
                    f"close_price: {spot.close_price_sell}\n"
-                   f"money: {round(float(spot.money_sell), 3)}\n"
-                   f"status: {spot.status_sell}\n"
-                   f"tax: {round(float(spot.tax_sell), 3)}\n\n"
+                   f"money: {round(float(spot.money_close), 3)}\n"
+                   f"status: {spot.status}\n"
+                   f"tax: {round(float(spot.tax_close), 3)}\n\n"
                    f"Открытых позиций: {count_open_limit_orders}"
                    )
         payload = {

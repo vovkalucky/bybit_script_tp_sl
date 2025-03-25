@@ -22,6 +22,6 @@ def test_open_and_cancel_tp_sl_order(spot):
     # tp_sl_order = spot.find_tp_sl_order(spot.tp)
     # status = tp_sl_order['orderStatus']
     # if status == "Untriggered":
-    order_id = spot.order_id_sell
+    order_id = spot.order_id
     response = spot.cancel_order(order_id)
     assert f"Ордер {order_id} успешно отменен" == response

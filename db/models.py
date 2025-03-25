@@ -15,12 +15,12 @@ class Deals(Base):
 
     id: Mapped[intpk]
     coin: Mapped[str]
-    order_id_buy: Mapped[str]
-    order_id_sell: Mapped[str]
-    money_buy: Mapped[float]
-    tax_buy: Mapped[float]
-    money_sell: Mapped[float]
-    tax_sell: Mapped[float]
+    order_id_open: Mapped[str]
+    order_id_close: Mapped[str]
+    money_open: Mapped[float]
+    tax_open: Mapped[float]
+    money_close: Mapped[float]
+    tax_close: Mapped[float]
     status: Mapped[str]
     time_open: Mapped[datetime.datetime] = mapped_column(server_default=text("now()"))
     time_close: Mapped[datetime.datetime] = mapped_column(nullable=True)

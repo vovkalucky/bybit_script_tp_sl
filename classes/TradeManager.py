@@ -33,9 +33,9 @@ class TradeManager:
         print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
     @staticmethod
-    def execute_trade(symbol):
+    def execute_trade(symbol, side):
         try:
-            spot = SpotOrders(symbol=symbol)
+            spot = SpotOrders(symbol=symbol, side=side)
             spot.get_current_price_of_coin(symbol)
             limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
             if not limit_order_buy:
