@@ -103,7 +103,7 @@ jobs:
         port: 46952  # Указываем порт для SSH
         source: "."  # Копируем весь репозиторий
         target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
-        exclude: "tests/**"  # Исключаем папку tests
+        exclude: "tests"  # Исключаем папку tests
         #rm: true удаляет файлы перед загрузкой новых
 
     - name: Deploy via SSH
