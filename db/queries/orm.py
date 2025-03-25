@@ -89,7 +89,7 @@ class DealsOrm:
         with (session_factory() as session):
             query = select(Deals.order_id_sell).filter(
                 Deals.status.notin_(["Filled", "Deactivated"])
-            )
+            ).order_by(Deals.id)
             res = session.execute(query)
             list_of_deals = res.scalars().all()
             print(f"📄 Список открытых лимитных ордеров {list_of_deals}")
@@ -100,7 +100,7 @@ class CoinsOrm:
     @staticmethod
     def select_coins() -> List[str]:
         with session_factory() as session:
-            query = select(Coins).filter_by(in_deal=False)
+            query = select(Coins).filter_by(in_deal=False).order_by(Coins.id)
             res = session.execute(query)
             result = res.scalars().all()
             coins = []
