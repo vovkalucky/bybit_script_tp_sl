@@ -23,7 +23,7 @@ def test_limits(spot):
 
 def test_limit_order_with_tp_sl(spot):
     response = spot.limit_order_with_tp_sl(11, 10, 10)
-    spot.cancel_order(spot.order_id_buy)
+    spot.cancel_order(spot.order_id_open)
     assert type(response) == str
 
 
