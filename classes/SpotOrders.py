@@ -1,12 +1,12 @@
 import time
-from typing import Tuple, List
-from pybit import exceptions
+from typing import Tuple, List, Optional
 from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
+from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import DEMO_TRADE
-
+from classes.OrdersStructure import LimitOrder, TpSlOrder, MarketOrder
 
 class SpotOrders:
     session = HTTP(api_key=BYBIT_API_KEY,
@@ -16,319 +16,291 @@ class SpotOrders:
                    max_retries=10,
                    retry_delay=10)
 
-    def __init__(self, symbol):
-        super().__init__()
+    def __init__(self, symbol): #side
         self.category = "spot"
         self.symbol = symbol
         self.price_decimals, self.qty_decimals, self.min_qty = self.get_filters()
-        self.qty = None
-        self.order_id_buy = self.side_buy = self.close_price_buy = self.money_buy = self.status_buy = self.tax_buy = self.basePrice = None
-        self.tax_buy_in_qty = self.time_buy = None
-        self.orderLinkId = self.tp = self.sl = None
-        self.order_id_sell = self.side_sell = self.close_price_sell = self.money_sell = self.status_sell = self.tax_sell = None
-        self.earn = None
-        #self.time_sell = self.time_close = None
-        self.triggerPrice = None
+        #self.side = side
+        self.price = SpotOrders.get_current_price_of_coin(self.symbol)
 
-        self.side = None
-        self.order_id = None
-
-    @staticmethod
-    def get_current_price_of_coin(symbol: str) -> float:
-        response = SpotOrders.session.get_tickers(category="spot", symbol=symbol)
-        # Извлекаем актуальную цену
-        if "result" in response and "list" in response["result"] and response["result"]["list"]:
-            price = response["result"]["list"][0]["lastPrice"]
-            #print(f"Актуальная цена {self.coin_name}: {price}, {type(price)}")
-            #self.close_price_buy = float(price)
-            return float(price)
-        else:
-            print("[get_current_price_of_coin] Ошибка при получении данных")
-            return 0
-
-    @staticmethod
-    def count_digits_after_decimal(str_number: str) -> int:
-        # Проверяем, есть ли точка в числе
-        if '.' in str_number:
-            # Разделяем строку на целую и дробную части
-            integer_part, decimal_part = str_number.split('.')
-            return len(decimal_part)  # Возвращаем длину дробной части
-        else:
-            return 0  # Если точки нет, то цифр после запятой нет
-
-    @staticmethod
-    def float_trunc(f: float, prec: int) -> str:
-        """Отбросить от float лишние знаки без округлений, включая числа в научной нотации"""
-        float_value = float(f)
-        # Преобразуем число в строку в стандартной десятичной записи
-        l, r = f"{float_value:.{prec + 12}f}".split('.')  # Увеличиваем точность для предотвращения потерь
-        return f'{l}.{r[:prec]}'  # Возвращаем строку для точного результата
-
-    def check_limits_orders_status(self, orders: List[str]) -> List[str]:
-        for order_id in orders:
-            try:
-                response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
-                time.sleep(1)
-                if len(response_open_orders['result']['list']) == 0:
-                    continue
-                open_order = response_open_orders['result']['list'][0]
-                status = open_order['orderStatus']
-                if status in ["Filled", "Deactivated"]:
-                    print(f"(open_order) Filled! {open_order}")
-                    self.qty = open_order['cumExecQty']
-                    self.status_sell = status
-                    self.order_id_sell = order_id
-                    self.close_price_sell = open_order['avgPrice']
-                    self.money_sell = open_order['cumExecValue']
-                    self.tax_sell = open_order['cumExecFee']
-                    self.symbol = open_order['symbol']
-                    self.side_sell = open_order['side']
-                    # self.time_sell = open_order['createdTime']
-                    # self.time_close = open_order['updatedTime']
-                    self.tp = open_order['tpLimitPrice']
-                    self.sl = open_order['slLimitPrice']
-                    self.basePrice = open_order['basePrice']
-                    self.triggerPrice = open_order['triggerPrice']
-                    CoinsOrm.add_coin(self.symbol)
-                    DealsOrm.update_deal(coin=self.symbol, status=self.status_sell,
-                                         money_sell=self.money_sell, tax_sell=self.tax_sell)
-                    TlgSendMessage.send_tlg_message_close_tp_sl_order(self)
-            except Exception as e:
-                print(f"(check_limits_orders_status) Exception: {e}")
-        return orders
-
-
-    def get_filters(self) -> Tuple[int, int, str]:
+    def get_filters(self) -> Tuple[Optional[int], Optional[int], Optional[str]]:
         """Функция для получения лимитов для конкретной монеты (coin_name).
         На выходе получаем price_decimals (точность для цены), qty_decimals (точность для количества монет)
         , min_qty (минимальное количество доступное для покупки)"""
+        max_attempts = 3
+        attempt_delay = 10  # seconds
+
+        for attempt in range(1, max_attempts + 1):
+            try:
+                instruments = self.session.get_instruments_info(category=self.category)
+
+                if not instruments or not isinstance(instruments, dict):
+                    print(f"[get_filters] Attempt {attempt}: Invalid response format")
+                    if attempt < max_attempts:
+                        time.sleep(attempt_delay)
+                    continue
+
+                spot_list = instruments.get("result", {}).get("list", [])
+
+                if not spot_list:
+                    print(f"[get_filters] Attempt {attempt}: Empty spot list")
+                    if attempt < max_attempts:
+                        time.sleep(attempt_delay)
+                    continue
+
+                coin = next((x for x in spot_list if x.get("symbol") == self.symbol), None)
+
+                if coin is None:
+                    print(f"[get_filters] Attempt {attempt}: Coin {self.symbol} not found in spot list")
+                    if attempt < max_attempts:
+                        time.sleep(attempt_delay)
+                    continue
+
+                try:
+                    qty_decimals = coin['lotSizeFilter']['basePrecision']
+                    price_decimals = coin['priceFilter']['tickSize']
+                    min_qty = coin['lotSizeFilter']['minOrderQty']
+
+                    return (
+                        TradeHelpsFunc.count_digits_after_decimal(price_decimals),
+                        TradeHelpsFunc.count_digits_after_decimal(qty_decimals),
+                        min_qty
+                    )
+                except KeyError as ke:
+                    print(f"[get_filters] Attempt {attempt}: Missing expected key in coin data: {ke}")
+                    return None, None, None
+
+            except Exception as e:
+                print(f"[get_filters] Attempt {attempt}: Exception: {e}")
+                if attempt < max_attempts:
+                    time.sleep(attempt_delay)
+
+        return None, None, None
+
+    @staticmethod
+    @TradeHelpsFunc.retry()
+    def get_current_price_of_coin(symbol: str) -> float:
+        """
+        Получает текущую цену монеты на спотовом рынке с повторными попытками.
+        Args:
+            symbol: Торговая пара (например, 'BTCUSDT')
+        Returns:
+            float: Текущая цена
+        """
+        response = SpotOrders.session.get_tickers(category="spot", symbol=symbol)
         try:
-            instruments = self.session.get_instruments_info(category=self.category)
-            #spot_list = instruments["result"]["list"]
-            spot_list = instruments.get("result", {}).get("list", [])
-            # print(f"Found a total of {len(spotList)} spot symbols.")
-            coin = next((x for x in spot_list if x["symbol"] == self.symbol), None)
-            if coin is None:
-                print(f"[get_filters] Coin {self.symbol} not found in spot list.")
-                return None, None, None
-            qty_decimals = coin['lotSizeFilter']['basePrecision']
-            price_decimals = coin['priceFilter']['tickSize']
-            min_qty = coin['lotSizeFilter']['minOrderQty']
-            return (SpotOrders.count_digits_after_decimal(price_decimals),
-                    SpotOrders.count_digits_after_decimal(qty_decimals), min_qty)
-        except Exception as e:
-            print(f"[get_filters] Exception:  {e}")
-            return None, None, None
+            price_str = response.get("result", {}).get("list", [{}])[0].get("lastPrice")
+            #print(f"[get_current_price_of_coin] {price_str}")
+            if not price_str:
+                raise Exception("[get_current_price_of_coin] Price data not found in response")
+            return float(price_str)
+
+        except (IndexError, KeyError, TypeError, ValueError) as e:
+            raise Exception(f"Error parsing response: {str(e)}")
 
 
-    def cancel_order(self, order_id: str) -> str:
-        """Функция для отмены ордера order_id"""
-        try:
-            canceled_order = self.session.cancel_order(category="spot", orderId=order_id)
-            ret_msg = canceled_order.get('retMsg', '')
-            if ret_msg == "OK":
-                print(f"Ордер {order_id} успешно отменен")
-                return f"Ордер {order_id} успешно отменен"
-            else:
-                return f"Ошибка при отмене ордера {order_id}: {ret_msg}"
+    @TradeHelpsFunc.retry()  # Применяем декоратор с нужными параметрами
+    def market_order(self, side: str, money_for_one_order: float) -> MarketOrder:
+        """Установка market order на сумму qty ($)"""
+        qty = TradeHelpsFunc.float_trunc(money_for_one_order, self.qty_decimals)
 
-        except Exception as e:
-            return f"[cancel_order] Exception: {e}"
+        order = self.session.place_order(
+            category=self.category,
+            symbol=self.symbol,
+            side=side,
+            orderType="Market",
+            qty=qty,
+            marketUnit="quoteCoin"
+        )
+        order_id = order.get('result', {}).get('orderId')
+        order = MarketOrder(order_id=order_id)
+        if not order_id:
+            print(f"[market_order] No orderId in response")
+            return None
+        return order
 
-    def limit_order_with_tp_sl(self, money_for_one_order: float, take_profit: float, stop_loss: float) -> str:
+
+    @TradeHelpsFunc.retry()  # Применяем декоратор с нужными параметрами
+    def limit_order(self, side: str, money_or_qty: float, take_profit: float) -> LimitOrder:
+        """Установка limit order на сумму qty ($).
+        Возвращает id ордера"""
+
+        # Получаем текущую цену
+        current_price = SpotOrders.get_current_price_of_coin(self.symbol)
+
+        # Если ордер на покупку
+        if side == "Buy":
+            print("Buy")
+
+            # Рассчитываем количество монет, которое можно купить на заданную сумму
+            qty = money_or_qty / current_price
+            qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
+
+            # Цена покупки (ниже текущей)
+            price = current_price * (1 - take_profit / 100)
+            price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
+
+        # Если ордер на продажу
+        elif side == "Sell":
+            print("Sell")
+
+            # Количество монет для продажи (если у вас есть достаточное количество для продажи, например 100 монет)
+            # Предполагается, что вы хотите продать все монеты, так что qty берется из текущего баланса.
+            #qty = self.get_balance_of_coin(self.symbol)  # Предположим, что у вас есть метод для получения баланса
+            qty = TradeHelpsFunc.float_trunc(money_or_qty, self.qty_decimals)
+
+            # Цена продажи (выше текущей)
+            price = current_price * (1 + take_profit / 100)
+            price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
+
+        # Размещение лимитного ордера
+        order = self.session.place_order(
+            category=self.category,
+            symbol=self.symbol,
+            side=side,
+            orderType="Limit",
+            qty=qty,
+            price=price,
+            marketUnit="quoteCoin"
+        )
+
+        order_id = order.get('result', {}).get('orderId')
+        order = LimitOrder(order_id=order_id)
+        if not order_id:
+            print(f"[limit_order] No orderId in response")
+            return None
+        return order
+
+    @TradeHelpsFunc.retry()
+    def get_info_about_limit_order(self, order: LimitOrder) -> LimitOrder:
+        response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
+        order = response_limit_order['result']['list'][0]
+        #print(f"[get_info_about_limit_order]: {order}")
+        status = order['orderStatus']
+        #if status == "New":
+        order = LimitOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                                 side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                                 tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
+                                 price=order['price']
+        )
+        return order
+
+    @TradeHelpsFunc.retry()
+    def get_info_about_market_order(self, order: MarketOrder) -> MarketOrder:
+        response_open_orders = self.session.get_order_history(category=self.category, orderId=order.order_id)
+        order = response_open_orders['result']['list'][0]
+        print(f"[get_info_about_market_order]: {order}")
+        status = order['orderStatus']
+        # if status in ["Filled", "Deactivated"]:
+        tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
+        order = MarketOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                           side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                           tax_open=tax_open, time_open=order['createdTime']
+                           )
+        return order
+
+    @TradeHelpsFunc.retry()
+    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> TpSlOrder:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
-        self.side_buy = "Buy"
-        self.close_price_buy = self.get_current_price_of_coin(self.symbol)
-        qty = money_for_one_order/self.close_price_buy
-        qty = SpotOrders.float_trunc(qty, self.qty_decimals)
-        take_profit_price = self.close_price_buy * (1 + take_profit/100)
-        stop_loss_price = self.close_price_buy * (1 - stop_loss/100)
-        tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
-        sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
+        close_price = self.get_current_price_of_coin(self.symbol)
+        qty = money_for_one_order/close_price
+        qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
+        take_profit_price = close_price * (1 + take_profit / 100)
+        stop_loss_price = close_price * (1 - stop_loss / 100)
+        tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
+        sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
 
-        #tp_trigger_price = SpotOrders.float_trunc(float(tp_price) * 0.99, self.price_decimals)
-        #sl_trigger_price = SpotOrders.float_trunc(float(sl_price) * 0.99, self.price_decimals)
+        order = self.session.place_order(
+            category=self.category,
+            symbol=self.symbol,
+            side=side,
+            orderType="Limit",
+            qty=qty,
+            price=close_price,
+            marketUnit="quoteCoin",
+            takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
+            stopLoss=sl_price,
+            # slTriggerPrice=sl_trigger_price,
+            # tpTriggerPrice=tp_trigger_price,
+            slLimitPrice=sl_price,
+            tpLimitPrice=tp_price,
+            tpOrderType="Limit",
+            slOrderType="Limit",
+            orderFilter = "OCO",  # Фильтр для OCO-ордера
+            timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+        )
+        order_id = order.get('result', {}).get('orderId')
+        order = TpSlOrder(order_id=order_id)
+        if not order_id:
+            print(f"[tp_sl_order] No orderId in response")
+            return None
+        return order
 
-        try:
-            limit_order = self.session.place_order(
-                category=self.category,
-                symbol=self.symbol,
-                side=self.side_buy,
-                orderType="Limit",
-                qty=qty,
-                price=self.close_price_buy,
-                marketUnit="quoteCoin",
-                takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                stopLoss=sl_price,
-                # slTriggerPrice=sl_trigger_price,
-                # tpTriggerPrice=tp_trigger_price,
-                slLimitPrice=sl_price,
-                tpLimitPrice=tp_price,
-                tpOrderType="Limit",
-                slOrderType="Limit",
-                orderFilter = "OCO",  # Фильтр для OCO-ордера
-                timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
-            )
-            time.sleep(2)
-            self.order_id_buy = limit_order['result']['orderId']
-            print(limit_order)
-            return self.order_id_buy
-
-        except exceptions.InvalidRequestError as e:
-            print("(limit_order_with_tp_sl) ByBit API Request Error", e.status_code, e.message, sep=" | ")
-        except exceptions.FailedRequestError as e:
-            print("(limit_order_with_tp_sl) HTTP Request Failed", e.status_code, e.message, sep=" | ")
-        except Exception as e:
-            print(f"(limit_order_with_tp_sl) Other exception: {e}")
-
-
-    def limit_order_with_tp_sl_retry(self, max_retries: int = 3, retry_delay: int = 15) -> bool:
-        """Попытки установить limit order. Происходит 3 попытки (max_retries) получить состояние статуса
-         с паузой (retry_delay) 15 сек. Если order заполнен (FILLED) возвращаем True"""
-        retries = 0
-        while retries < max_retries:
-            try:
-                open_orders = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
-                status_order_buy = open_orders['result']['list'][0]['orderStatus']
-                if status_order_buy == "Filled":
-                    return True
-                else:
-                    print(f"🛑 Лимитный ордер не заполнен!\n"
-                          f"⏰ Попытка {retries + 1} не удалась. Проверка через {retry_delay} секунд.")
-                    time.sleep(retry_delay)
-                    retries += 1
-
-            except exceptions.InvalidRequestError as e:
-                print("[limit_order_with_tp_sl_retry] ByBit API Request Error", e.status_code, e.message, sep=" | ")
-            except exceptions.FailedRequestError as e:
-                print("[limit_order_with_tp_sl_retry] HTTP Request Failed", e.status_code, e.message, sep=" | ")
-            except Exception as e:
-                print(f"[limit_order_with_tp_sl_retry] Other exception: {e}")
-        return False
-
-    def get_info_about_limit_order(self) -> bool:
-        try:
-            if self.order_id_buy is None:
-                print("‼️ Лимитный ордер не размещен! Проставь его самостоятельно!")
-                return False
-            response_limit_order = self.session.get_open_orders(category=self.category, orderId=self.order_id_buy)
-            limit_order = response_limit_order['result']['list'][0]
-            print(f"[get_info_about_limit_order]: {limit_order}")
-            status = limit_order['orderStatus']
-            if status == "Filled":
-                self.qty = limit_order['cumExecQty']
-                self.status_buy = status
-                self.close_price_buy  = limit_order['avgPrice']
-                self.money_buy  = limit_order['cumExecValue']
-                self.tax_buy = float(limit_order['cumExecFee']) * float(limit_order['price'])
-                self.symbol = limit_order['symbol']
-                self.side_buy = limit_order['side']
-                self.time_buy = limit_order['createdTime']
-                #self.tp = limit_order['takeProfit']
-                self.tp = limit_order['tpLimitPrice']
-                #self.sl = limit_order['stopLoss']
-                self.sl = limit_order['slLimitPrice']
-                return True
-                # print(f"(get_info_about_limit_order) {self.qty} {self.status_buy} {self.close_price_buy} {self.money_buy} "
-                #       f"{self.tax_buy} {self.symbol} {self.side_buy} {self.time_buy}")
-
-        except Exception as e:
-            print(f"[get_info_about_limit_order] Exception: {e}")
-
-    def find_tp_sl_order(self, take_profit_value: str) -> dict:
+    @TradeHelpsFunc.retry()
+    def find_tp_sl_order_id(self, take_profit_value: str) -> str:
         """Поиск TP/SL ордера по значению тейкпрофита (take_profit_value)"""
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category)
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
-            tp_sl_order_list = [order for order in tp_sl_orders if order.get("tpLimitPrice") == str(take_profit_value)]
-            return tp_sl_order_list[0]
+            tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
+            return tp_sl_order_list[0]["orderId"]
         except Exception as e:
             print(f"[find_tp_sl_order] Exception: {e}")
-            return "Order not found"
+            return None
+
+    @TradeHelpsFunc.retry()
+    def get_info_about_tp_sl_order(self, order: TpSlOrder) -> TpSlOrder:
+            response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
+            order = response_limit_order['result']['list'][0]
+            print(f"[get_info_about_tp_sl_order]: {order}")
+            order_id_close = self.find_tp_sl_order_id(order['takeProfit'])
+            response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
+            status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
+            tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
+            order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                                     side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                                     tax_open=tax_open, time_open=order['createdTime'],
+                                     price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
+                                     order_id_close=order_id_close, money_close="0", tax_close="0"
+            )
+            print(f"get_info_about_tp_sl_order {order}")
+
+            # CoinsOrm.delete_coin(order.symbol)
+            # DealsOrm.append_deal(coin=order.symbol, order_id_open=order.order_id,
+            #                      order_id_close=order.tp_sl_order_id,
+            #                      money_open=order.money_open, tax_open=order.tax_open,
+            #                      status=order.status, money_close=order.money_close, tax_close=order.tax_close)
+            # TlgSendMessage.send_tlg_message_new_tp_sl_order(order)
+
+            return order
+
+    @TradeHelpsFunc.retry()
+    def check_orders_status(self, orders: List[str]) -> List[str]:
+        for order_id in orders:
+            response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
+            time.sleep(1)
+            if len(response_open_orders['result']['list']) == 0:
+                continue
+            order = response_open_orders['result']['list'][0]
+            status = order['orderStatus']
+            if status in ["Filled", "Deactivated"]:
+                order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                                  side=order['side'], status=status, close_price=order['avgPrice'],
+                                  money_close=order['cumExecValue'], tax_close=order['cumExecFee'],
+                                  order_id_close=order_id, price=order['price'],
+                                  basePrice=order['basePrice'], triggerPrice=order['triggerPrice']
+                                  )
+                CoinsOrm.add_coin(order.symbol)
+                DealsOrm.update_deal(order)
+                TlgSendMessage.send_tlg_message_close_tp_sl_order(order)
+        return orders
 
 
-
-    def get_info_about_tp_sl_order(self) -> bool:
-        try:
-            tp_sl_order = self.find_tp_sl_order(self.tp)
-            print(f"[get_info_about_tp_sl_order]: {tp_sl_order}")
-            if tp_sl_order == "Order not find":
-                return False
-            status = tp_sl_order['orderStatus']
-            if status == "Untriggered": #or status == "Active"
-                self.order_id_sell = tp_sl_order['orderId']
-                self.qty = tp_sl_order['cumExecQty']
-                self.status_sell = status
-                self.close_price_sell = tp_sl_order['avgPrice']
-                self.money_sell = tp_sl_order['cumExecValue']
-                self.tax_sell = tp_sl_order['cumExecFee']
-                self.basePrice = tp_sl_order['basePrice']
-                self.side_sell = tp_sl_order['side']
-                #self.time_sell = tp_sl_order['createdTime']
-                # self.symbol = tp_sl_order['symbol']
-                #self.tp = tp_sl_order['takeProfit'] для маркет
-                #self.tp = tp_sl_order['tpLimitPrice']
-                #self.sl = tp_sl_order['stopLoss'] для маркет
-                #self.sl = tp_sl_order['slLimitPrice']
-                CoinsOrm.delete_coin(self.symbol)
-                DealsOrm.append_deal(coin=self.symbol,order_id_buy=self.order_id_buy, order_id_sell=self.order_id_sell,
-                                     money_buy=self.money_buy, tax_buy=self.tax_buy, money_sell=self.money_sell,
-                                     tax_sell=self.tax_sell, status=self.status_sell)
-                TlgSendMessage.send_tlg_message_new_tp_sl_order(self)
-                return True
-        except Exception as e:
-            print(f"[get_info_about_tp_sl_order] Exception: {e}")
-            return False
-
-
-    @classmethod
-    def get_order_book(cls, symbol):
-        """Получение стакана ордеров"""
-        return cls.session.get_orderbook(
-            category="spot",
-            symbol=symbol,
-            limit=50
-        )
-
-    def limit_order_tp_sl(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> str:
-            """Установка limit order на сумму money_for_one_order ($). Возвращает id ордера"""
-            self.side = side
-            self.close_price_buy = self.get_current_price_of_coin(self.symbol)
-            qty = money_for_one_order/self.close_price_buy
-            qty = SpotOrders.float_trunc(qty, self.qty_decimals)
-            take_profit_price = self.close_price_buy * (1 + take_profit/100)
-            stop_loss_price = self.close_price_buy * (1 - stop_loss/100)
-            tp_price = SpotOrders.float_trunc(take_profit_price, self.price_decimals)
-            sl_price = SpotOrders.float_trunc(stop_loss_price, self.price_decimals)
-
-            try:
-                limit_order = self.session.place_order(
-                    category=self.category,
-                    symbol=self.symbol,
-                    side=self.side,
-                    orderType="Limit",
-                    qty=qty,
-                    price=self.close_price_buy,
-                    marketUnit="quoteCoin",
-                    takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                    stopLoss=sl_price,
-                    # slTriggerPrice=sl_trigger_price,
-                    # tpTriggerPrice=tp_trigger_price,
-                    slLimitPrice=sl_price,
-                    tpLimitPrice=tp_price,
-                    tpOrderType="Limit",
-                    slOrderType="Limit",
-                    orderFilter = "OCO",  # Фильтр для OCO-ордера
-                    timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
-                )
-                time.sleep(2)
-                self.order_id = limit_order['result']['orderId']
-                return self.order_id
-
-            except exceptions.InvalidRequestError as e:
-                print("[limit_order_with_tp_sl] ByBit API Request Error", e.status_code, e.message, sep=" | ")
-            except exceptions.FailedRequestError as e:
-                print("[limit_order_with_tp_sl] HTTP Request Failed", e.status_code, e.message, sep=" | ")
-            except Exception as e:
-                print(f"[limit_order_with_tp_sl] Other exception: {e}")
+# spot = SpotOrders(symbol="PEPEUSDT")
+#print(spot.qty_decimals)
+# order = spot.tp_sl_order("Buy", 50, 4,4)
+# print(order)
+# order = TpSlOrder(order_id='1917142573705858304')
+# info = spot.get_info_about_tp_sl_order(order)
+# print(info)

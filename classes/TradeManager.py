@@ -1,6 +1,6 @@
-import time
 from pybit import exceptions
 from classes.SpotOrders import SpotOrders
+from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS
 from classes.analysis.AnalysisCoin_imbalance_trend import AnalysisCoin
@@ -13,7 +13,7 @@ class TradeManager:
     def check_deal_limits() -> bool:
         spot_orders = SpotOrders(symbol="DOGEUSDT")
         list_of_deals = DealsOrm.select_open_deals()
-        active_deals = spot_orders.check_limits_orders_status(list_of_deals)
+        active_deals = spot_orders.check_orders_status(list_of_deals)
         if len(active_deals) >= MAX_COUNT_OF_DEALS:
             print(f"🤖 Бот уже участвует в {len(active_deals)} сделках(е)!\n"
                   f"⏳ Подождите, пока закроется хотя бы одна из них")
@@ -36,16 +36,13 @@ class TradeManager:
     def execute_trade(symbol):
         try:
             spot = SpotOrders(symbol=symbol)
-            spot.get_current_price_of_coin(symbol)
-            limit_order_buy = spot.limit_order_with_tp_sl(MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
-            if not limit_order_buy:
-                return
-            if not spot.limit_order_with_tp_sl_retry:
-                spot.cancel_order(limit_order_buy)
-                return
-            spot.get_info_about_limit_order()
-            time.sleep(2)
-            spot.get_info_about_tp_sl_order()
+            order_buy = spot.tp_sl_order("Buy", MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
+            print(f"[execute_trade] order_buy: {order_buy}")
+            order = spot.get_info_about_tp_sl_order(order_buy)
+            if order:
+                CoinsOrm.delete_coin(symbol)
+                DealsOrm.append_deal(order)
+                TlgSendMessage.send_tlg_message_new_tp_sl_order(order)
 
         except exceptions.InvalidRequestError as e:
             print("[execute_trade] ByBit API Request Error", e.status_code, e.message, sep=" | ")

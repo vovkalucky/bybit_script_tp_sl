@@ -25,7 +25,8 @@ class AnalysisCoin:
                 condition_2 = True
             else:
                 condition_2 = False
-            return condition_1 and condition_2
+            #return condition_1 and condition_2
+            return True
         except Exception as e:
             print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
             return False

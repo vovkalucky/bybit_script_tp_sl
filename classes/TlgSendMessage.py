@@ -1,4 +1,6 @@
-from classes import SpotOrders
+#from classes import SpotOrders
+#from classes.SpotOrders_beta import TpSlOrder
+from classes.OrdersStructure import TpSlOrder
 from db.queries.orm import DealsOrm
 from settings import PROJECT_NAME
 import requests
@@ -6,20 +8,20 @@ from config import TLG_TOKEN, TLG_ADMIN_ID
 
 class TlgSendMessage:
     @staticmethod
-    def send_tlg_message_new_tp_sl_order(spot: SpotOrders) -> None:
-        message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {spot.symbol} успешно размещен\n"
+    def send_tlg_message_new_tp_sl_order(order: TpSlOrder) -> None:
+        message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {order.symbol} успешно размещен\n"
         list_of_open_deals = DealsOrm.select_open_deals()
         count_open_limit_orders = len(list_of_open_deals)
         url = f"https://api.telegram.org/bot{TLG_TOKEN}/sendMessage"
         message = (f"{message_title}\n"
-                   f"side: {spot.side_sell}\n"
-                   f"tp: {spot.tp}\n"
-                   f"sl: {spot.sl}\n"
-                   f"order_id: {spot.order_id_sell}\n"
-                   f"basePrice: {spot.basePrice}\n"
-                   f"money: {round(float(spot.money_buy), 3)}\n"
-                   f"status: {spot.status_sell}\n"
-                   f"tax: {round(float(spot.tax_buy), 3)}\n\n"
+                   f"side: {order.side}\n"
+                   f"tp: {order.take_profit}\n"
+                   f"sl: {order.stop_loss}\n"
+                   f"order_id: {order.order_id_close}\n"
+                   f"price: {order.price}\n"
+                   f"money: {round(float(order.money_open), 3)}\n"
+                   f"status: {order.status}\n"
+                   f"tax: {round(float(order.tax_open), 3)}\n\n"
                    f"Открытых позиций: {count_open_limit_orders}"
                    )
         payload = {
@@ -37,16 +39,15 @@ class TlgSendMessage:
 
 
     @staticmethod
-    def send_tlg_message_close_tp_sl_order(spot: SpotOrders) -> None:
-        earn = DealsOrm.get_earn(spot.order_id_sell)
+    def send_tlg_message_close_tp_sl_order(order: TpSlOrder) -> None:
+        earn = DealsOrm.get_earn(order.order_id)
         result_of_deal = ""
-        print(f"spot.close_price_sell {spot.close_price_sell} spot.basePrice {spot.basePrice} spot.triggerPrice {spot.triggerPrice}")
-        if spot.close_price_sell == "":
-            result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {spot.symbol} была отменена."
-        elif float(spot.basePrice) <= float(spot.triggerPrice):
-            result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {spot.symbol} закрыта с прибылью!"
-        elif float(spot.basePrice) >= float(spot.triggerPrice):
-            result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {spot.symbol} закрыта с убытком..."
+        if order.close_price == "":
+            result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {order.symbol} была отменена."
+        elif float(order.basePrice) <= float(order.triggerPrice):
+            result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {order.symbol} закрыта с прибылью!"
+        elif float(order.basePrice) >= float(order.triggerPrice):
+            result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {order.symbol} закрыта с убытком..."
 
         message_title = (f"{result_of_deal}\n"
                          f"💰 Результат: {earn} $\n")
@@ -54,13 +55,13 @@ class TlgSendMessage:
         count_open_limit_orders = len(list_of_open_deals)
         url = f"https://api.telegram.org/bot{TLG_TOKEN}/sendMessage"
         message = (f"{message_title}\n"
-                   f"side: {spot.side_sell}\n"
-                   f"qty: {spot.qty}\n"
-                   f"order_id: {spot.order_id_sell}\n"
-                   f"close_price: {spot.close_price_sell}\n"
-                   f"money: {round(float(spot.money_sell), 3)}\n"
-                   f"status: {spot.status_sell}\n"
-                   f"tax: {round(float(spot.tax_sell), 3)}\n\n"
+                   f"side: {order.side}\n"
+                   f"qty: {order.qty}\n"
+                   f"order_id: {order.order_id}\n"
+                   f"price: {order.price}\n"
+                   f"money: {round(float(order.money_close), 3)}\n"
+                   f"status: {order.status}\n"
+                   f"tax: {round(float(order.tax_close), 3)}\n\n"
                    f"Открытых позиций: {count_open_limit_orders}"
                    )
         payload = {
