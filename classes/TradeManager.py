@@ -1,7 +1,5 @@
-import time
 from pybit import exceptions
-#from classes.SpotOrders import SpotOrders
-from classes.SpotOrders_beta import SpotOrders
+from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS
@@ -39,7 +37,7 @@ class TradeManager:
         try:
             spot = SpotOrders(symbol=symbol)
             order_buy = spot.tp_sl_order("Buy", MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
-            print(f"order_buy {order_buy}")
+            print(f"[execute_trade] order_buy: {order_buy}")
             order = spot.get_info_about_tp_sl_order(order_buy)
             if order:
                 CoinsOrm.delete_coin(symbol)
