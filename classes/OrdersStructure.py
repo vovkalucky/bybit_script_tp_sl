@@ -42,7 +42,7 @@ class TpSlOrder:
     time_open: Optional[str] = None
     money_close: Optional[str] = None
     tax_close: Optional[str] = None
-    time_close: Optional[str] = None
+    #time_close: Optional[str] = None
     price: Optional[str] = None
     order_id_close: Optional[str] = None
     basePrice: Optional[str] = None

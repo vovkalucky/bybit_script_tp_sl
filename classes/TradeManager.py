@@ -25,20 +25,26 @@ class TradeManager:
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
-            if analysis.has_trade_signal():
-                print(f"🎯🎯🎯 Найден сигнал для {pair}! 🎯🎯🎯")
-                self.execute_trade(pair)
-                return
+            side = analysis.analyze_imbalance_and_trend()
+            if analysis.analyze_imbalance_and_trend() in ["Buy", "Sell"]:
+                print(f"📣📣📣 Найден сигнал на {side} для {pair}! 📣📣📣")
+                self.execute_trade(pair, side)
+            print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
-        print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
+            # if analysis.analyze_imbalance_and_trend() == "Buy":
+            #     print(f"⬆️⬆️⬆️⬆️ Найден сигнал на покупку для {pair}! ⬆️⬆️⬆️⬆️")
+            #     self.execute_trade(pair, "Buy")
+            # elif analysis.analyze_imbalance_and_trend() == "Sell":
+            #     print(f"⬇️⬇️⬇️⬇️ Найден сигнал на продажу для {pair}! ⬇️⬇️⬇️⬇️")
+            #     self.execute_trade(pair, "Sell")
 
     @staticmethod
-    def execute_trade(symbol):
+    def execute_trade(symbol: str, side: str):
         try:
             spot = SpotOrders(symbol=symbol)
-            order_buy = spot.tp_sl_order("Buy", MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
-            print(f"[execute_trade] order_buy: {order_buy}")
-            order = spot.get_info_about_tp_sl_order(order_buy)
+            order_open = spot.tp_sl_order(side, MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
+            print(f"[execute_trade] order_open: {order_open}")
+            order = spot.get_info_about_tp_sl_order(order_open)
             if order:
                 CoinsOrm.delete_coin(symbol)
                 DealsOrm.append_deal(order)

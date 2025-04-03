@@ -99,49 +99,91 @@ class TechAnalysis:
         return close > (previous_close + atr)
 
     @classmethod
-    def find_bear_imbalance(cls, symbol: str, interval:str, limit: int = 10, imbalance: float = 0.5, profit: float = 1) -> bool:
-        """Функция поиска медвежьего имбаланса - падающие свечи. Для анализа берутся
-        три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
-        (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
+    def find_imbalance(cls, symbol: str, interval: str, direction: str, limit: int = 10, imbalance: float = 0.7,
+                       profit: float = 0.7) -> str:
+        """Функция поиска имбаланса. Определяет бычий (Bull) или медвежий (Bear) дисбаланс.
+        Для анализа берутся три последние закрытые свечи и текущая (current_kline) для входа в сделку.
+        Параметры:
+        - direction: "bull" для бычьего или "bear" для медвежьего имбаланса
+        - imbalance: минимальный размер тела свечи в процентах
+        - profit: минимальная ожидаемая прибыль в процентах
+        """
         klines = TechAnalysis.get_klines(symbol, interval, limit)
-        third_imb_kline = float(klines[-4][3]) #low
-        second_imb_kline = float(klines[-3][3]) #low
-        first_imb_kline = float(klines[-2][2]) #high
-        current_kline = float(klines[-1][4]) #current_price
 
-        condition_0 = second_imb_kline < third_imb_kline
-        condition_1 = (first_imb_kline - current_kline)/first_imb_kline > profit/100 # для входа в сделку чтобы прибыль составила profit (%)
-        condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > imbalance/100 # размера тела падающей свечи более imbalance (%)
+        if direction == "bear":
+            third_imb_kline = float(klines[-4][3])  # low
+            second_imb_kline = float(klines[-3][3])  # low
+            first_imb_kline = float(klines[-2][2])  # high
+            current_kline = float(klines[-1][4])  # current_price
 
-        list_of_conditions = [condition_0, condition_1, condition_2]
-        if all(list_of_conditions):
-        #if all([True]):
-            print(f"✅✅✅✅✅✅✅✅ Bear Imbalance for {symbol} in {interval} find! ✅✅✅✅✅✅✅✅")
-            return True
+            condition_0 = second_imb_kline < third_imb_kline
+            condition_1 = (first_imb_kline - current_kline) / first_imb_kline > profit / 100
+            condition_2 = (third_imb_kline - first_imb_kline) / third_imb_kline > imbalance / 100
+            signal = "Buy"
+        elif direction == "bull":
+            third_imb_kline = float(klines[-4][2])  # high
+            second_imb_kline = float(klines[-3][2])  # high
+            first_imb_kline = float(klines[-2][3])  # low
+            current_kline = float(klines[-1][4])  # current_price
+
+            condition_0 = second_imb_kline > third_imb_kline
+            condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100
+            condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100
+            signal = "Sell"
         else:
-            return False
+            print(f"[find_imbalance] Invalid direction: {direction}")
+            return "No signal"
 
-    @classmethod
-    def find_bull_imbalance(cls, symbol: str, interval: str, limit: int = 10, imbalance: float = 0.5, profit: float = 0.5) -> bool:
-        """Функция поиска бычьего имбаланса - растущие свечи. Для анализа берутся
-        три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
-        (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
-        klines = TechAnalysis.get_klines(symbol, interval, limit)
-        third_imb_kline = float(klines[-4][2])  # high
-        second_imb_kline = float(klines[-3][2])  # high
-        first_imb_kline = float(klines[-2][3])  # low
-        current_kline = float(klines[-1][4])  # current_price
-
-        condition_0 = second_imb_kline > third_imb_kline
-        condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100  # условие для входа в сделку, чтобы прибыль составила profit (%)
-        condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100  # размер тела растущей свечи более imbalance (%)
-        list_of_conditions = [condition_0, condition_1, condition_2]
-        print(f"{symbol} {list_of_conditions}")
-        if all(list_of_conditions):
-            print(f"✅✅✅✅✅✅✅✅ Bull Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
-            return True
+        if all([condition_0, condition_1, condition_2]):
+            print(f"✅✅✅✅✅✅✅✅ {direction.capitalize()} Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
+            return signal
         else:
-            return False
+            return "No signal"
+
+    # @classmethod
+    # def find_bear_imbalance(cls, symbol: str, interval:str, limit: int = 10, imbalance: float = 0.5, profit: float = 1) -> str:
+    #     """Функция поиска медвежьего имбаланса - падающие свечи. Для анализа берутся
+    #     три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
+    #     (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
+    #     klines = TechAnalysis.get_klines(symbol, interval, limit)
+    #     third_imb_kline = float(klines[-4][3]) #low
+    #     second_imb_kline = float(klines[-3][3]) #low
+    #     first_imb_kline = float(klines[-2][2]) #high
+    #     current_kline = float(klines[-1][4]) #current_price
+    #
+    #     condition_0 = second_imb_kline < third_imb_kline
+    #     condition_1 = (first_imb_kline - current_kline)/first_imb_kline > profit/100 # для входа в сделку чтобы прибыль составила profit (%)
+    #     condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > imbalance/100 # размера тела падающей свечи более imbalance (%)
+    #
+    #     list_of_conditions = [condition_0, condition_1, condition_2]
+    #     if all(list_of_conditions):
+    #     #if all([True]):
+    #         print(f"✅✅✅✅✅✅✅✅ Bear Imbalance for {symbol} in {interval} find! ✅✅✅✅✅✅✅✅")
+    #         return "Buy"
+    #     else:
+    #         return "No buy"
+    #
+    # @classmethod
+    # def find_bull_imbalance(cls, symbol: str, interval: str, limit: int = 10, imbalance: float = 0.5, profit: float = 0.5) -> str:
+    #     """Функция поиска бычьего имбаланса - растущие свечи. Для анализа берутся
+    #     три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
+    #     (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
+    #     klines = TechAnalysis.get_klines(symbol, interval, limit)
+    #     third_imb_kline = float(klines[-4][2])  # high
+    #     second_imb_kline = float(klines[-3][2])  # high
+    #     first_imb_kline = float(klines[-2][3])  # low
+    #     current_kline = float(klines[-1][4])  # current_price
+    #
+    #     condition_0 = second_imb_kline > third_imb_kline
+    #     condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100  # условие для входа в сделку, чтобы прибыль составила profit (%)
+    #     condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100  # размер тела растущей свечи более imbalance (%)
+    #     list_of_conditions = [condition_0, condition_1, condition_2]
+    #     #print(f"{symbol} {list_of_conditions}")
+    #     if all(list_of_conditions):
+    #         print(f"✅✅✅✅✅✅✅✅ Bull Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
+    #         return "Sell"
+    #     else:
+    #         return "No Sell"
 
 
     @staticmethod
@@ -159,8 +201,8 @@ class TechAnalysis:
                 timeout=7
             )
             analysis = coin.get_analysis().indicators
-            EMA50 =analysis['EMA50']
-            EMA100 =analysis['EMA100']
+            EMA50 = analysis['EMA50']
+            EMA100 = analysis['EMA100']
             ADX = float(analysis['ADX'])
             ADX_PLUS_DI = float(analysis['ADX+DI'])
             ADX_MINUS_DI = float(analysis['ADX-DI'])
@@ -179,28 +221,6 @@ class TechAnalysis:
             return False
 
 
-coins = [
-    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-    "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
-    "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
-]
 
-
-#klines = TechAnalysis.get_klines("NEONUSDT", "15")
-#trend = TechAnalysis.determine_trend(klines)
-# trend_15 = TechAnalysis.determine_trend_ema("XRPUSDT", "15m")
-# print(trend_15)
-# trend_1h = TechAnalysis.determine_trend_ema("BTCUSDT", "1h")
-# print(trend_1h)
-
-
-# while True:
-#     current_time = datetime.datetime.now()
-#     print(f"⏱️ Старт анализа: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
-#     for coin in coins:
-#         imb = TechAnalysis.find_bull_imbalance(coin, "15")
-#         #break
-#     time.sleep(60)
 
 

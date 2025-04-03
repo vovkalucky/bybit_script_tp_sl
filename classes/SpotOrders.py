@@ -204,10 +204,18 @@ class SpotOrders:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
         close_price = self.get_current_price_of_coin(self.symbol)
-        qty = money_for_one_order/close_price
+        qty = money_for_one_order / close_price
         qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
-        take_profit_price = close_price * (1 + take_profit / 100)
-        stop_loss_price = close_price * (1 - stop_loss / 100)
+        if side == "Buy":
+            take_profit_price = close_price * (1 + take_profit / 100)
+            stop_loss_price = close_price * (1 - stop_loss / 100)
+        elif side == "Sell":
+            take_profit_price = close_price * (1 - take_profit / 100)
+            stop_loss_price = close_price * (1 + stop_loss / 100)
+        else:
+            print(f"[tp_sl_order] Invalid side: {side}")
+            return None
+
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
         sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
 
@@ -297,9 +305,11 @@ class SpotOrders:
         return orders
 
 
-# spot = SpotOrders(symbol="PEPEUSDT")
+#spot = SpotOrders(symbol="ETHUSDT")
 #print(spot.qty_decimals)
-# order = spot.tp_sl_order("Buy", 50, 4,4)
+# order = spot.tp_sl_order("Sell", 10, 4,4)
+# info = spot.get_info_about_tp_sl_order()
+# print(info)
 # print(order)
 # order = TpSlOrder(order_id='1917142573705858304')
 # info = spot.get_info_about_tp_sl_order(order)

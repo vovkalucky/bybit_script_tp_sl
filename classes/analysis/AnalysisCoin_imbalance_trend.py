@@ -17,25 +17,61 @@ class AnalysisCoin:
     def __init__(self, pair):
         self.pair = pair
 
-    def analyze_with_indicators(self, timeframe: str) -> bool:
+    # def analyze_with_indicators_buy(self, timeframe: str) -> bool:
+    #     try:
+    #         imbalance = TechAnalysis.find_bear_imbalance(self.pair, timeframe, 10,0.5, 0.8)
+    #         trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
+    #         return trend in ["Bull", "Flat"] and imbalance == "Buy"
+    #     except Exception as e:
+    #         print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
+    #         return False
+    #
+    #
+    # def analyze_with_indicators_sell(self, timeframe: str) -> bool:
+    #     try:
+    #         imbalance = TechAnalysis.find_bull_imbalance(self.pair, timeframe, 10, 0.5, 0.8)
+    #         trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
+    #         return trend in ["Bear", "Flat"] and imbalance == "Sell"
+    #     except Exception as e:
+    #         print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
+    #         return False
+
+    def analyze_imbalance_and_trend(self) -> str:
+        timeframe = "15"
         try:
-            condition_1 = TechAnalysis.find_bear_imbalance(self.pair, timeframe, 10,0.5, 0.8)
+            #imbalance = TechAnalysis.find_bull_imbalance(self.pair, timeframe, 10, 0.5, 0.8)
+            imbalance_bull = TechAnalysis.find_imbalance(self.pair, timeframe, "bull", 10, 0.6, 0.8)
+            imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.6, 0.8)
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
-            if trend in ["Bull", "Flat"]:
-                condition_2 = True
+            if trend in ["Bear"] and imbalance_bear == "Sell":
+                return "Sell"
+            elif trend in ["Bull"] and imbalance_bull == "Buy":
+                return "Buy"
             else:
-                condition_2 = False
-            #return condition_1 and condition_2
-            return True
+                return "No signal"
         except Exception as e:
             print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
-            return False
+            return "No signal"
 
-    def has_trade_signal(self) -> bool:
-        if self.analyze_with_indicators("15"): #or self.analyze_with_indicators("60")
-            return True
-        else:
-            return False
+    # def has_trade_signal(self) -> str:
+    #     if self.analyze_with_indicators("15") == "Sell":
+    #         return "Sell"
+    #     elif self.analyze_with_indicators("15") == "Buy":
+    #         return "Buy"
+    #     else:
+    #         return "No signal"
+
+    # def has_trade_signal_buy(self) -> bool:
+    #     if self.analyze_with_indicators_buy("15"): #or self.analyze_with_indicators("60")
+    #         return True
+    #     else:
+    #         return False
+    #
+    # def has_trade_signal_sell(self) -> bool:
+    #     if self.analyze_with_indicators_sell("15"): #or self.analyze_with_indicators("60")
+    #         return True
+    #     else:
+    #         return False
 
 #while True:
 # for coin in COINS:

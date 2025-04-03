@@ -102,7 +102,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46952  # Указываем порт для SSH
         source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/bybit_tp_sl" # Указываем папку на сервере
+        target: "/root/scripts/bybit_script" # Указываем папку на сервере
         exclude: "tests"  # Исключаем папку tests
         #rm: true удаляет файлы перед загрузкой новых
 
