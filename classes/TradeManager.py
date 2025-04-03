@@ -26,17 +26,11 @@ class TradeManager:
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
             side = analysis.analyze_imbalance_and_trend()
-            if analysis.analyze_imbalance_and_trend() in ["Buy", "Sell"]:
+            if side in ["Buy", "Sell"]:
                 print(f"📣📣📣 Найден сигнал на {side} для {pair}! 📣📣📣")
                 self.execute_trade(pair, side)
             print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
-            # if analysis.analyze_imbalance_and_trend() == "Buy":
-            #     print(f"⬆️⬆️⬆️⬆️ Найден сигнал на покупку для {pair}! ⬆️⬆️⬆️⬆️")
-            #     self.execute_trade(pair, "Buy")
-            # elif analysis.analyze_imbalance_and_trend() == "Sell":
-            #     print(f"⬇️⬇️⬇️⬇️ Найден сигнал на продажу для {pair}! ⬇️⬇️⬇️⬇️")
-            #     self.execute_trade(pair, "Sell")
 
     @staticmethod
     def execute_trade(symbol: str, side: str):
