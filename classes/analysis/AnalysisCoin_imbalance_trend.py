@@ -24,9 +24,9 @@ class AnalysisCoin:
             imbalance_bull = TechAnalysis.find_imbalance(self.pair, timeframe, "bull", 10, 0.6, 0.8)
             imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.6, 0.8)
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
-            if trend in ["Bear"] and imbalance_bear == "Sell":
+            if trend in ["Bear", "Flat"] and imbalance_bear == "Sell":
                 return "Sell"
-            elif trend in ["Bull"] and imbalance_bull == "Buy":
+            elif trend in ["Bull", "Flat"] and imbalance_bull == "Buy":
                 return "Buy"
             else:
                 return "No signal"

@@ -4,3 +4,4 @@ __pycache__
 pesochnica
 .env
 db/db_test.py
+classes/analysis/old_versions
