@@ -29,7 +29,8 @@ class TradeManager:
             if side in ["Buy", "Sell"]:
                 print(f"📣📣📣 Найден сигнал на {side} для {pair}! 📣📣📣")
                 self.execute_trade(pair, side)
-            print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
+                return
+        print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
 
     @staticmethod
@@ -39,6 +40,7 @@ class TradeManager:
             order_open = spot.tp_sl_order(side, MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
             print(f"[execute_trade] order_open: {order_open}")
             order = spot.get_info_about_tp_sl_order(order_open)
+            print(f"[execute_trade] get_info_about_tp_sl_order: {order}")
             if order:
                 CoinsOrm.delete_coin(symbol)
                 DealsOrm.append_deal(order)

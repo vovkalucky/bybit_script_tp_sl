@@ -33,7 +33,7 @@ class BaseOrm:
             sync_engine.echo = False
             print("✅ Таблицы coins, deals успешно созданы")
         except Exception as e:
-            print(f"(create_tables) Не удалось создать таблицы: {e}")
+            print(f"[create_tables] Не удалось создать таблицы: {e}")
 
 
 class DealsOrm:
