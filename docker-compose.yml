@@ -14,9 +14,7 @@ services:
       - .:/app
       - ./logs:/app_logs
     working_dir: /app
-    #command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
-    command: >
-      sh -c "python main.py 2>&1 | tee /app_logs/script.log"
+    command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Moscow

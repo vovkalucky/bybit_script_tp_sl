@@ -1,4 +1,4 @@
-PROJECT_NAME = "#bybit_imbalance_03_04_25"
+PROJECT_NAME = "#bybit_imbalance_05_04_25"
 DELAY = 60
 MAX_COUNT_OF_DEALS = 20
 MONEY_FOR_ONE_ORDER = 20
