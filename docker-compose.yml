@@ -3,20 +3,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bybit_tp_sl
+    container_name: bybit_script
     logging:
       driver: json-file
       options:
-        max-size: "1m" #2m
+        max-size: "2m"
         max-file: "3"
     restart: always
     volumes:
       - .:/app
       - ./logs:/app_logs
-      #- ./logs:/var/lib/docker/containers  # Монтируем директорию с логами
     working_dir: /app
     #command: sh -c "python main.py 2>&1 | tee -a /app_logs/script_logs.log"
-    command: sh -c "python main.py >> /app_logs/script.log 2>&1"
+    command: >
+      sh -c "python main.py 2>&1 | tee /app_logs/script.log"
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Moscow
