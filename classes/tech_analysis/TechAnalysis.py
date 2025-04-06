@@ -119,7 +119,7 @@ class TechAnalysis:
             condition_0 = second_imb_kline < third_imb_kline
             condition_1 = (first_imb_kline - current_kline) / first_imb_kline > profit / 100
             condition_2 = (third_imb_kline - first_imb_kline) / third_imb_kline > imbalance / 100
-            signal = "Buy"
+            #signal = "Buy"
         elif direction == "bull":
             third_imb_kline = float(klines[-4][2])  # high
             second_imb_kline = float(klines[-3][2])  # high
@@ -129,16 +129,16 @@ class TechAnalysis:
             condition_0 = second_imb_kline > third_imb_kline
             condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100
             condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100
-            signal = "Sell"
+            #signal = "Sell"
         else:
             print(f"[find_imbalance] Invalid direction: {direction}")
-            return "No signal"
+            return False
 
         if all([condition_0, condition_1, condition_2]):
             print(f"✅✅✅✅✅✅✅✅ {direction.capitalize()} Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
             return True
         else:
-            return "No signal"
+            return False
 
     # @classmethod
     # def find_bear_imbalance(cls, symbol: str, interval:str, limit: int = 10, imbalance: float = 0.5, profit: float = 1) -> str:
