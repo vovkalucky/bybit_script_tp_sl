@@ -265,9 +265,13 @@ class SpotOrders:
             order_id_close = self.find_tp_sl_order_id(order['takeProfit'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
-            tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
+            if order['side'] == "Buy":
+                tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
+            else:
+                tax_open = round(float(order['cumExecFee']), 3)
             order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                                     side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                                     side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'],
+                                     money_open=order['cumExecValue'],
                                      tax_open=tax_open, time_open=order['createdTime'],
                                      price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
                                      order_id_close=order_id_close, money_close="0", tax_close="0"

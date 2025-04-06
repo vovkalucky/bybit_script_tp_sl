@@ -21,16 +21,16 @@ class AnalysisCoin:
         timeframe = "15"
         try:
             #imbalance = TechAnalysis.find_bull_imbalance(self.pair, timeframe, 10, 0.5, 0.8)
-            imbalance_bull = TechAnalysis.find_imbalance(self.pair, timeframe, "bull", 10, 0.5, 0.5)
-            imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.5, 0.5)
+            imbalance_bull = TechAnalysis.find_imbalance(self.pair, timeframe, "bull", 10, 0.8, 1)
+            imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.8, 1)
             print(f"[analyze_imbalance_and_trend] {self.pair} {imbalance_bull}")
             print(f"[analyze_imbalance_and_trend] {self.pair} {imbalance_bear}")
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
             print(f"[analyze_imbalance_and_trend] {self.pair} {trend}")
-            if trend in ["Flat", "Bull"] and imbalance_bear:
+            if trend in ["Bull"] and imbalance_bear:
                 print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bear}")
                 return "Buy"
-            elif trend in ["Bear", "Flat"] and imbalance_bull:
+            elif trend in ["Bear"] and imbalance_bull:
                 print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bull}")
                 return "Sell"
             else:

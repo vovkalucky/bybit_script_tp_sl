@@ -48,7 +48,7 @@ find_tp_sl_order_mock_response = {
 
 limit_order_with_tp_sl_mock_response = '1912086819131100417'
 
-filled_limit_order_mopck = {'symbol': 'IMXUSDT',
+filled_limit_order_mock = {'symbol': 'IMXUSDT',
                             'orderType': 'Limit',
                             'orderLinkId': '1914344246979332611',
                             'slLimitPrice': '0',
@@ -89,7 +89,8 @@ filled_limit_order_mopck = {'symbol': 'IMXUSDT',
                             'cumExecQty': '143.21',
                             'reduceOnly': False,
                             'activationPrice': '0',
-                            'qty': '143.21', 'stopLoss': '0',
+                            'qty': '143.21',
+                            'stopLoss': '0',
                             'marketUnit': '',
                             'smpOrderId': '',
                             'slippageTolerance': '',
