@@ -1,5 +1,3 @@
-#from classes import SpotOrders
-#from classes.SpotOrders_beta import TpSlOrder
 from classes.OrdersStructure import TpSlOrder
 from db.queries.orm import DealsOrm
 from settings import PROJECT_NAME

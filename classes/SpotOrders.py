@@ -116,7 +116,7 @@ class SpotOrders:
         order = MarketOrder(order_id=order_id)
         if not order_id:
             print(f"[market_order] No orderId in response")
-            return None
+            return MarketOrder()
         return order
 
 
@@ -199,7 +199,7 @@ class SpotOrders:
                            )
         return order
 
-    @TradeHelpsFunc.retry()
+    #@TradeHelpsFunc.retry()
     def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> TpSlOrder:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
@@ -214,7 +214,7 @@ class SpotOrders:
             stop_loss_price = close_price * (1 + stop_loss / 100)
         else:
             print(f"[tp_sl_order] Invalid side: {side}")
-            return None
+            return TpSlOrder()
 
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
         sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
@@ -238,11 +238,12 @@ class SpotOrders:
             orderFilter = "OCO",  # Фильтр для OCO-ордера
             timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
         )
+        time.sleep(5)
         order_id = order.get('result', {}).get('orderId')
         order = TpSlOrder(order_id=order_id)
         if not order_id:
             print(f"[tp_sl_order] No orderId in response")
-            return None
+            return TpSlOrder()
         return order
 
     @TradeHelpsFunc.retry()
@@ -276,8 +277,6 @@ class SpotOrders:
                                      price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
                                      order_id_close=order_id_close, money_close="0", tax_close="0"
             )
-            print(f"get_info_about_tp_sl_order {order}")
-
             # CoinsOrm.delete_coin(order.symbol)
             # DealsOrm.append_deal(coin=order.symbol, order_id_open=order.order_id,
             #                      order_id_close=order.tp_sl_order_id,
@@ -307,6 +306,18 @@ class SpotOrders:
                 DealsOrm.update_deal(order)
                 TlgSendMessage.send_tlg_message_close_tp_sl_order(order)
         return orders
+
+    def cancel_order(self, order_id: str) -> bool:
+        try:
+            canceled_order = self.session.cancel_order(category="spot", orderId=order_id)
+            if canceled_order['retMsg'] == "OK":
+                print(f"[cancel_order] Ордер {order_id} успешно отменен")
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"[cancel_order] Ошибка при отмене ордера {order_id}: {e}")
+            return False
 
 
 #spot = SpotOrders(symbol="ETHUSDT")

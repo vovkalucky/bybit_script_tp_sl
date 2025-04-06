@@ -1,6 +1,9 @@
 import pytest
 import random
+
+from classes.OrdersStructure import MarketOrder, LimitOrder
 from classes.SpotOrders import SpotOrders
+from tests.functions_for_help import check_order_id
 from tests.mock_response import find_tp_sl_order_mock_response
 
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
@@ -21,10 +24,26 @@ def test_limits(spot):
     assert type(min_qty) == str
     print(price_decimals, qty_decimals, min_qty)
 
-def test_tp_sl_order(spot):
-    response = spot.tp_sl_order("Buy",15, 10, 10)
-    spot.cancel_order(spot.order_id_open)
-    assert type(response) == str
+@pytest.mark.parametrize('side', ('Buy', 'Sell'))
+def test_market_order(spot, side):
+    order = spot.market_order(side, 20)
+    print(f"[test_market_order] {order}")
+    assert type(order) == MarketOrder
+    assert check_order_id(order.order_id)
+
+@pytest.mark.parametrize('side', ('Buy', 'Sell'))
+def test_limit_order(spot, side):
+    order = spot.limit_order(side, 20, 10)
+    print(f"[test_limit_order] {order}")
+    #spot.cancel_order()
+    assert type(order) == LimitOrder
+    assert check_order_id(order.order_id)
+
+
+# def test_tp_sl_order(spot):
+#     response = spot.tp_sl_order("Buy",15, 10, 10)
+#     spot.cancel_order(spot.order_id_open)
+#     assert type(response) == str
 
 
 
