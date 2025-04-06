@@ -27,10 +27,12 @@ class AnalysisCoin:
             print(f"[analyze_imbalance_and_trend] {self.pair} {imbalance_bear}")
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
             print(f"[analyze_imbalance_and_trend] {self.pair} {trend}")
-            if trend in ["Bear", "Flat", "Bull"] and imbalance_bear == "Sell":
-                return "Sell"
-            elif trend in ["Bull", "Flat", "Bear"] and imbalance_bull == "Buy":
+            if trend in ["Flat", "Bull"] and imbalance_bear:
+                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bear}")
                 return "Buy"
+            elif trend in ["Bear", "Flat"] and imbalance_bull:
+                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bull}")
+                return "Sell"
             else:
                 return "No signal"
         except Exception as e:

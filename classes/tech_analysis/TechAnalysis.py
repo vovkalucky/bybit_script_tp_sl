@@ -100,7 +100,7 @@ class TechAnalysis:
 
     @classmethod
     def find_imbalance(cls, symbol: str, interval: str, direction: str, limit: int = 10, imbalance: float = 0.7,
-                       profit: float = 0.7) -> str:
+                       profit: float = 0.7) -> bool:
         """Функция поиска имбаланса. Определяет бычий (Bull) или медвежий (Bear) дисбаланс.
         Для анализа берутся три последние закрытые свечи и текущая (current_kline) для входа в сделку.
         Параметры:
@@ -136,7 +136,7 @@ class TechAnalysis:
 
         if all([condition_0, condition_1, condition_2]):
             print(f"✅✅✅✅✅✅✅✅ {direction.capitalize()} Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
-            return signal
+            return True
         else:
             return "No signal"
 
