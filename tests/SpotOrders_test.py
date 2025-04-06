@@ -21,8 +21,8 @@ def test_limits(spot):
     assert type(min_qty) == str
     print(price_decimals, qty_decimals, min_qty)
 
-def test_limit_order_with_tp_sl(spot):
-    response = spot.limit_order_with_tp_sl(11, 10, 10)
+def test_tp_sl_order(spot):
+    response = spot.tp_sl_order("Buy",15, 10, 10)
     spot.cancel_order(spot.order_id_open)
     assert type(response) == str
 
