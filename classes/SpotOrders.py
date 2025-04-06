@@ -3,15 +3,17 @@ from typing import Tuple, List, Optional
 from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
-from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
+from config import get_config
 from db.queries.orm import CoinsOrm, DealsOrm
-from settings import DEMO_TRADE
 from classes.OrdersStructure import LimitOrder, TpSlOrder, MarketOrder
 
+config = get_config()
+
 class SpotOrders:
-    session = HTTP(api_key=BYBIT_API_KEY,
-                   api_secret=BYBIT_SECRET_KEY,
-                   demo=DEMO_TRADE,
+
+    session = HTTP(api_key=config['api_key'],
+                   api_secret=config['api_secret'],
+                   demo=config["demo"],
                    recv_window=10000,
                    max_retries=10,
                    retry_delay=10)
@@ -23,7 +25,7 @@ class SpotOrders:
         #self.side = side
         self.price = SpotOrders.get_current_price_of_coin(self.symbol)
 
-    def get_filters(self) -> Tuple[Optional[int], Optional[int], Optional[str]]:
+    def get_filters(self) -> Tuple[Optional[int], Optional[int], Optional[float]]:
         """Функция для получения лимитов для конкретной монеты (coin_name).
         На выходе получаем price_decimals (точность для цены), qty_decimals (точность для количества монет)
         , min_qty (минимальное количество доступное для покупки)"""
@@ -64,7 +66,7 @@ class SpotOrders:
                     return (
                         TradeHelpsFunc.count_digits_after_decimal(price_decimals),
                         TradeHelpsFunc.count_digits_after_decimal(qty_decimals),
-                        min_qty
+                        float(min_qty)
                     )
                 except KeyError as ke:
                     print(f"[get_filters] Attempt {attempt}: Missing expected key in coin data: {ke}")
@@ -99,7 +101,7 @@ class SpotOrders:
             raise Exception(f"Error parsing response: {str(e)}")
 
 
-    @TradeHelpsFunc.retry()  # Применяем декоратор с нужными параметрами
+    @TradeHelpsFunc.retry()
     def market_order(self, side: str, money_for_one_order: float) -> MarketOrder:
         """Установка market order на сумму qty ($)"""
         qty = TradeHelpsFunc.float_trunc(money_for_one_order, self.qty_decimals)
@@ -120,38 +122,43 @@ class SpotOrders:
         return order
 
 
-    @TradeHelpsFunc.retry()  # Применяем декоратор с нужными параметрами
     def limit_order(self, side: str, money_or_qty: float, take_profit: float) -> LimitOrder:
-        """Установка limit order на сумму qty ($).
-        Возвращает id ордера"""
+        """
+        Установка лимитного ордера на сумму в quote (для Buy) или количество монет (для Sell).
+        Возвращает LimitOrder с order_id.
+        """
 
         # Получаем текущую цену
         current_price = SpotOrders.get_current_price_of_coin(self.symbol)
 
-        # Если ордер на покупку
+        # Определяем лимитную цену и количество
         if side == "Buy":
-            print("Buy")
-
-            # Рассчитываем количество монет, которое можно купить на заданную сумму
-            qty = money_or_qty / current_price
-            qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
-
-            # Цена покупки (ниже текущей)
+            # Лимитная цена ниже текущей
             price = current_price * (1 - take_profit / 100)
             price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
 
-        # Если ордер на продажу
-        elif side == "Sell":
-            print("Sell")
+            # Рассчитываем количество монет по лимитной цене
+            qty = money_or_qty / float(price)
+            qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
 
-            # Количество монет для продажи (если у вас есть достаточное количество для продажи, например 100 монет)
-            # Предполагается, что вы хотите продать все монеты, так что qty берется из текущего баланса.
-            #qty = self.get_balance_of_coin(self.symbol)  # Предположим, что у вас есть метод для получения баланса
+            market_unit = "quoteCoin"  # Покупаем на сумму в котируемой валюте (например, USDT)
+
+        elif side == "Sell":
             qty = TradeHelpsFunc.float_trunc(money_or_qty, self.qty_decimals)
 
-            # Цена продажи (выше текущей)
+            # Цена продажи выше текущей
             price = current_price * (1 + take_profit / 100)
             price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
+
+            market_unit = "baseCoin"  # Продаём определённое количество монет
+
+        else:
+            print("[limit_order] Ошибка в параметре side")
+            return LimitOrder()
+
+        if float(qty) < self.min_qty:
+            print(f"[limit_order] Кол-во {qty} меньше min_qty {self.min_qty} для {self.symbol}")
+            return LimitOrder()
 
         # Размещение лимитного ордера
         order = self.session.place_order(
@@ -161,14 +168,16 @@ class SpotOrders:
             orderType="Limit",
             qty=qty,
             price=price,
-            marketUnit="quoteCoin"
+            marketUnit=market_unit
         )
 
         order_id = order.get('result', {}).get('orderId')
         order = LimitOrder(order_id=order_id)
+
         if not order_id:
             print(f"[limit_order] No orderId in response")
-            return None
+            return LimitOrder()
+
         return order
 
     @TradeHelpsFunc.retry()
@@ -270,7 +279,7 @@ class SpotOrders:
                 tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
             else:
                 tax_open = round(float(order['cumExecFee']), 3)
-            order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+            order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'], #qty=order['cumExecQty']
                                      side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'],
                                      money_open=order['cumExecValue'],
                                      tax_open=tax_open, time_open=order['createdTime'],
