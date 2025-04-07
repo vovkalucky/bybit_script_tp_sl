@@ -41,9 +41,10 @@ def test_limit_order(spot, side):
     assert type(order) == LimitOrder
     assert check_order_id(order.order_id)
 
-def test_get_get_info_about_market_order(spot):
+@pytest.mark.parametrize('side', ('Buy', 'Sell'))
+def test_get_get_info_about_market_order(spot, side):
     money_for_order = 20
-    side = "Sell"
+    #side = "Sell"
     order = spot.market_order(side,money_for_order )
     order_with_info = spot.get_info_about_market_order(order)
     assert type(order) == MarketOrder
@@ -53,7 +54,6 @@ def test_get_get_info_about_market_order(spot):
         assert hasattr(order_with_info, field), f"Поле {field} отсутствует!"
         value = getattr(order_with_info, field)
         assert value not in [None, "", [], {}], f"Поле {field} пустое или None"
-
     assert side == order_with_info.side
     assert money_for_order == float(order_with_info.money_open)
 

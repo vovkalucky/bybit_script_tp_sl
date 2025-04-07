@@ -25,7 +25,7 @@ class AnalysisCoin:
             imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.8, 1)
             print(f"[analyze_imbalance_and_trend] imbalance_bull {self.pair} {imbalance_bull}")
             print(f"[analyze_imbalance_and_trend] imbalance_bear {self.pair} {imbalance_bear}")
-            if imbalance_bear == False or imbalance_bull == False:
+            if imbalance_bear == False and imbalance_bull == False:
                 return "No signal"
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
             print(f"[analyze_imbalance_and_trend] trend {self.pair} {trend}")
