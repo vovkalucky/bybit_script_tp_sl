@@ -13,7 +13,7 @@ class SpotOrders:
 
     session = HTTP(api_key=config['api_key'],
                    api_secret=config['api_secret'],
-                   demo=config["demo"],
+                   demo=config['demo'],
                    recv_window=10000,
                    max_retries=10,
                    retry_delay=10)
@@ -256,7 +256,7 @@ class SpotOrders:
         return order
 
     @TradeHelpsFunc.retry()
-    def find_tp_sl_order_id(self, take_profit_value: str) -> str:
+    def find_open_order_id_by_tp(self, take_profit_value: str) -> str:
         """Поиск TP/SL ордера по значению тейкпрофита (take_profit_value)"""
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category)
@@ -272,7 +272,7 @@ class SpotOrders:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
             print(f"[get_info_about_tp_sl_order]: {order}")
-            order_id_close = self.find_tp_sl_order_id(order['takeProfit'])
+            order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
             if order['side'] == "Buy":
@@ -286,13 +286,6 @@ class SpotOrders:
                                      price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
                                      order_id_close=order_id_close, money_close="0", tax_close="0"
             )
-            # CoinsOrm.delete_coin(order.symbol)
-            # DealsOrm.append_deal(coin=order.symbol, order_id_open=order.order_id,
-            #                      order_id_close=order.tp_sl_order_id,
-            #                      money_open=order.money_open, tax_open=order.tax_open,
-            #                      status=order.status, money_close=order.money_close, tax_close=order.tax_close)
-            # TlgSendMessage.send_tlg_message_new_tp_sl_order(order)
-
             return order
 
     @TradeHelpsFunc.retry()

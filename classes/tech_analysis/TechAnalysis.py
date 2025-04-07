@@ -1,15 +1,16 @@
 from typing import List
 from pybit.unified_trading import HTTP
 from tradingview_ta import TA_Handler, Interval
+from config import get_config
+#from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
+#from settings import DEMO_TRADE
 
-from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
-from settings import DEMO_TRADE
-
+config = get_config()
 
 class TechAnalysis:
-    session = HTTP(api_key=BYBIT_API_KEY,
-                   api_secret=BYBIT_SECRET_KEY,
-                   demo=DEMO_TRADE,
+    session = HTTP(api_key=config['api_key'],
+                   api_secret=config['api_secret'],
+                   demo=config['demo'],
                    max_retries=10,
                    retry_delay=10)
 

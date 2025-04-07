@@ -2,6 +2,7 @@ import datetime
 from typing import List
 from sqlalchemy import Integer, and_, func, insert, select, text, update, delete, or_
 
+import config
 from classes.OrdersStructure import TpSlOrder
 from db.database import session_factory, Base, get_engine #sync_engine
 from db.models import Deals, Coins
@@ -13,6 +14,7 @@ class BaseOrm:
         try:
             sync_engine = get_engine()
             sync_engine.echo = True
+            assert config.MODE == "TEST"
             Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
             with session_factory() as session:

@@ -50,19 +50,11 @@ def test_get_get_info_about_market_order(spot, side):
     assert type(order) == MarketOrder
     required_fields = ['order_id', 'symbol', 'qty', 'side', 'close_price', 'money_open', 'time_open', 'status', 'tax_open']
     for field in required_fields:
-        # Проверяем, что атрибут существует в объекте
         assert hasattr(order_with_info, field), f"Поле {field} отсутствует!"
         value = getattr(order_with_info, field)
         assert value not in [None, "", [], {}], f"Поле {field} пустое или None"
     assert side == order_with_info.side
     assert money_for_order == float(order_with_info.money_open)
-
-
-# def test_tp_sl_order(spot):
-#     response = spot.tp_sl_order("Buy",15, 10, 10)
-#     spot.cancel_order(spot.order_id_open)
-#     assert type(response) == str
-
 
 
 def test_limit_order_with_tp_sl_mock(spot, mocker):
@@ -86,9 +78,9 @@ def test_limit_order_with_tp_sl_mock(spot, mocker):
 
 def test_find_tp_sl_order_mock(spot, mocker):
     # Мокаем метод find_tp_sl_order объекта spot
-    mock_order = mocker.patch.object(spot, 'find_tp_sl_order', return_value=find_tp_sl_order_mock_response)
+    mock_order = mocker.patch.object(spot, 'find_open_order_id_by_tp', return_value=find_tp_sl_order_mock_response)
     # Вызываем замоканный метод
-    response = spot.find_tp_sl_order("2745.1")
+    response = spot.find_open_order_id_by_tp("2745.1")
     assert isinstance(response, dict)
     assert len(response) == 45
     assert "orderId" in response
@@ -96,6 +88,8 @@ def test_find_tp_sl_order_mock(spot, mocker):
 
 
 def test_find_tp_sl_order(spot):
-    tp_price = "132.36"
-    order = spot.find_tp_sl_order(tp_price)
-    assert order["tpLimitPrice"] == tp_price
+    order = spot.tp_sl_order("Buy", 20,10,10)
+    info = spot.get_info_about_tp_sl_order(order)
+    expected_order_id_tp_sl = info.order_id_close
+    actual_order_id_tp_sl = spot.find_open_order_id_by_tp(info.take_profit)
+    assert  expected_order_id_tp_sl == actual_order_id_tp_sl, "Ордера не совпадают!"
