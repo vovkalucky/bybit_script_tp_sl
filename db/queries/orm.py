@@ -77,11 +77,11 @@ class DealsOrm:
                 print(f"[update_deal] {order.status}")
                 print(f"[update_deal] {money_close} {tax_close} {deal.money_open} {deal.tax_open}")
                 if order.status != "Deactivated":
-                    if order.status == "Buy":
+                    if order.side == "Buy":
                         earn = round(
                             money_close - deal.money_open - deal.tax_open - tax_close, 3
                         )
-                    elif order.status == "Sell":
+                    elif order.side == "Sell":
                         earn = round(
                             deal.money_open - money_close - deal.tax_open - tax_close, 3
                         )
