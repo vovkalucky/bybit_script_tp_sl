@@ -14,7 +14,7 @@ class BaseOrm:
             sync_engine = get_engine()
             sync_engine.echo = True
             #assert config.MODE == "TEST"
-            Base.metadata.drop_all(sync_engine)
+            #Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
             with session_factory() as session:
                 # Список монет
@@ -74,7 +74,6 @@ class DealsOrm:
                 money_close = round(float(order.money_close), 3)
                 tax_close = round(float(order.tax_close), 3)
 
-                earn = 0
                 if order.status != "Deactivated":
                     if order.status == "Buy":
                         earn = round(
@@ -84,7 +83,9 @@ class DealsOrm:
                         earn = round(
                             deal.money_open - money_close - deal.tax_open - tax_close, 3
                         )
-
+                if order.status == "Deactivated":
+                    earn = 0
+                print(f"[update_deal] {earn}")
                 # Обновляем значения
                 deal.status = order.status
                 deal.money_close = money_close
