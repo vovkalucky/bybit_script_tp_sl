@@ -297,6 +297,7 @@ class SpotOrders:
                 continue
             order = response_open_orders['result']['list'][0]
             status = order['orderStatus']
+            print(f"[check_orders_status] {order['avgPrice']}")
             if status in ["Filled", "Deactivated"]:
                 if order['side'] == "Buy":
                     tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 3))
