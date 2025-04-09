@@ -1,7 +1,7 @@
 import pytest
 import random
 import settings
-from classes.OrdersStructure import MarketOrder, LimitOrder
+from classes.OrdersStructure import Order, Order
 from classes.SpotOrders import SpotOrders
 from tests.functions_for_help import check_order_id
 from tests.mock_response import find_tp_sl_order_mock_response
@@ -29,7 +29,7 @@ def test_limits(spot):
 def test_market_order(spot, side):
     order = spot.market_order(side, 20)
     print(f"[test_market_order] {order}")
-    assert type(order) == MarketOrder
+    assert type(order) == Order
     assert check_order_id(order.order_id)
 
 @pytest.mark.parametrize('side', ('Buy', 'Sell'))
@@ -38,7 +38,7 @@ def test_limit_order(spot, side):
     #order = spot.limit_order(side, spot.min_qty, 10)
     print(f"[test_limit_order] {order}")
     spot.cancel_order(order.order_id)
-    assert type(order) == LimitOrder
+    assert type(order) == Order
     assert check_order_id(order.order_id)
 
 @pytest.mark.parametrize('side', ('Buy', 'Sell'))
@@ -47,7 +47,7 @@ def test_get_get_info_about_market_order(spot, side):
     #side = "Sell"
     order = spot.market_order(side,money_for_order )
     order_with_info = spot.get_info_about_market_order(order)
-    assert type(order) == MarketOrder
+    assert type(order) == Order
     required_fields = ['order_id', 'symbol', 'qty', 'side', 'close_price', 'money_open', 'time_open', 'status', 'tax_open']
     for field in required_fields:
         assert hasattr(order_with_info, field), f"Поле {field} отсутствует!"

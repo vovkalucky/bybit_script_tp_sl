@@ -1,4 +1,4 @@
-from classes.OrdersStructure import TpSlOrder
+from classes.OrdersStructure import Order
 from db.queries.orm import DealsOrm
 from settings import PROJECT_NAME
 import requests
@@ -6,7 +6,7 @@ from config import TLG_TOKEN, TLG_ADMIN_ID
 
 class TlgSendMessage:
     @staticmethod
-    def send_tlg_message_new_tp_sl_order(order: TpSlOrder) -> None:
+    def send_tlg_message_new_tp_sl_order(order: Order) -> None:
         message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {order.symbol} успешно размещен\n"
         list_of_open_deals = DealsOrm.select_open_deals()
         count_open_limit_orders = len(list_of_open_deals)
@@ -37,7 +37,7 @@ class TlgSendMessage:
 
 
     @staticmethod
-    def send_tlg_message_close_tp_sl_order(order: TpSlOrder) -> None:
+    def send_tlg_message_close_tp_sl_order(order: Order) -> None:
         earn = DealsOrm.get_earn(order.order_id)
         result_of_deal = ""
         if order.close_price == "":
@@ -69,7 +69,7 @@ class TlgSendMessage:
         try:
             response = requests.post(url, json=payload)
             if response.status_code == 200:
-                print("✉️ Уведомление об установке ордера успешно отправлено.")
+                print("✉️ Уведомление о закрытии ордера успешно отправлено.")
             else:
                 print(f"❗️Ошибка отправки уведомления: {response.status_code} {response.text}")
         except requests.exceptions.RequestException as e:

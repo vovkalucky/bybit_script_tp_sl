@@ -14,3 +14,4 @@ allure-pytest==2.13.5
 sqlalchemy==2.0.38
 psycopg==3.2.5
 psycopg-binary==3.2.5
+pydantic==2.11.3

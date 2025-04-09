@@ -5,7 +5,7 @@ from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
 from db.queries.orm import CoinsOrm, DealsOrm
-from classes.OrdersStructure import LimitOrder, TpSlOrder, MarketOrder
+from classes.OrdersStructure import Order
 
 config = get_config()
 
@@ -102,7 +102,7 @@ class SpotOrders:
 
 
     @TradeHelpsFunc.retry()
-    def market_order(self, side: str, money_for_one_order: float) -> MarketOrder:
+    def market_order(self, side: str, money_for_one_order: float) -> Order:
         """Установка market order на сумму qty ($)"""
         qty = TradeHelpsFunc.float_trunc(money_for_one_order, self.qty_decimals)
 
@@ -115,14 +115,14 @@ class SpotOrders:
             marketUnit="quoteCoin"
         )
         order_id = order.get('result', {}).get('orderId')
-        order = MarketOrder(order_id=order_id)
+        order = Order(order_id=order_id)
         if not order_id:
             print(f"[market_order] No orderId in response")
-            return MarketOrder()
+            return Order()
         return order
 
 
-    def limit_order(self, side: str, money_or_qty: float, take_profit: float) -> LimitOrder:
+    def limit_order(self, side: str, money_or_qty: float, take_profit: float) -> Order:
         """
         Установка лимитного ордера на сумму в quote (для Buy) или количество монет (для Sell).
         Возвращает LimitOrder с order_id.
@@ -154,11 +154,11 @@ class SpotOrders:
 
         else:
             print("[limit_order] Ошибка в параметре side")
-            return LimitOrder()
+            return Order()
 
         if float(qty) < self.min_qty:
             print(f"[limit_order] Кол-во {qty} меньше min_qty {self.min_qty} для {self.symbol}")
-            return LimitOrder()
+            return Order()
 
         # Размещение лимитного ордера
         order = self.session.place_order(
@@ -172,44 +172,44 @@ class SpotOrders:
         )
 
         order_id = order.get('result', {}).get('orderId')
-        order = LimitOrder(order_id=order_id)
+        order = Order(order_id=order_id)
 
         if not order_id:
             print(f"[limit_order] No orderId in response")
-            return LimitOrder()
+            return Order()
 
         return order
 
     @TradeHelpsFunc.retry()
-    def get_info_about_limit_order(self, order: LimitOrder) -> LimitOrder:
+    def get_info_about_limit_order(self, order: Order) -> Order:
         response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
         order = response_limit_order['result']['list'][0]
         #print(f"[get_info_about_limit_order]: {order}")
         status = order['orderStatus']
         #if status == "New":
-        order = LimitOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                                 side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
-                                 tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
-                                 price=order['price']
-        )
+        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                      side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                      tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
+                      price=order['price']
+                      )
         return order
 
     @TradeHelpsFunc.retry()
-    def get_info_about_market_order(self, order: MarketOrder) -> MarketOrder:
+    def get_info_about_market_order(self, order: Order) -> Order:
         response_open_orders = self.session.get_order_history(category=self.category, orderId=order.order_id)
         order = response_open_orders['result']['list'][0]
         print(f"[get_info_about_market_order]: {order}")
         status = order['orderStatus']
         # if status in ["Filled", "Deactivated"]:
         tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
-        order = MarketOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                           side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
-                           tax_open=tax_open, time_open=order['createdTime']
-                           )
+        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                      side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                      tax_open=tax_open, time_open=order['createdTime']
+                      )
         return order
 
     #@TradeHelpsFunc.retry()
-    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> TpSlOrder:
+    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> Order:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
         close_price = self.get_current_price_of_coin(self.symbol)
@@ -223,7 +223,7 @@ class SpotOrders:
             stop_loss_price = close_price * (1 + stop_loss / 100)
         else:
             print(f"[tp_sl_order] Invalid side: {side}")
-            return TpSlOrder()
+            return Order()
 
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
         sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
@@ -249,10 +249,10 @@ class SpotOrders:
         )
         time.sleep(5)
         order_id = order.get('result', {}).get('orderId')
-        order = TpSlOrder(order_id=order_id)
+        order = Order(order_id=order_id)
         if not order_id:
             print(f"[tp_sl_order] No orderId in response")
-            return TpSlOrder()
+            return Order()
         return order
 
     @TradeHelpsFunc.retry()
@@ -268,7 +268,7 @@ class SpotOrders:
             return None
 
     @TradeHelpsFunc.retry()
-    def get_info_about_tp_sl_order(self, order: TpSlOrder) -> TpSlOrder:
+    def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
             print(f"[get_info_about_tp_sl_order]: {order}")
@@ -278,14 +278,14 @@ class SpotOrders:
             if order['side'] == "Buy":
                 tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
             else:
-                tax_open = round(float(order['cumExecFee']), 3)
-            order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'], #qty=order['cumExecQty']
-                                     side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'],
-                                     money_open=order['cumExecValue'],
-                                     tax_open=tax_open, time_open=order['createdTime'],
-                                     price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
-                                     order_id_close=order_id_close, money_close="0", tax_close="0"
-            )
+                tax_open = str(round(float(order['cumExecFee']), 3))
+            order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],  #qty=order['cumExecQty']
+                          side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'],
+                          money_open=order['cumExecValue'],
+                          tax_open=tax_open, time_open=order['createdTime'],
+                          price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
+                          order_id_close=order_id_close, money_close="0", tax_close="0"
+                          )
             return order
 
     @TradeHelpsFunc.retry()
@@ -298,12 +298,12 @@ class SpotOrders:
             order = response_open_orders['result']['list'][0]
             status = order['orderStatus']
             if status in ["Filled", "Deactivated"]:
-                order = TpSlOrder(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                                  side=order['side'], status=status, close_price=order['avgPrice'],
-                                  money_close=order['cumExecValue'], tax_close=order['cumExecFee'],
-                                  order_id_close=order_id, price=order['price'],
-                                  basePrice=order['basePrice'], triggerPrice=order['triggerPrice']
-                                  )
+                order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                              side=order['side'], status=status, close_price=order['avgPrice'],
+                              money_close=order['cumExecValue'], tax_close=order['cumExecFee'],
+                              order_id_close=order_id, price=order['price'],
+                              basePrice=order['basePrice'], triggerPrice=order['triggerPrice']
+                              )
                 CoinsOrm.add_coin(order.symbol)
                 DealsOrm.update_deal(order)
                 TlgSendMessage.send_tlg_message_close_tp_sl_order(order)

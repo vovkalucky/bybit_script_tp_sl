@@ -18,7 +18,7 @@ def get_engine():
     if sync_engine is None:
         sync_engine = create_engine(
             url=f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}",
-            echo=True, #вывод логов (все запросы алхимии к БД)
+            #echo=True, #вывод логов (все запросы алхимии к БД)
             # pool_size=5, размер количества соединений
             # max_overflow=10, дополнительные подключения к БД
         )
