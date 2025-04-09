@@ -76,9 +76,14 @@ class DealsOrm:
 
                 earn = 0
                 if order.status != "Deactivated":
-                    earn = round(
-                        money_close - deal.money_open - deal.tax_open - tax_close, 3
-                    )
+                    if order.status == "Buy":
+                        earn = round(
+                            money_close - deal.money_open - deal.tax_open - tax_close, 3
+                        )
+                    elif order.status == "Sell":
+                        earn = round(
+                            deal.money_open - money_close - deal.tax_open - tax_close, 3
+                        )
 
                 # Обновляем значения
                 deal.status = order.status
@@ -92,62 +97,6 @@ class DealsOrm:
                 print("♻️ Сделка обновлена в таблице deals.")
         except Exception as e:
             print(f"[update_deal] Ошибка: {e}")
-    #def update_deal(coin: str, status: str, money_close: str, tax_close: str):
-    # def update_deal(order: TpSlOrder):
-    #     with session_factory() as session:
-    #         query = select(Deals).filter(
-    #             and_(
-    #                 Deals.coin == order.symbol,
-    #                 Deals.status.notin_(["Filled", "Deactivated"])
-    #             )
-    #         )
-    #         res = session.execute(query)
-    #         deal_for_update = res.scalars().first() #.one()
-    #         if not deal_for_update:
-    #             print("[update_deal] Ошибка: Сделка для обновления не найдена!")
-    #             return
-    #         print(f"Найдена сделка: {deal_for_update}")
-    #         deal_for_update.status = order.status
-    #         deal_for_update.money_close = round(float(order.money_close), 3)
-    #         deal_for_update.tax_close = round(float(order.tax_close), 3)
-    #         deal_for_update.time_close = datetime.datetime.now()
-    #         deal_for_update.time_in_deal = deal_for_update.time_close - deal_for_update.time_open
-    #         if deal_for_update.status == "Deactivated":
-    #             deal_for_update.earn = 0
-    #         else:
-    #             deal_for_update.earn = round(deal_for_update.money_close - deal_for_update.money_open - deal_for_update.tax_open - deal_for_update.tax_close, 3)
-    #         session.commit()
-    #         print("♻️ Данные по сделке успешно обновлены в таблице deals.")
-    # def update_deal(order: Order):
-    #     try:
-    #         with session_factory() as session:
-    #             query = (
-    #                 update(Deals)
-    #                 .where(
-    #                     Deals.coin == order.symbol,
-    #                     Deals.status.notin_(["Filled", "Deactivated"])
-    #                 )
-    #                 .values(
-    #                     status=order.status,
-    #                     money_close=round(float(order.money_close), 3),
-    #                     tax_close=round(float(order.tax_close), 3),
-    #                     time_close=datetime.datetime.now(),
-    #                     time_in_deal=datetime.datetime.now() - Deals.time_open,
-    #                     earn=0 if order.status == "Deactivated" else
-    #                     round(float(order.money_close) - Deals.money_open - Deals.tax_open - float(
-    #                         order.tax_close), 3)
-    #                 )
-    #             )
-    #
-    #             result = session.execute(query)
-    #             if result.rowcount == 0:
-    #                 print("[update_deal] Ошибка: Сделка для обновления не найдена!")
-    #                 return
-    #
-    #             session.commit()
-    #             print("♻️ Сделка обновлена в таблице deals.")
-    #     except Exception as e:
-    #         print(f"[update_deal] Ошибка: {e}")
 
     @staticmethod
     def get_earn(order_id_sell: str):
