@@ -298,6 +298,7 @@ class SpotOrders:
             order = response_open_orders['result']['list'][0]
             status = order['orderStatus']
             if status in ["Filled", "Deactivated"]:
+                print(f"[check_orders_status] {order}")
                 order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
                               side=order['side'], status=status, close_price=order['avgPrice'],
                               money_close=order['cumExecValue'], tax_close=order['cumExecFee'],
