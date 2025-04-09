@@ -276,11 +276,11 @@ class SpotOrders:
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
             if order['side'] == "Buy":
-                tax_open = str(round(float(order['cumExecFee']) * float(order['price']),3))
+                tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
             else:
                 tax_open = str(round(float(order['cumExecFee']), 3))
             order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],  #qty=order['cumExecQty']
-                          side=order['side'], status=status_tp_sl_order, close_price=order['avgPrice'],
+                          side=order['side'], status=status_tp_sl_order, avgPrice=order['avgPrice'],
                           money_open=order['cumExecValue'],
                           tax_open=tax_open, time_open=order['createdTime'],
                           price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
@@ -298,12 +298,15 @@ class SpotOrders:
             order = response_open_orders['result']['list'][0]
             status = order['orderStatus']
             if status in ["Filled", "Deactivated"]:
+                if order['side'] == "Buy":
+                    tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 3))
+                else:
+                    tax_close = str(round(float(order['cumExecFee']), 3))
                 print(f"[check_orders_status] {order}")
                 order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                              side=order['side'], status=status, close_price=order['avgPrice'],
-                              money_close=order['cumExecValue'], tax_close=order['cumExecFee'],
-                              order_id_close=order_id, price=order['price'],
-                              basePrice=order['basePrice'], triggerPrice=order['triggerPrice']
+                              side=order['side'], status=status, avgPrice=order['avgPrice'],
+                              money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
+                              order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
                               )
                 CoinsOrm.add_coin(order.symbol)
                 DealsOrm.update_deal(order)

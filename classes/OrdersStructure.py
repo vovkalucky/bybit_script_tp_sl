@@ -10,7 +10,7 @@ class Order(BaseModel):
     qty: Optional[str] = None
     side: Optional[str] = None
     status: Optional[str] = None
-    close_price: Optional[str] = None
+    #close_price: Optional[str] = None
     money_open: Optional[str] = None
     tax_open: Optional[str] = None
     time_open: Optional[str] = None
@@ -18,6 +18,7 @@ class Order(BaseModel):
     tax_close: Optional[str] = None
     #time_close: Optional[str] = None
     price: Optional[str] = None
+    avgPrice: Optional[str] = None
     order_id_close: Optional[str] = None
     basePrice: Optional[str] = None
     triggerPrice: Optional[str] = None
