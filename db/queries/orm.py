@@ -73,7 +73,9 @@ class DealsOrm:
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 3)
                 tax_close = round(float(order.tax_close), 3)
-
+                earn = 0
+                print(f"[update_deal] {order.status}")
+                print(f"[update_deal] {money_close} {tax_close} {deal.money_open} {deal.tax_open}")
                 if order.status != "Deactivated":
                     if order.status == "Buy":
                         earn = round(
@@ -83,8 +85,8 @@ class DealsOrm:
                         earn = round(
                             deal.money_open - money_close - deal.tax_open - tax_close, 3
                         )
-                if order.status == "Deactivated":
-                    earn = 0
+                # if order.status == "Deactivated":
+                #     earn = 0
                 print(f"[update_deal] {earn}")
                 # Обновляем значения
                 deal.status = order.status
