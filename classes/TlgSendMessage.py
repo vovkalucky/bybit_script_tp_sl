@@ -42,10 +42,16 @@ class TlgSendMessage:
         result_of_deal = ""
         if order.close_price == "":
             result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {order.symbol} была отменена."
-        elif float(order.basePrice) <= float(order.triggerPrice):
-            result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {order.symbol} закрыта с прибылью!"
-        elif float(order.basePrice) >= float(order.triggerPrice):
-            result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {order.symbol} закрыта с убытком..."
+        if order.status == "Sell":
+            if float(order.basePrice) <= float(order.triggerPrice):
+                result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {order.symbol} закрыта с прибылью!"
+            elif float(order.basePrice) >= float(order.triggerPrice):
+                result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {order.symbol} закрыта с убытком..."
+        if order.status == "Buy":
+            if float(order.basePrice) >= float(order.triggerPrice):
+                result_of_deal = f"{PROJECT_NAME}\n🎉 Сделка {order.symbol} закрыта с прибылью!"
+            elif float(order.basePrice) <= float(order.triggerPrice):
+                result_of_deal = f"{PROJECT_NAME}\n😢 Сделка {order.symbol} закрыта с убытком..."
 
         message_title = (f"{result_of_deal}\n"
                          f"💰 Результат: {earn} $\n")
