@@ -188,7 +188,7 @@ class SpotOrders:
         status = order['orderStatus']
         #if status == "New":
         order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                      side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                      side=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
                       tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
                       price=order['price']
                       )
@@ -203,7 +203,7 @@ class SpotOrders:
         # if status in ["Filled", "Deactivated"]:
         tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
         order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                      side=order['side'], status=status, close_price=order['avgPrice'], money_open=order['cumExecValue'],
+                      side=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
                       tax_open=tax_open, time_open=order['createdTime']
                       )
         return order

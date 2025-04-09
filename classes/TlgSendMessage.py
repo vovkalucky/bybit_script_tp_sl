@@ -41,7 +41,7 @@ class TlgSendMessage:
     def send_tlg_message_close_tp_sl_order(order: Order) -> None:
         earn = DealsOrm.get_earn(order.order_id)
         #result_of_deal = ""
-        if order.close_price == "":
+        if order.avgPrice == "":
             result_of_deal = f"{PROJECT_NAME}\n🤝 Сделка {order.symbol} была отменена."
         # if order.status == "Sell":
         #     if float(order.basePrice) <= float(order.triggerPrice):
