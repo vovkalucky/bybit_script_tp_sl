@@ -249,11 +249,26 @@ class SpotOrders:
         )
         time.sleep(5)
         order_id = order.get('result', {}).get('orderId')
-        order = Order(order_id=order_id)
         if not order_id:
             print(f"[tp_sl_order] No orderId in response")
             return Order()
+        if self.check_order_status(order_id, "Untrigerred"):
+            print(f"[tp_sl_order] {order_id}")
+            order = Order(order_id=order_id, status="Untrigerred")
         return order
+
+    @TradeHelpsFunc.retry_until_true(6,10)
+    def check_order_status(self, order_id: str, status: str) -> bool:
+        try:
+            order = self.session.get_open_orders(category=self.category, orderId=order_id)
+            order = order['result']['list'][0]
+            if order["status"] == status:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"[check_order_status] Ордер не найден: {e}")
+            return False
 
     @TradeHelpsFunc.retry()
     def find_open_order_id_by_tp(self, take_profit_value: str) -> str:
@@ -266,6 +281,8 @@ class SpotOrders:
         except Exception as e:
             print(f"[find_tp_sl_order] Exception: {e}")
             return None
+
+
 
     @TradeHelpsFunc.retry()
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
@@ -290,29 +307,34 @@ class SpotOrders:
 
     @TradeHelpsFunc.retry()
     def check_orders_status(self, orders: List[str]) -> List[str]:
-        for order_id in orders:
-            response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
-            time.sleep(1)
-            if len(response_open_orders['result']['list']) == 0:
-                continue
-            order = response_open_orders['result']['list'][0]
-            status = order['orderStatus']
-            print(f"[check_orders_status] {order['avgPrice']}")
-            if status in ["Filled", "Deactivated"]:
-                if order['side'] == "Buy":
-                    tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 3))
-                else:
-                    tax_close = str(round(float(order['cumExecFee']), 3))
-                print(f"[check_orders_status] {order}")
-                order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                              side=order['side'], status=status, avgPrice=order['avgPrice'],
-                              money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
-                              order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
-                              )
-                CoinsOrm.add_coin(order.symbol)
-                DealsOrm.update_deal(order)
-                TlgSendMessage.send_tlg_message_close_tp_sl_order(order)
-        return orders
+        try:
+            for order_id in orders:
+                response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
+                time.sleep(1)
+                if len(response_open_orders['result']['list']) == 0:
+                    continue
+                order = response_open_orders['result']['list'][0]
+                status = order['orderStatus']
+                print(f"[check_orders_status] avgPrice {order['avgPrice']}")
+                if status in ["Filled", "Deactivated"]:
+                    if order['side'] == "Buy":
+                        tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 3))
+                    else:
+                        tax_close = str(round(float(order['cumExecFee']), 3))
+                    print(f"[check_orders_status] {order}")
+                    order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
+                                  side=order['side'], status=status, avgPrice=order['avgPrice'],
+                                  money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
+                                  order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
+                                  )
+                    CoinsOrm.add_coin(order.symbol)
+                    DealsOrm.update_deal(order)
+                    TlgSendMessage.send_tlg_message_close_tp_sl_order(order)
+            return orders
+        except Exception as e:
+            print(f"[check_orders_status] Ордера не найдены: {e}")
+            return []
+
 
     def cancel_order(self, order_id: str) -> bool:
         try:

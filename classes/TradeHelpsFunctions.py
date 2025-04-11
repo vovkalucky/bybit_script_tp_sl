@@ -1,6 +1,7 @@
 import time
 from functools import wraps
 from pybit.exceptions import InvalidRequestError, FailedRequestError
+from typing import Callable, Any
 
 
 
@@ -45,6 +46,30 @@ class TradeHelpsFunc:
                         time.sleep(delay)
                 print(f"[{func.__name__}] Failed after {max_retries} attempts.")
                 return None
+            return wrapper
+        return decorator
+
+    @staticmethod
+    def retry_until_true(n: int, delay: float) -> Callable:
+        """
+        Декоратор, который повторяет вызов функции до тех пор,
+        пока она не вернет True или не исчерпает попытки.
+
+        Args:
+            n: Максимальное количество попыток
+            delay: Интервал между попытками (в секундах)
+        """
+        def decorator(func: Callable) -> Callable:
+            @wraps(func)
+            def wrapper(*args, **kwargs) -> bool:
+                for attempt in range(1, n + 1):
+                    result = func(*args, **kwargs)
+                    if result is True:
+                        return True
+                    if attempt < n:
+                        print(f"[{func.__name__}] 🛑 Попытка {attempt} не удалась. Повторный запрос через {delay} секунд...")
+                        time.sleep(delay)
+                return False
             return wrapper
         return decorator
 
