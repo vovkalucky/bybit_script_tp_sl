@@ -252,9 +252,9 @@ class SpotOrders:
         if not order_id:
             print(f"[tp_sl_order] No orderId in response")
             return Order()
-        if self.check_order_status(order_id, "Untriggered"):
+        if self.check_order_status(order_id, "Filled"):
             print(f"[tp_sl_order] {order_id}")
-            order = Order(order_id=order_id, status="Untriggered")
+            order = Order(order_id=order_id, status="Filled")
         return order
 
     @TradeHelpsFunc.retry_until_true(6,10)
@@ -262,7 +262,8 @@ class SpotOrders:
         try:
             order = self.session.get_open_orders(category=self.category, orderId=order_id)
             order = order['result']['list'][0]
-            if order["status"] == status:
+            print(f"[check_order_status] {order}")
+            if order['orderStatus'] == status:
                 return True
             else:
                 return False
