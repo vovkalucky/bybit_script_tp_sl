@@ -187,8 +187,8 @@ class SpotOrders:
         #print(f"[get_info_about_limit_order]: {order}")
         status = order['orderStatus']
         #if status == "New":
-        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                      side=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
+        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],
+                      side_open=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
                       tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
                       price=order['price']
                       )
@@ -202,8 +202,8 @@ class SpotOrders:
         status = order['orderStatus']
         # if status in ["Filled", "Deactivated"]:
         tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
-        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                      side=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
+        order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],
+                      side_open=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
                       tax_open=tax_open, time_open=order['createdTime']
                       )
         return order
@@ -297,12 +297,12 @@ class SpotOrders:
                 tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),3))
             else:
                 tax_open = str(round(float(order['cumExecFee']), 3))
-            order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],  #qty=order['cumExecQty']
-                          side=order['side'], status=status_tp_sl_order, avgPrice=order['avgPrice'],
+            order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],  #qty=order['cumExecQty']
+                          side_open=order['side'], status=status_tp_sl_order, avgPrice=order['avgPrice'],
                           money_open=order['cumExecValue'],
                           tax_open=tax_open, time_open=order['createdTime'],
                           price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
-                          order_id_close=order_id_close, money_close="0", tax_close="0"
+                          order_id_close=order_id_close, money_close="0", tax_close="0" #qty_close="0", side_close="0"
                           )
             return order
 
@@ -323,8 +323,8 @@ class SpotOrders:
                     else:
                         tax_close = str(round(float(order['cumExecFee']), 3))
                     print(f"[check_orders_status] {order}")
-                    order = Order(order_id=order['orderId'], symbol=order['symbol'], qty=order['cumExecQty'],
-                                  side=order['side'], status=status, avgPrice=order['avgPrice'],
+                    order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_close=order['cumExecQty'],
+                                  side_close=order['side'], status=status, avgPrice=order['avgPrice'],
                                   money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
                                   order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
                                   )

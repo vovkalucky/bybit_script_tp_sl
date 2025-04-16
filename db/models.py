@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 from db.database import Base
 
 from sqlalchemy import (
@@ -16,9 +16,13 @@ class Deals(Base):
     id: Mapped[intpk]
     coin: Mapped[str]
     order_id_open: Mapped[str]
-    order_id_close: Mapped[str]
+    side_open: Mapped[str]
+    qty_open: Mapped[str]
     money_open: Mapped[float]
     tax_open: Mapped[float]
+    order_id_close: Mapped[str]
+    side_close: Mapped[Optional[str]] = mapped_column(nullable=True)
+    qty_close: Mapped[Optional[str]] = mapped_column(nullable=True)
     money_close: Mapped[float]
     tax_close: Mapped[float]
     status: Mapped[str]

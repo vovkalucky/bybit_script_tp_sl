@@ -44,8 +44,9 @@ class DealsOrm:
     def append_deal(order: Order):
         try:
             with session_factory() as session:
-                query = insert(Deals).values(coin=order.symbol, order_id_open=order.order_id, order_id_close=order.order_id_close,
+                query = insert(Deals).values(coin=order.symbol, order_id_open=order.order_id, side_open=order.side_open, qty_open=order.qty_open,
                                              money_open=round(float(order.money_open), 3), tax_open=round(float(order.tax_open), 3),
+                                             order_id_close=order.order_id_close,
                                              money_close=order.money_close, tax_close=order.tax_close,
                                              status=order.status, time_in_deal=datetime.timedelta(seconds=0), earn=0) #time_open=time_sell, time_close=0,
 
@@ -73,17 +74,19 @@ class DealsOrm:
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 3)
                 tax_close = round(float(order.tax_close), 3)
+
                 earn = 0
                 print(f"[update_deal] {order.status}")
-                print(f"[update_deal] {money_close} {tax_close} {deal.money_open} {deal.tax_open}")
+                print(f"[update_deal] money {deal.money_open} {deal.tax_open} {money_close} {tax_close}")
+                print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
-                    if order.side == "Buy":
+                    if order.side_close == "Buy":
+                        earn = round(
+                            (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
+                        )
+                    elif order.side_close == "Sell":
                         earn = round(
                             money_close - deal.money_open - deal.tax_open - tax_close, 3
-                        )
-                    elif order.side == "Sell":
-                        earn = round(
-                            deal.money_open - money_close - deal.tax_open - tax_close, 3
                         )
                 # if order.status == "Deactivated":
                 #     earn = 0
@@ -95,6 +98,8 @@ class DealsOrm:
                 deal.time_close = now
                 deal.time_in_deal = time_in_deal
                 deal.earn = earn
+                deal.qty_close = order.qty_close
+                deal.side_close = order.side_close
 
                 session.commit()
                 print("♻️ Сделка обновлена в таблице deals.")
