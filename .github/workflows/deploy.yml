@@ -104,12 +104,13 @@ jobs:
 #        source: "."  # Копируем весь репозиторий
 #        target: "/root/scripts/bybit_script" # Указываем папку на сервере
 #        exclude: "tests"  # Исключаем папку tests
+
+        
     - name: Copy files to VPS
       run: |
         rsync -avz --exclude 'tests' \
-          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }}" \
           ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/scripts/bybit_script/
-        
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
