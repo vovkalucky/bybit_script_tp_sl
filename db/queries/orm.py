@@ -75,9 +75,9 @@ class DealsOrm:
                 money_close = round(float(order.money_close), 4)
                 print(f"[update_deal] {order}")
                 if order['side'] == "Sell":
-                    tax_close = round(float(order['cumExecFee']) * float(order['avgPrice']), 4)
+                    tax_close = round(float(order.tax_close) * float(order.avgPrice), 4)
                 else:
-                    tax_close = round(float(order['cumExecFee']), 4)
+                    tax_close = round(float(order.tax_close), 4)
 
                 #tax_close = round(float(order.tax_close), 4)
 
