@@ -74,8 +74,8 @@ class DealsOrm:
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 4)
                 print(f"[update_deal] {order}")
-                if order['side'] == "Sell":
-                    tax_close = round(float(order.tax_close) * float(order.avgPrice), 4)
+                if order.side_close == "Sell":
+                    tax_close = round(float(order.tax_close) * float(order.price), 4)
                 else:
                     tax_close = round(float(order.tax_close), 4)
 
@@ -85,9 +85,7 @@ class DealsOrm:
                 print(f"[update_deal] money {deal.money_open} {deal.tax_open} {money_close} {tax_close}")
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
-                    earn = round(
-                        money_close - deal.money_open - deal.tax_open - tax_close, 4
-                    )
+                    earn = round(money_close - deal.money_open - deal.tax_open - tax_close, 4)
                     # if order.side_close == "Buy":
                     #     earn = round(
                     #         (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3

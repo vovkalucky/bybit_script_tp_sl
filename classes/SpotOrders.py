@@ -295,7 +295,7 @@ class SpotOrders:
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
             if order['side'] == "Buy":
-                tax_open = str(round(float(order['cumExecFee']) * float(order['avgPrice']),4))
+                tax_open = str(round(float(order['cumExecFee']) * float(order['price']),4))
             else:
                 tax_open = str(round(float(order['cumExecFee']), 4))
             order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],  #qty=order['cumExecQty']
@@ -317,10 +317,10 @@ class SpotOrders:
                     continue
                 order = response_open_orders['result']['list'][0]
                 status = order['orderStatus']
-                print(f"[check_orders_status] avgPrice {order['avgPrice']}")
+                print(f"[check_orders_status] price {order['price']}")
                 if status in ["Filled", "Deactivated"]:
                     if order['side'] == "Buy":
-                        tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 4))
+                        tax_close = str(round(float(order['cumExecFee']) * float(order['price']), 4))
                     else:
                         tax_close = str(round(float(order['cumExecFee']), 4))
                     print(f"[check_orders_status] {order}")
