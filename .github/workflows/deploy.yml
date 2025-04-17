@@ -106,7 +106,9 @@ jobs:
 #        exclude: "tests"  # Исключаем папку tests
     - name: Copy files to VPS
       run: |
-        rsync -avz --exclude 'tests' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:46952:/root/scripts/bybit_script
+        rsync -avz --exclude 'tests' \
+          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }} -o StrictHostKeyChecking=no" \
+          ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/scripts/bybit_script/
         
 
     - name: Deploy via SSH
