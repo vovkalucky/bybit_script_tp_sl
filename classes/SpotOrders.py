@@ -320,9 +320,9 @@ class SpotOrders:
                 print(f"[check_orders_status] avgPrice {order['avgPrice']}")
                 if status in ["Filled", "Deactivated"]:
                     if order['side'] == "Buy":
-                        tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 3))
+                        tax_close = str(round(float(order['cumExecFee']) * float(order['avgPrice']), 4))
                     else:
-                        tax_close = str(round(float(order['cumExecFee']), 3))
+                        tax_close = str(round(float(order['cumExecFee']), 4))
                     print(f"[check_orders_status] {order}")
                     order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_close=order['cumExecQty'],
                                   side_close=order['side'], status=status, avgPrice=order['avgPrice'],

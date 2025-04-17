@@ -109,7 +109,7 @@ jobs:
 #    - name: Copy files to VPS
 #      run: |
 #        rsync -avz --exclude 'tests' \
-#          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }}" \
+#          -e "ssh -p 46952 -i ${{ secrets.SSH_PRIVATE_KEY }}" \
 #          ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/scripts/bybit_script/
 
     - name: Deploy via SSH
