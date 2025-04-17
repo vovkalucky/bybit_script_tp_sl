@@ -94,23 +94,23 @@ jobs:
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
 
-#    - name: Copy files to VPS
-#      uses: appleboy/scp-action@master
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        port: 46952  # Указываем порт для SSH
-#        source: "."  # Копируем весь репозиторий
-#        target: "/root/scripts/bybit_script" # Указываем папку на сервере
-#        exclude: "tests"  # Исключаем папку tests
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 46952  # Указываем порт для SSH
+        source: "."  # Копируем весь репозиторий
+        target: "/root/scripts/bybit_script" # Указываем папку на сервере
+        exclude: "tests"  # Исключаем папку tests
 
         
-    - name: Copy files to VPS
-      run: |
-        rsync -avz --exclude 'tests' \
-          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }}" \
-          ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/scripts/bybit_script/
+#    - name: Copy files to VPS
+#      run: |
+#        rsync -avz --exclude 'tests' \
+#          -e "ssh -p 46952 -i ${{ secrets.SSH_KEY_PATH }}" \
+#          ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/scripts/bybit_script/
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
