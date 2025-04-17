@@ -72,24 +72,30 @@ class DealsOrm:
                 # Вычисления на основе найденной сделки
                 now = datetime.datetime.now()
                 time_in_deal = now - deal.time_open
-                money_close = round(float(order.money_close), 3)
-                tax_close = round(float(order.tax_close), 3)
+                money_close = round(float(order.money_close), 4)
+                print(f"[update_deal] {order}")
+                if order['side'] == "Sell":
+                    tax_close = round(float(order['cumExecFee']) * float(order['avgPrice']), 4)
+                else:
+                    tax_close = round(float(order['cumExecFee']), 4)
+
+                #tax_close = round(float(order.tax_close), 4)
 
                 earn = 0
-                print(f"[update_deal] {order.status}")
                 print(f"[update_deal] money {deal.money_open} {deal.tax_open} {money_close} {tax_close}")
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
-                    if order.side_close == "Buy":
-                        earn = round(
-                            (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
-                        )
-                    elif order.side_close == "Sell":
-                        earn = round(
-                            money_close - deal.money_open - deal.tax_open - tax_close, 3
-                        )
-                # if order.status == "Deactivated":
-                #     earn = 0
+                    earn = round(
+                        money_close - deal.money_open - deal.tax_open - tax_close, 4
+                    )
+                    # if order.side_close == "Buy":
+                    #     earn = round(
+                    #         (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
+                    #     )
+                    # elif order.side_close == "Sell":
+                    #     earn = round(
+                    #         money_close - deal.money_open - deal.tax_open - tax_close, 3
+                    #     )
                 print(f"[update_deal] {earn}")
                 # Обновляем значения
                 deal.status = order.status
