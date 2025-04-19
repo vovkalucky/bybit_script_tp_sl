@@ -335,7 +335,7 @@ class SpotOrders:
             return orders
         except Exception as e:
             print(f"[check_orders_status] Ордера не найдены: {e}")
-            return []
+            return orders
 
 
     def cancel_order(self, order_id: str) -> bool:
