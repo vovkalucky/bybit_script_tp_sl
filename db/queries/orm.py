@@ -79,22 +79,24 @@ class DealsOrm:
                 else:
                     tax_close = round(float(order.tax_close), 4)
 
-                #tax_close = round(float(order.tax_close), 4)
 
                 earn = 0
                 print(f"[update_deal] money {deal.money_open} {deal.tax_open} {money_close} {tax_close}")
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
-                    earn = round(money_close - deal.money_open - deal.tax_open - tax_close, 4)
-                    # if order.side_close == "Buy":
-                    #     earn = round(
-                    #         (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
-                    #     )
-                    # elif order.side_close == "Sell":
-                    #     earn = round(
-                    #         money_close - deal.money_open - deal.tax_open - tax_close, 3
-                    #     )
-                print(f"[update_deal] {earn}")
+                    earn = round(
+                        (float(order.qty_close) - float(deal.qty_open)) * float(
+                            order.price) + (money_close - deal.money_open), 4
+                    )
+                #     if order.side_close == "Buy":
+                #         earn = round(
+                #             (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
+                #         )
+                #     elif order.side_close == "Sell":
+                #         earn = round(
+                #             money_close - deal.money_open - deal.tax_open - tax_close, 3
+                #         )
+                # print(f"[update_deal] {earn}")
                 # Обновляем значения
                 deal.status = order.status
                 deal.money_close = money_close
@@ -111,9 +113,9 @@ class DealsOrm:
             print(f"[update_deal] Ошибка: {e}")
 
     @staticmethod
-    def get_earn(order_id_sell: str):
+    def get_earn(order_id: str):
         with (session_factory() as session):
-            query = select(Deals).filter(Deals.order_id_close == order_id_sell)
+            query = select(Deals).filter(Deals.order_id_close == order_id)
             res = session.execute(query)
             deal_for_update = res.scalars().first()
             session.commit()

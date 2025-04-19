@@ -5,4 +5,4 @@ pesochnica
 .env
 .test.env
 db/db_test.py
-classes/analysis/old_versions
+classes/strategy/old_versions

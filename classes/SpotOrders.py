@@ -281,8 +281,8 @@ class SpotOrders:
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
             return tp_sl_order_list[0]["orderId"]
         except Exception as e:
-            print(f"[find_tp_sl_order] Exception: {e}")
-            return None
+            print(f"[find_open_order_id_by_tp] Exception: {e}")
+            return ""
 
 
 

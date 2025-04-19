@@ -3,7 +3,7 @@ from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS
-from classes.analysis.AnalysisCoin_imbalance_trend import AnalysisCoin
+from classes.strategy.AnalysisCoin_imbalance_trend import AnalysisCoin
 
 class TradeManager:
     def __init__(self):
