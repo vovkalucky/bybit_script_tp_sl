@@ -3,12 +3,6 @@ from dotenv import load_dotenv
 from settings import DEMO_TRADE
 load_dotenv()  # Загружаем переменные из файла .env
 
-#BYBIT_API_KEY = os.getenv("BYBIT_API_KEY")
-#BYBIT_SECRET_KEY = os.getenv("BYBIT_SECRET_KEY")
-
-#BYBIT_DEMO_API_KEY = os.getenv("BYBIT_DEMO_API_KEY")
-#BYBIT_DEMO_SECRET_KEY = os.getenv("BYBIT_DEMO_SECRET_KEY")
-
 TLG_TOKEN = os.getenv("TLG_TOKEN")
 TLG_ADMIN_ID = os.getenv("TLG_ADMIN_ID")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
