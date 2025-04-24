@@ -103,7 +103,7 @@ jobs:
         port: 46952  # Указываем порт для SSH
         source: "."  # Копируем весь репозиторий
         target: "/root/scripts/bybit_script" # Указываем папку на сервере
-        rm: "tests"  # Исключаем папку tests
+        #exclude: "tests"  # Исключаем папку tests
 
         
 #    - name: Copy files to VPS
