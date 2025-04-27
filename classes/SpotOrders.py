@@ -7,23 +7,28 @@ from config import get_config
 from db.queries.orm import CoinsOrm, DealsOrm
 from classes.OrdersStructure import Order
 
-config = get_config()
+#config = get_config()
 
 class SpotOrders:
+    # session = HTTP(api_key=config['api_key'],
+    #                api_secret=config['api_secret'],
+    #                demo=config['demo'],
+    #                recv_window=10000,
+    #                max_retries=10,
+    #                retry_delay=10)
 
-    session = HTTP(api_key=config['api_key'],
-                   api_secret=config['api_secret'],
-                   demo=config['demo'],
-                   recv_window=10000,
-                   max_retries=10,
-                   retry_delay=10)
-
-    def __init__(self, symbol): #side
+    def __init__(self, symbol):
+        config = get_config()
+        self.session = HTTP(api_key=config['api_key'],
+                            api_secret=config['api_secret'],
+                            demo=config['demo'],
+                            recv_window=10000,
+                            max_retries=10,
+                            retry_delay=10)
         self.category = "spot"
         self.symbol = symbol
         self.price_decimals, self.qty_decimals, self.min_qty = self.get_filters()
-        #self.side = side
-        self.price = SpotOrders.get_current_price_of_coin(self.symbol)
+        self.price = self.get_current_price_of_coin(self.symbol)
 
     def get_filters(self) -> Tuple[Optional[int], Optional[int], Optional[float]]:
         """Функция для получения лимитов для конкретной монеты (coin_name).
@@ -79,9 +84,9 @@ class SpotOrders:
 
         return None, None, None
 
-    @staticmethod
+
     @TradeHelpsFunc.retry()
-    def get_current_price_of_coin(symbol: str) -> float:
+    def get_current_price_of_coin(self, symbol: str) -> float:
         """
         Получает текущую цену монеты на спотовом рынке с повторными попытками.
         Args:
@@ -89,7 +94,7 @@ class SpotOrders:
         Returns:
             float: Текущая цена
         """
-        response = SpotOrders.session.get_tickers(category="spot", symbol=symbol)
+        response = self.session.get_tickers(category="spot", symbol=symbol)
         try:
             price_str = response.get("result", {}).get("list", [{}])[0].get("lastPrice")
             #print(f"[get_current_price_of_coin] {price_str}")

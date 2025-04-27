@@ -1,22 +1,8 @@
 import pytest
-import random
-import settings
-from classes.OrdersStructure import Order, Order
-from classes.SpotOrders import SpotOrders
+from classes.OrdersStructure import Order
 from tests.functions_for_help import check_order_id
 from tests.mock_response import find_tp_sl_order_mock_response
 
-COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
-         "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT",
-         "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT",
-         "SANDUSDT", "XLMUSDT", "HBARUSDT", "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"]
-
-@pytest.fixture()
-def spot() -> SpotOrders:
-    settings.DEMO_TRADE = True
-    random_coin = random.randint(0, len(COINS) - 1)
-    spot = SpotOrders(COINS[random_coin])
-    return spot
 
 def test_limits(spot):
     price_decimals, qty_decimals, min_qty = spot.get_filters()

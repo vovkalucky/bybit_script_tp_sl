@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+
+import settings
 from settings import DEMO_TRADE
 load_dotenv()  # Загружаем переменные из файла .env
 
@@ -13,7 +15,7 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 MODE = os.getenv("MODE")
 
 def get_config():
-    if DEMO_TRADE:
+    if settings.DEMO_TRADE:
         return {
             "api_key": os.getenv("BYBIT_DEMO_API_KEY"),
             "api_secret": os.getenv("BYBIT_DEMO_SECRET_KEY"),
