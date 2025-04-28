@@ -4,10 +4,9 @@ from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
-from db.queries.orm import CoinsOrm, DealsOrm
+#from db.queries.orm import CoinsOrm, DealsOrm
 from classes.OrdersStructure import Order
 
-#config = get_config()
 
 class SpotOrders:
     # session = HTTP(api_key=config['api_key'],
@@ -304,6 +303,7 @@ class SpotOrders:
 
     @TradeHelpsFunc.retry()
     def check_orders_status(self, orders: List[str]) -> List[str]:
+        from db.queries.orm import CoinsOrm, DealsOrm
         try:
             for order_id in orders:
                 response_open_orders = self.session.get_order_history(category=self.category, orderId=order_id)
