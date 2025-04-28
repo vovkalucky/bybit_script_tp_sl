@@ -15,6 +15,7 @@ sqlalchemy==2.0.38
 psycopg==3.2.5
 psycopg-binary==3.2.5
 pydantic==2.11.3
+numpy==1.26.4
 ccxt
 pandas
 pandas-ta
