@@ -25,22 +25,22 @@ def spot() -> SpotOrders:
     spot = SpotOrders(COINS[random_coin])
     return spot
 
-@pytest.fixture(scope='function')
-def db_session():
-    # Создаём тестовую БД на лету
-    test_db_url = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5433/test_{POSTGRES_DB}"
-    engine = create_engine(test_db_url)
-
-    # Создание всех таблиц (если нужно)
-    # from models import Base
-    # Base.metadata.create_all(engine)
-
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = Session()
-
-    yield session  # передаем сессию в тест
-
-    session.close()  # после теста закрываем сессию
-
-    # Удаляем таблицы (если нужно)
-    # Base.metadata.drop_all(engine)
+# @pytest.fixture(scope='function')
+# def db_session():
+#     # Создаём тестовую БД на лету
+#     test_db_url = f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5433/test_{POSTGRES_DB}"
+#     engine = create_engine(test_db_url)
+#
+#     # Создание всех таблиц (если нужно)
+#     # from models import Base
+#     # Base.metadata.create_all(engine)
+#
+#     Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+#     session = Session()
+#
+#     yield session  # передаем сессию в тест
+#
+#     session.close()  # после теста закрываем сессию
+#
+#     # Удаляем таблицы (если нужно)
+#     # Base.metadata.drop_all(engine)
