@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bybit_script
+    container_name: bybit_script_test
     logging:
       driver: json-file
       options:
@@ -24,7 +24,7 @@ services:
 
   postgres_db:
     image: postgres:15
-    container_name: postgres_db
+    container_name: postgres_db_test
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -45,7 +45,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin_test
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=$PGADMIN_EMAIL
@@ -55,7 +55,7 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      - postgres_db
+      - postgres_db_test
 
 volumes:
   postgres_data:
