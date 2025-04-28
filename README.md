@@ -22,7 +22,7 @@ Pipeline для автоматизации деплоя на VPS описан в
 Поиск точки входа по неограниченному количеству монет. Текущий список торговых пар:
 ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT", 
 "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", 
-"HBARUSDT", "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"]
+"ONDOUSDT", "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"]
 Отправка сообщений в Telegram бот при успешном деплое проекта, открытии/закрытии сделки.
 - 🔧 Дополнительные настройки в файле settings.py
 

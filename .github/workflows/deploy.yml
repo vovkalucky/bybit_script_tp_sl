@@ -30,7 +30,7 @@ jobs:
 
       - name: Run tests
         run: pytest -s -v --alluredir=allure_results
-        continue-on-error: true
+        continue-on-error: false #true
 
 #      - name: Store allure_results
 #        uses: actions/upload-artifact@v4 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
@@ -102,7 +102,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46952  # Указываем порт для SSH
         source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/bybit_script" # Указываем папку на сервере
+        target: "/root/scripts/bybit_script_test" # Указываем папку на сервере
         #exclude: "tests"  # Исключаем папку tests
 
         
@@ -120,7 +120,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46952  # Указываем порт для SSH
         script: |
-          cd scripts/bybit_script
+          cd scripts/bybit_script_test
           docker compose down
           docker system prune -af
           docker compose up -d

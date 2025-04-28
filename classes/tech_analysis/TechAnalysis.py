@@ -4,6 +4,10 @@ from tradingview_ta import TA_Handler, Interval
 from config import get_config
 #from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
 #from settings import DEMO_TRADE
+import ccxt
+import pandas as pd
+import pandas_ta as ta
+
 
 config = get_config()
 
@@ -141,52 +145,6 @@ class TechAnalysis:
         else:
             return False
 
-    # @classmethod
-    # def find_bear_imbalance(cls, symbol: str, interval:str, limit: int = 10, imbalance: float = 0.5, profit: float = 1) -> str:
-    #     """Функция поиска медвежьего имбаланса - падающие свечи. Для анализа берутся
-    #     три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
-    #     (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
-    #     klines = TechAnalysis.get_klines(symbol, interval, limit)
-    #     third_imb_kline = float(klines[-4][3]) #low
-    #     second_imb_kline = float(klines[-3][3]) #low
-    #     first_imb_kline = float(klines[-2][2]) #high
-    #     current_kline = float(klines[-1][4]) #current_price
-    #
-    #     condition_0 = second_imb_kline < third_imb_kline
-    #     condition_1 = (first_imb_kline - current_kline)/first_imb_kline > profit/100 # для входа в сделку чтобы прибыль составила profit (%)
-    #     condition_2 = (third_imb_kline - first_imb_kline)/third_imb_kline > imbalance/100 # размера тела падающей свечи более imbalance (%)
-    #
-    #     list_of_conditions = [condition_0, condition_1, condition_2]
-    #     if all(list_of_conditions):
-    #     #if all([True]):
-    #         print(f"✅✅✅✅✅✅✅✅ Bear Imbalance for {symbol} in {interval} find! ✅✅✅✅✅✅✅✅")
-    #         return "Buy"
-    #     else:
-    #         return "No buy"
-    #
-    # @classmethod
-    # def find_bull_imbalance(cls, symbol: str, interval: str, limit: int = 10, imbalance: float = 0.5, profit: float = 0.5) -> str:
-    #     """Функция поиска бычьего имбаланса - растущие свечи. Для анализа берутся
-    #     три последние закрытые свечи и текущая (current_kline) для входа в сделку. Размер имбаланса по умолчанию
-    #     (imbalance)- 0.5%, текущая цена ниже нижней границы имбаланса на 1%, т.е. цена вернется в эту зону (profit)"""
-    #     klines = TechAnalysis.get_klines(symbol, interval, limit)
-    #     third_imb_kline = float(klines[-4][2])  # high
-    #     second_imb_kline = float(klines[-3][2])  # high
-    #     first_imb_kline = float(klines[-2][3])  # low
-    #     current_kline = float(klines[-1][4])  # current_price
-    #
-    #     condition_0 = second_imb_kline > third_imb_kline
-    #     condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100  # условие для входа в сделку, чтобы прибыль составила profit (%)
-    #     condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100  # размер тела растущей свечи более imbalance (%)
-    #     list_of_conditions = [condition_0, condition_1, condition_2]
-    #     #print(f"{symbol} {list_of_conditions}")
-    #     if all(list_of_conditions):
-    #         print(f"✅✅✅✅✅✅✅✅ Bull Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
-    #         return "Sell"
-    #     else:
-    #         return "No Sell"
-
-
     @staticmethod
     def determine_trend_ema(symbol: str, timeframe: str) -> str:
         """Функция для анализа тренда при помощи EMA100 и EMA50 + ADX
@@ -221,7 +179,58 @@ class TechAnalysis:
             print(f"⚠️ Ошибка при анализе {symbol} на {timeframe}: {e}")
             return False
 
+    @staticmethod
+    def detect_trend(
+            symbol,
+            timeframe,  # 15m, 1h
+            exchange_name="bybit",
+            atr_period=14,
+            lookback=150,
+            threshold_factor=1.2,
+            min_trend_change=0.01  # Минимальный процент изменения для признания тренда
+    ):
+        try:
+            # Инициализация биржи
+            exchange_class = getattr(ccxt, exchange_name)
+            exchange = exchange_class()
 
+            # Получение данных
+            ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=lookback)
+            df = pd.DataFrame(ohlcv, columns=["ts", "open", "high", "low", "close", "volume"])
+            df["ts"] = pd.to_datetime(df["ts"], unit="ms")
 
+            # Расчёт ATR
+            df["atr"] = ta.atr(high=df["high"], low=df["low"], close=df["close"], length=atr_period)
+
+            # Автоматическое определение порога волатильности
+            volatility_threshold = df["atr"].median() * threshold_factor
+
+            # Классификация режима
+            df["regime"] = "flat"
+            df.loc[df["atr"] > volatility_threshold, "regime"] = "trend"
+
+            # Последнее состояние
+            last = df.iloc[-1]
+
+            # Определение направления тренда
+            trend = "flat"
+            price_change = (last["close"] - df["close"].iloc[-atr_period]) / df["close"].iloc[-atr_period]
+
+            if last["regime"] == "trend" and abs(price_change) >= min_trend_change:
+                trend = "Bull" if price_change > 0 else "Bear"
+
+            # print(f"Последний режим рынка: {last['regime'].upper()} (ATR = {last['atr']:.2f}), Тренд: {trend}")
+            #
+            # return {
+            #     "regime": last["regime"],
+            #     "atr": last["atr"],
+            #     "trend": trend,
+            #     "price_change_pct": round(price_change * 100, 2)
+            # }
+            return trend
+
+        except Exception as e:
+            print(f"[detect_trend] Ошибка при получении данных: {e}")
+            return None
 
 

@@ -26,16 +26,43 @@ class TradeHelpsFunc:
         return f'{l}.{r[:prec]}'  # Возвращаем строку для точного результата
 
 
+    # @staticmethod
+    # def retry(max_retries: int = 3, delay: int = 5):
+    #     """Декоратор для повторного вызова функции с заданным количеством попыток и задержкой."""
+    #
+    #     def decorator(func):
+    #         @wraps(func)
+    #         def wrapper(*args, **kwargs):
+    #             is_method = bool(args) and hasattr(args[0], func.__name__)
+    #             for attempt in range(1, max_retries + 1):
+    #                 try:
+    #                     if is_method:
+    #                         return func(args[0], *args[1:], **kwargs)  # Это метод, передаем self явно
+    #                     else:
+    #                         return func(*args, **kwargs)  # Просто функция
+    #                 except (InvalidRequestError, FailedRequestError) as e:
+    #                     print(f"[{func.__name__}] API Error: {e.status_code} | {e.message}")
+    #                 except Exception as e:
+    #                     print(f"[{func.__name__}] Unexpected error: {e}")
+    #
+    #                 if attempt < max_retries:
+    #                     print(f"[{func.__name__}] Attempt {attempt} failed. Retrying in {delay} seconds...")
+    #                     time.sleep(delay)
+    #             print(f"[{func.__name__}] Failed after {max_retries} attempts.")
+    #             return None
+    #         return wrapper
+    #     return decorator
+
     @staticmethod
     def retry(max_retries: int = 3, delay: int = 5):
         """Декоратор для повторного вызова функции с заданным количеством попыток и задержкой."""
 
         def decorator(func):
             @wraps(func)
-            def wrapper(self, *args, **kwargs):
+            def wrapper(*args, **kwargs): #self,
                 for attempt in range(1, max_retries + 1):
                     try:
-                        return func(self, *args, **kwargs)  # Выполняем оригинальную функцию
+                        return func(*args, **kwargs)  # Выполняем оригинальную функцию
                     except (InvalidRequestError, FailedRequestError) as e:
                         print(f"[{func.__name__}] API Error: {e.status_code} | {e.message}")
                     except Exception as e:

@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 from sqlalchemy import insert, select, update
-import config
+from settings import COINS
 from classes.OrdersStructure import Order
 from db.database import session_factory, Base, get_engine
 from db.models import Deals, Coins
@@ -17,18 +17,10 @@ class BaseOrm:
             Base.metadata.drop_all(sync_engine)
             Base.metadata.create_all(sync_engine)
             with session_factory() as session:
-                # Список монет
-                coin_names = [
-                    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT",
-                    "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-                    "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT",
-                    "MNTUSDT", "SWEATUSDT", "TRXUSDT", "DOGSUSDT"
-                ]
-
                 # Проверяем, есть ли уже данные в таблице
                 if session.query(Coins).count() == 0:
                     # Добавляем монеты в базу данных
-                    session.add_all([Coins(coin=coin) for coin in coin_names])
+                    session.add_all([Coins(coin=coin) for coin in COINS])
                     session.commit()
 
             sync_engine.echo = False
@@ -39,8 +31,6 @@ class BaseOrm:
 
 class DealsOrm:
     @staticmethod
-    # def append_deal(coin: str, order_id_open: str, order_id_close: str, money_open: str,
-    #                 tax_open: str, money_close: str, tax_close: str, status: str):
     def append_deal(order: Order):
         try:
             with session_factory() as session:
@@ -88,16 +78,6 @@ class DealsOrm:
                         (float(order.qty_close) - float(deal.qty_open)) * float(
                             order.price) + (money_close - deal.money_open), 4
                     )
-                #     if order.side_close == "Buy":
-                #         earn = round(
-                #             (float(order.qty_close) - float(deal.qty_open)) * float(order.price) - deal.tax_open - tax_close, 3
-                #         )
-                #     elif order.side_close == "Sell":
-                #         earn = round(
-                #             money_close - deal.money_open - deal.tax_open - tax_close, 3
-                #         )
-                # print(f"[update_deal] {earn}")
-                # Обновляем значения
                 deal.status = order.status
                 deal.money_close = money_close
                 deal.tax_close = tax_close

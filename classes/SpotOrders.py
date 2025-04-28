@@ -28,7 +28,7 @@ class SpotOrders:
         self.category = "spot"
         self.symbol = symbol
         self.price_decimals, self.qty_decimals, self.min_qty = self.get_filters()
-        self.price = self.get_current_price_of_coin(self.symbol)
+        self.price = self.get_current_price_of_coin()
 
     def get_filters(self) -> Tuple[Optional[int], Optional[int], Optional[float]]:
         """Функция для получения лимитов для конкретной монеты (coin_name).
@@ -85,30 +85,29 @@ class SpotOrders:
         return None, None, None
 
 
-    @TradeHelpsFunc.retry()
-    def get_current_price_of_coin(self, symbol: str) -> float:
+    #@TradeHelpsFunc.retry()
+    def get_current_price_of_coin(self) -> float:
         """
-        Получает текущую цену монеты на спотовом рынке с повторными попытками.
+        Получает текущую цену монеты на спотовом рынке.
         Args:
-            symbol: Торговая пара (например, 'BTCUSDT')
+            self.symbol: Торговая пара (например, 'BTCUSDT')
         Returns:
-            float: Текущая цена
+            price_str: Текущая цена
         """
-        response = self.session.get_tickers(category="spot", symbol=symbol)
+        response = self.session.get_tickers(category="spot", symbol=self.symbol)
         try:
             price_str = response.get("result", {}).get("list", [{}])[0].get("lastPrice")
-            #print(f"[get_current_price_of_coin] {price_str}")
             if not price_str:
-                raise Exception("[get_current_price_of_coin] Price data not found in response")
+                raise Exception("[get_current_price_of_coin] Цена не найдена")
             return float(price_str)
 
         except (IndexError, KeyError, TypeError, ValueError) as e:
-            raise Exception(f"Error parsing response: {str(e)}")
+            raise Exception(f"[get_current_price_of_coin] {e}")
 
 
     @TradeHelpsFunc.retry()
     def market_order(self, side: str, money_for_one_order: float) -> Order:
-        """Установка market order на сумму qty ($)"""
+        """Установка market order"""
         qty = TradeHelpsFunc.float_trunc(money_for_one_order, self.qty_decimals)
 
         order = self.session.place_order(
@@ -126,7 +125,7 @@ class SpotOrders:
             return Order()
         return order
 
-
+    @TradeHelpsFunc.retry()
     def limit_order(self, side: str, money_or_qty: float, take_profit: float) -> Order:
         """
         Установка лимитного ордера на сумму в quote (для Buy) или количество монет (для Sell).
@@ -134,7 +133,7 @@ class SpotOrders:
         """
 
         # Получаем текущую цену
-        current_price = SpotOrders.get_current_price_of_coin(self.symbol)
+        current_price = self.price
 
         # Определяем лимитную цену и количество
         if side == "Buy":
@@ -142,24 +141,18 @@ class SpotOrders:
             price = current_price * (1 - take_profit / 100)
             price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
 
-            # Рассчитываем количество монет по лимитной цене
-            qty = money_or_qty / float(price)
-            qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
-
-            market_unit = "quoteCoin"  # Покупаем на сумму в котируемой валюте (например, USDT)
-
         elif side == "Sell":
-            qty = TradeHelpsFunc.float_trunc(money_or_qty, self.qty_decimals)
-
             # Цена продажи выше текущей
             price = current_price * (1 + take_profit / 100)
             price = TradeHelpsFunc.float_trunc(price, self.price_decimals)
 
-            market_unit = "baseCoin"  # Продаём определённое количество монет
-
         else:
             print("[limit_order] Ошибка в параметре side")
             return Order()
+
+        qty = money_or_qty / float(price)
+        qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
+
 
         if float(qty) < self.min_qty:
             print(f"[limit_order] Кол-во {qty} меньше min_qty {self.min_qty} для {self.symbol}")
@@ -173,7 +166,7 @@ class SpotOrders:
             orderType="Limit",
             qty=qty,
             price=price,
-            marketUnit=market_unit
+            marketUnit="quoteCoin"
         )
 
         order_id = order.get('result', {}).get('orderId')
@@ -191,7 +184,6 @@ class SpotOrders:
         order = response_limit_order['result']['list'][0]
         #print(f"[get_info_about_limit_order]: {order}")
         status = order['orderStatus']
-        #if status == "New":
         order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],
                       side_open=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
                       tax_open=str(float(order['cumExecFee']) * float(order['price'])), time_open=order['createdTime'],
@@ -218,7 +210,7 @@ class SpotOrders:
     def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> Order:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
-        close_price = self.get_current_price_of_coin(self.symbol)
+        close_price = self.price
         qty = money_for_one_order / close_price
         qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
         if side == "Buy":
@@ -244,8 +236,6 @@ class SpotOrders:
             marketUnit="quoteCoin",
             takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
             stopLoss=sl_price,
-            # slTriggerPrice=sl_trigger_price,
-            # tpTriggerPrice=tp_trigger_price,
             slLimitPrice=sl_price,
             tpLimitPrice=tp_price,
             tpOrderType="Limit",
