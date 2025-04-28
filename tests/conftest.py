@@ -2,9 +2,9 @@ import random
 import settings
 import pytest
 from classes.SpotOrders import SpotOrders
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+# from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
 
 
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
