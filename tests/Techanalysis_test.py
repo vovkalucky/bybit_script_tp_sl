@@ -8,10 +8,7 @@ from tests.conftest import RANDOM_COIN, TIMEFRAMES_BYBIT, RANDOM_TIMEFRAME
 class TestTechAnalysis:
     @allure.title("test_check_volumes")
     @allure.description("Тест функции проверки объемов check_volumes")
-    #@pytest.mark.parametrize('timeframe', TIMEFRAMES_BYBIT)
     def test_check_volumes(self):
-        #rand_coin = COINS[random.randint(0, len(COINS) - 1)]
-        #rand_interval = TIMEFRAMES[random.randint(0, len(TIMEFRAMES) - 1)]
         rand_count = random.randint(1, 1001)
         actual_result = TechAnalysis.check_volumes(RANDOM_COIN, random.choice(TIMEFRAMES_BYBIT), rand_count)
         print(actual_result)
