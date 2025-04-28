@@ -1,4 +1,6 @@
 import random
+from unittest.mock import patch
+
 import settings
 import pytest
 from classes.SpotOrders import SpotOrders
@@ -20,10 +22,11 @@ RANDOM_TIMEFRAME = random.choice(TIMEFRAMES_TV)
 
 @pytest.fixture()
 def spot() -> SpotOrders:
-    settings.DEMO_TRADE = True
-    random_coin = random.randint(0, len(COINS) - 1)
-    spot = SpotOrders(COINS[random_coin])
-    return spot
+    with patch("classes.SpotOrders.TlgSendMessage"):
+        settings.DEMO_TRADE = True
+        random_coin = random.randint(0, len(COINS) - 1)
+        spot = SpotOrders(COINS[random_coin])
+        return spot
 
 # @pytest.fixture(scope='function')
 # def db_session():

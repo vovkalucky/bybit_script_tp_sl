@@ -1,13 +1,12 @@
 from classes.OrdersStructure import Order
-
 from settings import PROJECT_NAME
 import requests
 from config import TLG_TOKEN, TLG_ADMIN_ID
+from db.queries.orm import DealsOrm
 
 class TlgSendMessage:
     @staticmethod
     def send_tlg_message_new_tp_sl_order(order: Order) -> None:
-        from db.queries.orm import DealsOrm
         message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {order.symbol} успешно размещен\n"
         list_of_open_deals = DealsOrm.select_open_deals()
         count_open_limit_orders = len(list_of_open_deals)
