@@ -19,7 +19,7 @@ services:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Moscow
     depends_on:
-      postgres_db:
+      postgres_db_test:
         condition: service_healthy
 
   postgres_db:
