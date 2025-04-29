@@ -22,7 +22,7 @@ services:
       postgres_db_test:
         condition: service_healthy
 
-  postgres_db:
+  postgres_db_test:
     image: postgres:15
     container_name: postgres_db_test
     restart: always
@@ -43,7 +43,7 @@ services:
       timeout: 5s
       retries: 5
 
-  pgadmin:
+  pgadmin_test:
     image: dpage/pgadmin4
     container_name: pgadmin_test
     restart: always
