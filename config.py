@@ -19,12 +19,14 @@ def get_config():
         return {
             "api_key": os.getenv("BYBIT_DEMO_API_KEY"),
             "api_secret": os.getenv("BYBIT_DEMO_SECRET_KEY"),
-            "demo": True
+            "demo": True,
+            "POSTGRES_DB": os.getenv("POSTGRES_DB_TEST")
         }
     else:
         return {
             "api_key": os.getenv("BYBIT_API_KEY"),
             "api_secret": os.getenv("BYBIT_SECRET_KEY"),
-            "demo": False
+            "demo": False,
+            "POSTGRES_DB": os.getenv("POSTGRES_DB")
         }
 

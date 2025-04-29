@@ -18,47 +18,13 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Moscow
-    depends_on:
-      postgres_db_test:
-        condition: service_healthy
-
-  postgres_db_test:
-    image: postgres:15
-    container_name: postgres_db_test
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=$POSTGRES_DB_TEST
-    command: ["postgres", "-c", "timezone=Europe/Moscow"]
-    env_file:
-      - .env
-    ports:
-      - "5433:5433"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  pgadmin_test:
-    image: dpage/pgadmin4
-    container_name: pgadmin_test
-    restart: always
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=$PGADMIN_EMAIL
-      - PGADMIN_DEFAULT_PASSWORD=$PGADMIN_PASSWORD
-    env_file:
-      - .env
-    ports:
-      - "5051:80"
-    depends_on:
-      - postgres_db_test
 
 volumes:
   postgres_data:
+
+networks:
+  bybit_script_default:
+    external: true
 
 
 
