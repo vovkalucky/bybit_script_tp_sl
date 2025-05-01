@@ -36,52 +36,52 @@ jobs:
         run: pytest -s -v --alluredir=allure_results
         continue-on-error: false #true
 
-#      - name: Store allure_results
-#        uses: actions/upload-artifact@v4 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
-#        with:
-#          name: allure_results
-#          path: allure_results
-#          retention-days: 7
-#
-#  generate-report:
-#    runs-on: ubuntu-latest
-#    needs: test #job generate-report запустится после отработки job test
-#    name: Generate report
-#    steps:
-#      - uses: actions/setup-java@v4
-#        with:
-#          distribution: 'microsoft' # See 'Supported distributions' for available options
-#          java-version: '21'
-#      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.32.2/allure-2.32.2.tgz && sudo tar -zxvf allure-2.32.2.tgz -C /opt/ && sudo ln -s /opt/allure-2.32.2/bin/allure /usr/bin/allure
-#
-#      - name: Download all workflow run artifacts #скачиваем ранее сгенерированные артефакты: allure-allure_results
-#        uses: actions/download-artifact@v4
-#      - run: allure generate -c allure_results -o _site #запускаем генерацию отчета -o - в какую папку сохранить
-#
-#      - name: Store generated report
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: _site
-#          path:
-#            _site
-#          retention-days: 7
-#
-#  publish-report:
-#    runs-on: ubuntu-latest
-#    needs: generate-report
-#    name: Report publication
-#    environment:
-#      name: github-pages
-#    steps:
-#      - name: Download all workflow run artifacts
-#        uses: actions/download-artifact@v4
-#
-#      - name: Upload Pages artifact
-#        uses: actions/upload-pages-artifact@v3
-#
-#      - name: Deploy to GitHub Pages
-#        id: deployment
-#        uses: actions/deploy-pages@v4
+      - name: Store allure_results
+        uses: actions/upload-artifact@v4 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
+        with:
+          name: allure_results
+          path: allure_results
+          retention-days: 7
+
+  generate-report:
+    runs-on: ubuntu-latest
+    needs: test #job generate-report запустится после отработки job test
+    name: Generate report
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft' # See 'Supported distributions' for available options
+          java-version: '21'
+      - run: sudo wget https://github.com/allure-framework/allure2/releases/download/2.32.2/allure-2.32.2.tgz && sudo tar -zxvf allure-2.32.2.tgz -C /opt/ && sudo ln -s /opt/allure-2.32.2/bin/allure /usr/bin/allure
+
+      - name: Download all workflow run artifacts #скачиваем ранее сгенерированные артефакты: allure-allure_results
+        uses: actions/download-artifact@v4
+      - run: allure generate -c allure_results -o _site #запускаем генерацию отчета -o - в какую папку сохранить
+
+      - name: Store generated report
+        uses: actions/upload-artifact@v4
+        with:
+          name: _site
+          path:
+            _site
+          retention-days: 7
+
+  publish-report:
+    runs-on: ubuntu-latest
+    needs: generate-report
+    name: Report publication
+    environment:
+      name: github-pages
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   deploy:
     needs: test  # Запуск деплоя только после успешного прогона тестов
