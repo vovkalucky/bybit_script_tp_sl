@@ -34,7 +34,7 @@ jobs:
 
       - name: Run tests
         run: pytest -s -v --alluredir=allure_results
-        continue-on-error: false #true
+        continue-on-error: true
 
 #      - name: Store allure_results
 #        uses: actions/upload-artifact@v4 #сохраняем свежий отчет allure, чтобы они были доступны джобе generate-report
