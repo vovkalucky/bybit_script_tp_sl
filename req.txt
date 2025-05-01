@@ -19,3 +19,4 @@ numpy==1.26.4
 ccxt
 pandas
 pandas-ta
+pytest-xdist
