@@ -185,7 +185,7 @@ class TechAnalysis:
             timeframe,  # 15m, 1h
             exchange_name="bybit",
             atr_period=14,
-            lookback=150,
+            lookback=100,
             threshold_factor=1.2,
             min_trend_change=0.01  # Минимальный процент изменения для признания тренда
     ):
@@ -206,14 +206,14 @@ class TechAnalysis:
             volatility_threshold = df["atr"].median() * threshold_factor
 
             # Классификация режима
-            df["regime"] = "flat"
+            df["regime"] = "Flat"
             df.loc[df["atr"] > volatility_threshold, "regime"] = "trend"
 
             # Последнее состояние
             last = df.iloc[-1]
 
             # Определение направления тренда
-            trend = "flat"
+            trend = "Flat"
             price_change = (last["close"] - df["close"].iloc[-atr_period]) / df["close"].iloc[-atr_period]
 
             if last["regime"] == "trend" and abs(price_change) >= min_trend_change:

@@ -1,5 +1,5 @@
 services:
-  bybit-trade_script:
+  bybit_trade_script:
     build:
       context: .
       dockerfile: Dockerfile

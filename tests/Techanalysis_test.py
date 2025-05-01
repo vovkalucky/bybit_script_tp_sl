@@ -2,7 +2,7 @@ import random
 import pytest
 from classes.tech_analysis.TechAnalysis import TechAnalysis
 import allure
-from tests.conftest import RANDOM_COIN, TIMEFRAMES_BYBIT, RANDOM_TIMEFRAME
+from tests.conftest import RANDOM_COIN, TIMEFRAMES_BYBIT, RANDOM_TIMEFRAME, RANDOM_TIMEFRAME_BYBIT
 
 
 class TestTechAnalysis:
@@ -33,4 +33,22 @@ class TestTechAnalysis:
         expected_result = ["Bull", "Bear", "Flat"]
         actual_result = TechAnalysis.determine_trend_ema(RANDOM_COIN, RANDOM_TIMEFRAME)
         assert actual_result in expected_result
+
+    @allure.title("test_detect_trend")
+    @allure.description("Тест функции для определения тренда на разных таймфреймах")
+    def test_detect_trend(self):
+        expected_result = ["Bull", "Bear", "Flat"]
+        actual_result = TechAnalysis.detect_trend(RANDOM_COIN, RANDOM_TIMEFRAME)
+        print(f"[test_detect_trend] {RANDOM_COIN} {RANDOM_TIMEFRAME} {actual_result}")
+        assert actual_result in expected_result
+
+    @pytest.mark.parametrize('side', ("bear", "bull"))
+    @allure.title("test_find_imbalance")
+    @allure.description("Тест функции для определения имбаланса на разных таймфреймах")
+    def test_find_imbalance(self, side):
+        expected_result = [True, False]
+        actual_result = TechAnalysis.find_imbalance(RANDOM_COIN, RANDOM_TIMEFRAME_BYBIT, side, 10, 0.8, 1)
+        print(f"[test_find_imbalance] {RANDOM_COIN} {RANDOM_TIMEFRAME_BYBIT} {side} {actual_result}")
+        assert actual_result in expected_result
+
 

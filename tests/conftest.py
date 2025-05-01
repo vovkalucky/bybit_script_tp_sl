@@ -13,6 +13,7 @@ TIMEFRAMES_BYBIT = ["1", "3", "5", "15", "30", "60", "120", "240", "360", "720",
 TIMEFRAMES_TV = ["1m", "5m", "15m", "30m", "1h", "2h", "4h", "1d", "1W", "1M"]
 RANDOM_COIN = COINS[random.randint(0, len(COINS) - 1)]
 RANDOM_TIMEFRAME = random.choice(TIMEFRAMES_TV)
+RANDOM_TIMEFRAME_BYBIT = random.choice(TIMEFRAMES_BYBIT)
 
 
 @pytest.fixture()
