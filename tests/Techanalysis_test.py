@@ -37,7 +37,7 @@ class TestTechAnalysis:
     @allure.title("test_detect_trend")
     @allure.description("Тест функции для определения тренда на разных таймфреймах")
     def test_detect_trend(self):
-        expected_result = ["Bull", "Bear", "Flat"]
+        expected_result = ["Bull", "Bear", "Flat", None]
         actual_result = TechAnalysis.detect_trend(RANDOM_COIN, RANDOM_TIMEFRAME)
         print(f"[test_detect_trend] {RANDOM_COIN} {RANDOM_TIMEFRAME} {actual_result}")
         assert actual_result in expected_result

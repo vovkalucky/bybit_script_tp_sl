@@ -38,7 +38,7 @@ jobs:
 
       - name: Run API tests with pytest and generate Allure results  # Запуск тестов
         run: |
-          pytest -s -v --alluredir=allure-results --numprocesses 2
+          pytest --alluredir=allure-results
 
       - name: Upload Allure results  # Загружаем результаты тестов в GitHub Actions
         if: always()  # Загружаем файлы независимо от успеха/неуспеха тестов
