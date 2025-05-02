@@ -32,7 +32,6 @@ class TechAnalysis:
     def avg_volume(volumes_list: List[float]) -> float:
         return round(sum(volumes_list) / len(volumes_list), 3) if volumes_list else 0
 
-
     @staticmethod
     def check_volumes(coin: str, interval: str, count: int, threshold: float = 1.2) -> bool:
         try:
@@ -48,7 +47,6 @@ class TechAnalysis:
         except Exception as e:
             print(f"[check_volumes]: {e}")
             return False
-
 
     @classmethod
     def get_klines(cls, symbol: str, interval: str, limit: int = 14):
