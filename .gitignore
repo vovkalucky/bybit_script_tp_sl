@@ -1,8 +1,0 @@
-.venv
-.idea
-__pycache__
-pesochnica
-.env
-.test.env
-db/db_test.py
-classes/strategy/old_versions
