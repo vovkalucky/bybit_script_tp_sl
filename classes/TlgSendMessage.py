@@ -40,6 +40,7 @@ class TlgSendMessage:
 
     @staticmethod
     def send_tlg_message_close_tp_sl_order(order: Order) -> None:
+        from db.queries.orm import DealsOrm
         earn = DealsOrm.get_earn(order.order_id)
         message_title = (f"{PROJECT_NAME}\n"
                          f"💰 Результат для {order.symbol}: {earn} $\n")

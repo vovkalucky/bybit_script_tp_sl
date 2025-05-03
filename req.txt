@@ -20,3 +20,4 @@ ccxt
 pandas
 pandas-ta
 pytest-xdist
+faker

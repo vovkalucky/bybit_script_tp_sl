@@ -1,9 +1,7 @@
 from typing import List
 from pybit.unified_trading import HTTP
-from tradingview_ta import TA_Handler, Interval
+from tradingview_ta import TA_Handler
 from config import get_config
-#from config import BYBIT_API_KEY, BYBIT_SECRET_KEY
-#from settings import DEMO_TRADE
 import ccxt
 import pandas as pd
 import pandas_ta as ta
@@ -178,15 +176,7 @@ class TechAnalysis:
             return False
 
     @staticmethod
-    def detect_trend(
-            symbol,
-            timeframe,  # 15m, 1h
-            exchange_name="bybit",
-            atr_period=14,
-            lookback=100,
-            threshold_factor=1.2,
-            min_trend_change=0.01  # Минимальный процент изменения для признания тренда
-    ):
+    def detect_trend(symbol, timeframe, exchange_name="bybit", atr_period=14, lookback=100, threshold_factor=1.2, min_trend_change=0.01):
         try:
             # Инициализация биржи
             exchange_class = getattr(ccxt, exchange_name)
@@ -230,5 +220,3 @@ class TechAnalysis:
         except Exception as e:
             print(f"[detect_trend] Ошибка при получении данных: {e}")
             return None
-
-

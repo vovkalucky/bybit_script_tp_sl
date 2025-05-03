@@ -1,6 +1,6 @@
 import pytest
 from classes.OrdersStructure import Order
-from tests.functions_for_help import check_order_id
+from tests.tools.functions_for_help import check_order_id
 from tests.mock_response import find_tp_sl_order_mock_response
 
 

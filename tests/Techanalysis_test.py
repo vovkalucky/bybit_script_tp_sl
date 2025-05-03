@@ -1,5 +1,9 @@
+import logging
 import random
+import sys
+
 import pytest
+
 from classes.tech_analysis.TechAnalysis import TechAnalysis
 import allure
 from tests.conftest import RANDOM_COIN, TIMEFRAMES_BYBIT, RANDOM_TIMEFRAME, RANDOM_TIMEFRAME_BYBIT
@@ -50,5 +54,13 @@ class TestTechAnalysis:
         actual_result = TechAnalysis.find_imbalance(RANDOM_COIN, RANDOM_TIMEFRAME_BYBIT, side, 10, 0.8, 1)
         print(f"[test_find_imbalance] {RANDOM_COIN} {RANDOM_TIMEFRAME_BYBIT} {side} {actual_result}")
         assert actual_result in expected_result
+
+    @allure.title("test_find_imbalance")
+    @allure.description("Тест функции для определения имбаланса на разных таймфреймах")
+    def test_get_volume_from_klines(self, fake):
+        count = fake.rand_int()
+        actual_result = TechAnalysis.get_volume_from_klines(RANDOM_COIN, RANDOM_TIMEFRAME_BYBIT, count)
+        print(f"[test_get_volume_from_klines]{RANDOM_COIN, RANDOM_TIMEFRAME_BYBIT, count} {actual_result}")
+        assert len(actual_result) == count
 
 
