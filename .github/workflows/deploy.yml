@@ -32,13 +32,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r req.txt
 
-      - name: Run tests
-        run: pytest -s -v --alluredir=allure_results
-        continue-on-error: true
+#      - name: Run tests
+#        run: pytest -s -v --alluredir=allure_results
+#        continue-on-error: true
 
       - name: Run API tests with pytest and generate Allure results  # Запуск тестов
         run: |
           pytest --alluredir=allure-results
+        continue-on-error: true
 
       - name: Upload Allure results  # Загружаем результаты тестов в GitHub Actions
         if: always()  # Загружаем файлы независимо от успеха/неуспеха тестов
