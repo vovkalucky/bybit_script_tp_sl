@@ -10,18 +10,18 @@ class AnalysisCoin:
             #imbalance = TechAnalysis.find_bull_imbalance(self.pair, timeframe, 10, 0.5, 0.8)
             imbalance_bull = TechAnalysis.find_imbalance(self.pair, timeframe, "bull", 10, 0.8, 1)
             imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.8, 1)
-            print(f"[analyze_imbalance_and_trend] imbalance_bull {self.pair} {imbalance_bull}")
-            print(f"[analyze_imbalance_and_trend] imbalance_bear {self.pair} {imbalance_bear}")
+            #print(f"[analyze_imbalance_and_trend] imbalance_bull {self.pair} {imbalance_bull}")
+            #print(f"[analyze_imbalance_and_trend] imbalance_bear {self.pair} {imbalance_bear}")
             if imbalance_bear == False and imbalance_bull == False:
                 return "No signal"
             trend = TechAnalysis.determine_trend_ema(self.pair, "1h")
             print(f"[analyze_imbalance_and_trend] trend {self.pair} {trend}")
             #return "Sell"
             if trend in ["Bull", "Flat"] and imbalance_bear:
-                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bear}")
+                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {self.pair} {timeframe} {trend} {imbalance_bear}")
                 return "Buy"
             elif trend in ["Bear", "Flat"] and imbalance_bull:
-                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {trend} {imbalance_bull}")
+                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {self.pair} {timeframe} {trend} {imbalance_bull}")
                 return "Sell"
             else:
                 return "No signal"
