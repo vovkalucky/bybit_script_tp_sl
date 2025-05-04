@@ -1,17 +1,4 @@
-from typing import List
-
-from tradingview_ta import TA_Handler, Interval
 from classes.tech_analysis.TechAnalysis import TechAnalysis
-
-# COINS = [
-#     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-#     "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT",
-#     "LTCUSDT", "ATOMUSDT", "APEUSDT", "LINKUSDT", "NEARUSDT",
-#     "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT", "HBARUSDT"
-# ]
-
-
-#TIMEFRAMES: List[str] = ['1h', '15m', '5m', '1m']
 
 class AnalysisCoin:
     def __init__(self, pair):
