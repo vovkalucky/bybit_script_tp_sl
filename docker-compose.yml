@@ -7,7 +7,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "2m"
+        max-size: "10m"
         max-file: "3"
     restart: always
     volumes:
