@@ -225,32 +225,37 @@ class SpotOrders:
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
         sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
 
-        order = self.session.place_order(
-            category=self.category,
-            symbol=self.symbol,
-            side=side,
-            orderType="Limit",
-            qty=qty,
-            price=close_price,
-            marketUnit="quoteCoin",
-            takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-            stopLoss=sl_price,
-            slLimitPrice=sl_price,
-            tpLimitPrice=tp_price,
-            tpOrderType="Limit",
-            slOrderType="Limit",
-            orderFilter = "OCO",  # Фильтр для OCO-ордера
-            timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
-        )
-        time.sleep(5)
-        order_id = order.get('result', {}).get('orderId')
-        if not order_id:
-            print(f"[tp_sl_order] No orderId in response")
+        try:
+            order = self.session.place_order(
+                category=self.category,
+                symbol=self.symbol,
+                side=side,
+                orderType="Limit",
+                qty=qty,
+                price=close_price,
+                marketUnit="quoteCoin",
+                takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
+                stopLoss=sl_price,
+                slLimitPrice=sl_price,
+                tpLimitPrice=tp_price,
+                tpOrderType="Limit",
+                slOrderType="Limit",
+                orderFilter = "OCO",  # Фильтр для OCO-ордера
+                timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+            )
+            time.sleep(5)
+            order_id = order.get('result', {}).get('orderId')
+            if not order_id:
+                print(f"[tp_sl_order] No orderId in response")
+                return Order()
+            if self.check_order_status(order_id, "Filled"):
+                print(f"[tp_sl_order] {order_id}")
+                order = Order(order_id=order_id, status="Filled")
+            return order
+
+        except Exception as e:
+            print(f"[tp_sl_order] {e}")
             return Order()
-        if self.check_order_status(order_id, "Filled"):
-            print(f"[tp_sl_order] {order_id}")
-            order = Order(order_id=order_id, status="Filled")
-        return order
 
     @TradeHelpsFunc.retry_until_true(6,10)
     def check_order_status(self, order_id: str, status: str) -> bool:
