@@ -251,7 +251,12 @@ class SpotOrders:
             if self.check_order_status(order_id, "Filled"):
                 print(f"[tp_sl_order] {order_id}")
                 order = Order(order_id=order_id, status="Filled")
-            return order
+                return order
+            else:
+                self.cancel_order(order_id)
+                return Order()
+
+
 
         except Exception as e:
             print(f"[tp_sl_order] {e}")
@@ -262,7 +267,7 @@ class SpotOrders:
         try:
             order = self.session.get_open_orders(category=self.category, orderId=order_id)
             order = order['result']['list'][0]
-            print(f"[check_order_status] {order}")
+            print(f"[check_order_status] {order['symbol']} {order['orderId']} {order['orderStatus']}")
             if order['orderStatus'] == status:
                 return True
             else:
@@ -289,7 +294,7 @@ class SpotOrders:
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
-            print(f"[get_info_about_tp_sl_order]: {order}")
+            #print(f"[get_info_about_tp_sl_order]: {order}")
             order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
@@ -304,6 +309,7 @@ class SpotOrders:
                           price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
                           order_id_close=order_id_close, money_close="0", tax_close="0" #qty_close="0", side_close="0"
                           )
+            print(f"[get_info_about_tp_sl_order]: {order}")
             return order
 
     @TradeHelpsFunc.retry()

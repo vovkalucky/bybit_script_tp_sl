@@ -38,8 +38,9 @@ class TradeManager:
         try:
             spot = SpotOrders(symbol=symbol)
             order_open = spot.tp_sl_order(side, MONEY_FOR_ONE_ORDER, TAKE_PROFIT, STOP_LOSS)
+            if not order_open:
+                return
             order = spot.get_info_about_tp_sl_order(order_open)
-            #print(f"[execute_trade] get_info_about_tp_sl_order: {order}")
             if order:
                 CoinsOrm.delete_coin(symbol)
                 DealsOrm.append_deal(order)
