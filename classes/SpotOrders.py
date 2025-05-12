@@ -323,13 +323,12 @@ class SpotOrders:
                     continue
                 order = response_open_orders['result']['list'][0]
                 status = order['orderStatus']
-                print(f"[check_orders_status] price {order['price']}")
                 if status in ["Filled", "Deactivated"]:
                     if order['side'] == "Buy":
                         tax_close = str(round(float(order['cumExecFee']) * float(order['price']), 4))
                     else:
                         tax_close = str(round(float(order['cumExecFee']), 4))
-                    print(f"[check_orders_status] {order}")
+                    print(f"[check_orders_status] {order['symbol']} {order['orderId']} {order['orderStatus']}")
                     order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_close=order['cumExecQty'],
                                   side_close=order['side'], status=status, avgPrice=order['avgPrice'],
                                   money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],

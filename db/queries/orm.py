@@ -63,10 +63,11 @@ class DealsOrm:
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 4)
                 print(f"[update_deal] {order}")
-                if order.side_close == "Sell":
-                    tax_close = round(float(order.tax_close) * float(order.price), 4)
-                else:
-                    tax_close = round(float(order.tax_close), 4)
+                # if order.side_close == "Sell":
+                #     tax_close = round(float(order.tax_close) * float(order.price), 4)
+                # else:
+                #     tax_close = round(float(order.tax_close), 4)
+                tax_close = round(float(order.tax_close), 4)
 
 
                 earn = 0
@@ -85,7 +86,6 @@ class DealsOrm:
                 deal.earn = earn
                 deal.qty_close = order.qty_close
                 deal.side_close = order.side_close
-
                 session.commit()
                 print("♻️ Сделка обновлена в таблице deals.")
         except Exception as e:

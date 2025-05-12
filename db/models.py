@@ -15,12 +15,12 @@ class Deals(Base):
 
     id: Mapped[intpk]
     coin: Mapped[str]
-    order_id_open: Mapped[str]
+    order_id_open: Mapped[str] = mapped_column(unique=True)
     side_open: Mapped[str]
     qty_open: Mapped[str]
     money_open: Mapped[float]
     tax_open: Mapped[float]
-    order_id_close: Mapped[str]
+    order_id_close: Mapped[str] = mapped_column(unique=True)
     side_close: Mapped[Optional[str]] = mapped_column(nullable=True)
     qty_close: Mapped[Optional[str]] = mapped_column(nullable=True)
     money_close: Mapped[float]
