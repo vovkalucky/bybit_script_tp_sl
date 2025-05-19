@@ -75,7 +75,7 @@ class DealsOrm:
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
                     earn = round(
-                        (float(order.qty_close) - float(deal.qty_open)) * float(
+                        (float(deal.qty_open) - float(order.qty_close)) * float(
                             order.price) + (money_close - deal.money_open), 4
                     )
                 deal.status = order.status
