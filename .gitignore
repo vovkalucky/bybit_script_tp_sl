@@ -6,3 +6,4 @@ pesochnica
 .test.env
 db/db_test.py
 classes/strategy/old_versions
+/docker-compose-DB.yml

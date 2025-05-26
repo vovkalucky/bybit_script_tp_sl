@@ -1,4 +1,7 @@
-PROJECT_NAME = "#bybit_imbalance_22_05_25"
+PROJECT_NAME = "#bybit_imbalance_29_05_25"
+TABLE_DEALS = "bybittpsl_deals"
+TABLE_COINS = "bybittpsl_coins"
+
 DELAY = 60
 MAX_COUNT_OF_DEALS = 7
 MONEY_FOR_ONE_ORDER = 70

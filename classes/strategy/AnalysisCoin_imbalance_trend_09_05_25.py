@@ -4,8 +4,7 @@ class AnalysisCoin:
     def __init__(self, pair):
         self.pair = pair
 
-    def analyze_imbalance_and_trend(self) -> str:
-        timeframe = "15"
+    def analyze_imbalance_and_trend(self, timeframe) -> str:
         try:
             imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.7, 0.8) #было 0.8 profit 0.9
             #print(f"[analyze_imbalance_and_trend] imbalance_bear {self.pair} {imbalance_bear}")
@@ -14,7 +13,7 @@ class AnalysisCoin:
             #trend = TechAnalysis.detect_trend(self.pair, "15m")
             print(f"[analyze_imbalance_and_trend] trend {self.pair}")
             if imbalance_bear:
-                print(f"[analyze_imbalance_and_trend] Все условия для торговли выполнены {imbalance_bear}")
+                print(f"[analyze_imbalance_and_trend] Все условия для торговли {self.pair} выполнены! {imbalance_bear} на таймфрейме: {timeframe}")
                 return "Buy"
             else:
                 return "No signal"

@@ -1,7 +1,7 @@
 import datetime
 from typing import List
-from sqlalchemy import insert, select, update
-from settings import COINS
+from sqlalchemy import insert, select, update, text, inspect
+from settings import COINS, TABLE_DEALS, TABLE_COINS
 from classes.OrdersStructure import Order
 from db.database import session_factory, Base, get_engine
 from db.models import Deals, Coins
@@ -11,10 +11,28 @@ class BaseOrm:
     @staticmethod
     def create_tables():
         try:
-            sync_engine = get_engine()
-            sync_engine.echo = True
-            Base.metadata.drop_all(sync_engine)
-            Base.metadata.create_all(sync_engine)
+            engine = get_engine()
+            engine.echo = True
+            inspector = inspect(engine)
+
+            # Получаем все таблицы в базе
+            existing_tables = inspector.get_table_names()
+            metadata = Base.metadata
+
+            # Удаляем только указанные таблицы, если они существуют
+            for table_name in [TABLE_DEALS, TABLE_COINS]:
+                if table_name in existing_tables:
+                    print(f"Dropping table: {table_name}")
+                    with engine.connect() as conn:
+                        conn.execute(text(f'DROP TABLE IF EXISTS "{table_name}" CASCADE'))
+
+            # Создаём только нужные таблицы из модели (если они описаны в Base)
+            metadata.create_all(engine, tables=[
+                t for t in metadata.tables.values()
+                if t.name in [TABLE_DEALS, TABLE_COINS]
+            ])
+
+
             with session_factory() as session:
                 # Проверяем, есть ли уже данные в таблице
                 if session.query(Coins).count() == 0:
@@ -22,10 +40,29 @@ class BaseOrm:
                     session.add_all([Coins(coin=coin) for coin in COINS])
                     session.commit()
 
-            sync_engine.echo = False
+            engine.echo = False
             print("✅ Таблицы coins, deals успешно созданы")
         except Exception as e:
             print(f"[create_tables] Не удалось создать таблицы: {e}")
+
+    # @staticmethod
+    # def create_tables():
+    #     try:
+    #         sync_engine = get_engine()
+    #         sync_engine.echo = True
+    #         Base.metadata.drop_all(sync_engine)
+    #         Base.metadata.create_all(sync_engine)
+    #         with session_factory() as session:
+    #             # Проверяем, есть ли уже данные в таблице
+    #             if session.query(Coins).count() == 0:
+    #                 # Добавляем монеты в базу данных
+    #                 session.add_all([Coins(coin=coin) for coin in COINS])
+    #                 session.commit()
+    #
+    #         sync_engine.echo = False
+    #         print("✅ Таблицы coins, deals успешно созданы")
+    #     except Exception as e:
+    #         print(f"[create_tables] Не удалось создать таблицы: {e}")
 
 
 class DealsOrm:
@@ -74,10 +111,8 @@ class DealsOrm:
                 print(f"[update_deal] money {deal.money_open} {deal.tax_open} {money_close} {tax_close}")
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
-                    earn = round(
-                        (float(deal.qty_open) - float(order.qty_close)) * float(
-                            order.price) + (money_close - deal.money_open), 4
-                    )
+                    earn = round(money_close - deal.money_open - deal.tax_open - tax_close, 4)
+                    #(float(deal.qty_open) - float(order.qty_close)) * float(order.price)
                 deal.status = order.status
                 deal.money_close = money_close
                 deal.tax_close = tax_close

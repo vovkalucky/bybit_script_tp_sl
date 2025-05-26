@@ -1,6 +1,7 @@
 import datetime
 from typing import Annotated, Optional
 from db.database import Base
+from settings import TABLE_DEALS, TABLE_COINS
 
 from sqlalchemy import (
     text, Interval
@@ -11,7 +12,7 @@ intpk = Annotated[int, mapped_column(primary_key=True)]
 created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"))]
 
 class Deals(Base):
-    __tablename__ = "deals"
+    __tablename__ = TABLE_DEALS
 
     id: Mapped[intpk]
     coin: Mapped[str]
@@ -32,7 +33,7 @@ class Deals(Base):
     earn: Mapped[float] = mapped_column(nullable=True)
 
 class Coins(Base):
-    __tablename__ = "coins"
+    __tablename__ = TABLE_COINS
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     coin: Mapped[str] = mapped_column(unique=True)

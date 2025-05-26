@@ -25,11 +25,12 @@ class TradeManager:
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
-            side = analysis.analyze_imbalance_and_trend()
-            if side in ["Buy", "Sell"]:
-                print(f"📣📣📣 Найден сигнал на {side} для {pair}! 📣📣📣")
-                self.execute_trade(pair, side)
-                return
+            for timeframe in ["15", "30"]:
+                side = analysis.analyze_imbalance_and_trend(timeframe)
+                if side in ["Buy", "Sell"]:
+                    print(f"📣📣📣 Найден сигнал на {side} для {pair} на таймфрейме {timeframe}! 📣📣📣")
+                    self.execute_trade(pair, side)
+                    return  # Сигнал найден, прекращаем дальнейший поиск
         print(f"🔴 Сигнал не найден для {len(self.coins)} пар из списка: {self.coins}")
 
 
