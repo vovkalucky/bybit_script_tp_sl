@@ -22,9 +22,6 @@ services:
       - .env
     networks:
       - db_net
-    depends_on:
-      postgres_db:
-        condition: service_healthy
 
 networks:
   db_net:
