@@ -33,7 +33,10 @@ Docker (docker compose)
 Telegram API
 
 ## 🗣 Основные команды
-Запуск:
+Поднимаем БД и pgadmin (docker-compose-DB.yml):
+docker compose up -d
+
+Запуск скрипта (docker-compose.yml):
 docker compose up -d
 docker compose down
 docker logs -f bybit_tp_sl
