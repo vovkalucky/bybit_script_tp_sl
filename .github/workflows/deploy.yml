@@ -103,7 +103,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 46952
+        port: 46953 # Указываем порт для SSH  22 изменил на 46953
         source: "."  # Копируем весь репозиторий
         target: "/root/${{ env.DEPLOY_PATH }}" # Указываем папку на сервере
 
@@ -113,7 +113,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22  # Указываем порт для SSH 46952
+        port: 46953  # Указываем порт для SSH  22 изменил на 46953
         script: |
           cd $DEPLOY_PATH
           docker compose down
