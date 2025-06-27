@@ -96,12 +96,7 @@ jobs:
         echo "SSH_HOST: ${{ secrets.SSH_HOST != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
-    - name: Debug SSH Connection
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh -vvv -o StrictHostKeyChecking=no -p 46953 root@${{ secrets.SSH_HOST }} "echo ✅ Connected!"
+
     - name: Copy files to VPS
       uses: appleboy/scp-action@master
       with:
@@ -110,7 +105,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46953 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/root/${{ env.DEPLOY_PATH }}" # Указываем папку на сервере
+        target: "/root/" # Указываем папку на сервере ${{ env.DEPLOY_PATH }}
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
