@@ -105,7 +105,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 46953 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/root/${{ env.DEPLOY_PATH }}" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
+        target: "/root/scripts/bybit_script" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
