@@ -1,2 +1,0 @@
-[test_limit_order] order_id='1942544244325747968' symbol=None take_profit=None stop_loss=None qty_open=None side_open=None money_open=None tax_open=None time_open=None qty_close=None side_close=None money_close=None tax_close=None price=None avgPrice=None status=None order_id_close=None basePrice=None triggerPrice=None
-[cancel_order] Ордер 1942544244325747968 успешно отменен
