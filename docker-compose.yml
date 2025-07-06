@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bybit_script
+    container_name: bybit_script_2
     logging:
       driver: json-file
       options:
