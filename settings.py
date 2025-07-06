@@ -1,10 +1,10 @@
-PROJECT_NAME = "#bybit_imbalance_27_06_25"
-TABLE_DEALS = "bybittpsl_deals"
-TABLE_COINS = "bybittpsl_coins"
+PROJECT_NAME = "#bybit_imbalance_06_07_25"
+TABLE_DEALS = "bybittpsl_06_07_25_deals"
+TABLE_COINS = "bybittpsl_06_07_25_coins"
 
 DELAY = 60
-MAX_COUNT_OF_DEALS = 7
-MONEY_FOR_ONE_ORDER = 70
+MAX_COUNT_OF_DEALS = 5
+MONEY_FOR_ONE_ORDER = 50
 TAKE_PROFIT = 1
 STOP_LOSS = 50
 DEMO_TRADE = False
