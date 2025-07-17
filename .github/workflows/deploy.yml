@@ -107,7 +107,7 @@ jobs:
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
     - name: create-directory
-      uses: nekiro/ssh-job@latest
+      uses: nekiro/ssh-job@1.0.5
       with:
         host: ${{ secrets.SSH_HOST }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
