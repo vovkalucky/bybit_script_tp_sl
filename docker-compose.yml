@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bybit_script
+    container_name: test_bybit_trade_script
     logging:
       driver: json-file
       options:
