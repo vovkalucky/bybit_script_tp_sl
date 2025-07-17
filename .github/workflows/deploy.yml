@@ -107,7 +107,10 @@ jobs:
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
     - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.1.0 #1.0.0
+      #uses: appleboy/ssh-action@v1.1.0 #1.0.0
+    - uses: actions/checkout@v3
+    - name: Setup ssh session
+      uses: Warpbuilds/action-debugger@v1.3
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
