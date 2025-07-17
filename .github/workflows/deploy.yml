@@ -11,8 +11,8 @@ permissions:
   id-token: write
 
 env:
-  #BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
-  #BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
+  BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
+  BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
   DEPLOY_PATH: scripts/test_strategy
 
 jobs:
@@ -119,17 +119,6 @@ jobs:
           docker compose down
           docker system prune -af
           docker compose up -d
-#    - name: create-directory
-#      uses: nekiro/ssh-job@v1.0.5
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        user: ${{ secrets.SSH_USER }}
-#        command: |
-#          cd /root/scripts/test_strategy
-#          docker compose down
-#          docker system prune -af
-#          docker compose up -d
 
     - name: Send Telegram Notification
       run: |

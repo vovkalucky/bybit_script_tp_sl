@@ -13,7 +13,7 @@ class AnalysisCoin:
 
     def analyze_coin(self, timeframe) -> str:
         try:
-            ohlcv = EXCHANGE.fetch_ohlcv(self.pair, timeframe=timeframe, limit=250)
+            ohlcv = EXCHANGE.fetch_ohlcv(self.pair, timeframe=timeframe, limit=240)
             df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
             close = df['close']
             high = df['high']
