@@ -53,7 +53,8 @@ jobs:
           #retention-days: 7
 
   publish-report:  # Джоба для публикации Allure-отчета на GitHub Pages
-    #needs: [ run-tests ]  # Выполняется только после успешного выполнения run-tests
+    if: github.ref == 'refs/heads/main'
+    needs: [ run-tests ]  # Выполняется только после успешного выполнения run-tests
     runs-on: ubuntu-latest  # Используем последнюю версию Ubuntu
 
     steps:
@@ -104,9 +105,9 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 46952
-        source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/test_strategy" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
+        port: 22
+        source: "."
+        target: "/root/scripts/test_strategy"
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
@@ -114,7 +115,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH  22 изменил на 46953
+        port: 22
         script: |
           cd /root/scripts/test_strategy
           docker compose down
@@ -125,4 +126,4 @@ jobs:
       run: |
         curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
         -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-        -d text="🛠 Деплой проекта ${{ env.DEPLOY_PATH }} успешно завершен!"
+        -d text="🛠 Деплой проекта успешно завершен!"
