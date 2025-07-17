@@ -11,20 +11,14 @@ permissions:
   id-token: write
 
 env:
-  BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
-  BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
+  #BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
+  #BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
   DEPLOY_PATH: scripts/test_strategy
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
-#    env:
-#      BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
-#      BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
-#      DEPLOY_PATH: scripts/test_strategy
-#      DEPLOY_TARGET: /root/scripts/test_strategy
 
     steps:
       - name: Checkout code
@@ -104,44 +98,21 @@ jobs:
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
 
-#    - name: Copy files to VPS
-#      uses: appleboy/scp-action@v1.0.0
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        port: 22
-#        source: "."
-#        target: "/root/scripts/test_strategy/"
-
     - name: Copy files to VPS
       uses: a-was/scp-action@v1
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        destination: /root/scripts/test_strategy/
+        destination: /root/${{ DEPLOY_PATH }} #/root/scripts/test_strategy/
         script: |
           cd /root/scripts/test_strategy
           docker compose down
           docker system prune -af
           docker compose up -d
 
-#    - name: Deploy via SSH
-#      uses: appleboy/ssh-action@v1.1.0
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        port: 22
-#        script: |
-#          cd /root/scripts/test_strategy
-#          docker compose down
-#          docker system prune -af
-#          docker compose up -d
-
     - name: Send Telegram Notification
       run: |
         curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
         -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-        -d text="🛠 Деплой проекта успешно завершен!"
+        -d text="🛠 Деплой проекта ${{ env.DEPLOY_PATH }}успешно завершен!"
