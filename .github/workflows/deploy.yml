@@ -106,18 +106,32 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
-    - name: Action SSH
-      id: action-ssh
-      uses: tiyee/action-ssh@release
+    - name: scp ssh pipelines
+      uses: cross-the-world/ssh-scp-ssh-pipelines@latest
       with:
         host: ${{ secrets.SSH_HOST }}
-        port: 22
-        username: ${{ secrets.SSH_USER }}
-        privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
-        command: 'cd /root/scripts/test_strategy
+        user: ${{ secrets.SSH_USER }}
+        pass: ${{ secrets.SSH_PRIVATE_KEY }}
+        scp: |
+          ./* => "/root/scripts/test_strategy/"
+        last_ssh: |
+          cd /root/scripts/test_strategy
           docker compose down
           docker system prune -af
           docker compose up -d'
+
+#    - name: Action SSH
+#      id: action-ssh
+#      uses: tiyee/action-ssh@release
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        port: 22
+#        username: ${{ secrets.SSH_USER }}
+#        privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+#        command: 'cd /root/scripts/test_strategy
+#          docker compose down
+#          docker system prune -af
+#          docker compose up -d'
 
 #    - name: Deploy via SSH
 #      #uses: appleboy/ssh-action@v1.1.0 #1.0.0
