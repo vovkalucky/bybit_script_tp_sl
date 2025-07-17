@@ -87,8 +87,6 @@ jobs:
   deploy:
     #needs: run-tests  # Запуск деплоя только после успешного прогона тестов
     runs-on: ubuntu-latest
-    env:
-      DEPLOY_TARGET: "/root/scripts/test_strategy"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -108,7 +106,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: ${{ env.DEPLOY_TARGET }} # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
+        target: "/root/scripts/test_strategy" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
