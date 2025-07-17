@@ -25,7 +25,7 @@ class TradeManager:
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
-            for timeframe in ["15", "30"]:
+            for timeframe in ["1h"]:
                 side = analysis.analyze_coin(timeframe)
                 if side in ["Buy", "Sell"]:
                     print(f"📣📣📣 Найден сигнал на {side} для {pair} на таймфрейме {timeframe}! 📣📣📣")
