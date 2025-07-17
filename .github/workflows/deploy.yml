@@ -17,7 +17,7 @@ jobs:
     env:
       BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
       BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
-      DEPLOY_PATH: scripts/bybit_script
+      DEPLOY_PATH: scripts/test_strategy
 
     steps:
       - name: Checkout code
