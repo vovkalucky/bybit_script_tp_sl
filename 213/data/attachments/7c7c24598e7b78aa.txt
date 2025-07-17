@@ -1,0 +1,1 @@
+⚠️ Ошибка при анализе DOGSUSDT на 1M: float() argument must be a string or a real number, not 'NoneType'
