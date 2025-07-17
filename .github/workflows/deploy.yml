@@ -105,11 +105,19 @@ jobs:
         user: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
+
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v1.1.0 #1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22 # Указываем порт для SSH  22 изменил на 46953
         script: |
           cd /root/scripts/test_strategy
           docker compose down
           docker system prune -af
-          docker compose up -d
+          docker compose up -d  
 
     - name: Send Telegram Notification
       run: |
