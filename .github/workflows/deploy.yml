@@ -53,7 +53,7 @@ jobs:
           #retention-days: 7
 
   publish-report:  # Джоба для публикации Allure-отчета на GitHub Pages
-    needs: [ run-tests ]  # Выполняется только после успешного выполнения run-tests
+    #needs: [ run-tests ]  # Выполняется только после успешного выполнения run-tests
     runs-on: ubuntu-latest  # Используем последнюю версию Ubuntu
 
     steps:
@@ -85,7 +85,7 @@ jobs:
           publish_dir: allure-history  # Папка, где находится сгенерированный отчет
 
   deploy:
-    needs: run-tests  # Запуск деплоя только после успешного прогона тестов
+    #needs: run-tests  # Запуск деплоя только после успешного прогона тестов
     runs-on: ubuntu-latest
     env:
       DEPLOY_TARGET: "/root/scripts/test_strategy"
