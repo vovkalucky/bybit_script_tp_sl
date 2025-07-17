@@ -106,14 +106,14 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
-    - name: Run multiple remote commands via SSH
-      uses: D3rHase/ssh-command-action@latest
+    - name: Execute remote SSH commands using password
+      uses: appleboy/ssh-action@v1
       with:
         host: ${{ secrets.SSH_HOST }}
-        port: 22
-        user: ${{ secrets.SSH_USER }}
-        private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-        command: |
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
           cd /root/scripts/test_strategy
           docker compose down
           docker system prune -af
