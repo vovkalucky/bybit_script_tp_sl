@@ -10,6 +10,11 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
+  BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
+  DEPLOY_PATH: scripts/test_strategy
+
 jobs:
   run-tests:
     runs-on: ubuntu-latest
@@ -35,11 +40,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r req.txt
 
-#      - name: Run tests
-#        run: pytest -s -v --alluredir=allure_results
-#        continue-on-error: true
+      - name: Run tests  # Запуск тестов
+        run: pytest -s -v --alluredir=allure_results
+        continue-on-error: true
 
-      - name: Run API tests with pytest and generate Allure results  # Запуск тестов
+      - name: Run API tests with pytest and generate Allure results
         run: |
           pytest --alluredir=allure-results
         continue-on-error: true
@@ -110,7 +115,7 @@ jobs:
         target: "/root/scripts/test_strategy"
 
     - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.1.0 #1.0.0
+      uses: appleboy/ssh-action@v1.1.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
