@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main test_strategy]
+    branches: [ main, test_strategy]
 
 
 permissions:
