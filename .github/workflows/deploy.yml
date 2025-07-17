@@ -112,8 +112,8 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         user: ${{ secrets.SSH_USER }}
         pass: ${{ secrets.SSH_PRIVATE_KEY }}
-        scp: |
-          ./* => "/root/scripts/test_strategy/"
+#        scp: |
+#          ./* => "/root/scripts/test_strategy/"
         last_ssh: |
           cd /root/scripts/test_strategy
           docker compose down
