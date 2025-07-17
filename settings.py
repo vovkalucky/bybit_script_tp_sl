@@ -1,13 +1,13 @@
-PROJECT_NAME = "#bybit_imbalance_27_06_25"
-TABLE_DEALS = "bybittpsl_deals"
-TABLE_COINS = "bybittpsl_coins"
+PROJECT_NAME = "#test_17_07_25"
+TABLE_DEALS = "test_strategy_deals"
+TABLE_COINS = "test_strategy_coins"
 
 DELAY = 60
 MAX_COUNT_OF_DEALS = 7
 MONEY_FOR_ONE_ORDER = 70
 TAKE_PROFIT = 1
 STOP_LOSS = 50
-DEMO_TRADE = False
+DEMO_TRADE = True
 ATR_SL = 1.5
 ATR_TP = 2
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT",

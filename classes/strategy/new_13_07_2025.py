@@ -11,17 +11,16 @@ class AnalysisCoin:
     def __init__(self, pair):
         self.pair = pair
 
-    def analyze(self, timeframe, limit) -> str:
+    def analyze_coin(self, timeframe, limit) -> str:
         try:
             ohlcv = EXCHANGE.fetch_ohlcv(self.pair, timeframe=timeframe, limit=limit)
             df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-            print(df)
             close = df['close']
             high = df['high']
             low = df['low']
 
             if len(close) < 210:
-                print(f"{self.pair}: Недостаточно данных.")
+                #print(f"{self.pair}: Недостаточно данных.")
                 return "No signal"
 
             ind = Indicators(df)
@@ -43,12 +42,12 @@ class AnalysisCoin:
             atr_now = atr_val.iloc[-1]
 
             if any(pd.isna(x) for x in [ema_now, rsi_now, hist_now, hist_prev, adx_now, bb_low, atr_now]):
-                print(f"{self.pair}: Есть NaN в индикаторах.")
+                #print(f"{self.pair}: Есть NaN в индикаторах.")
                 return "No signal"
 
             # ⚠️ Проверка на волатильность
             if atr_now < 0.005 * c:
-                print(f"⚠️ Волатильность низкая (ATR={atr_now:.2f}) — сигнал отклонён.")
+                #print(f"⚠️ Волатильность низкая (ATR={atr_now:.2f}) — сигнал отклонён.")
                 return False
 
             # 🟢 Режим 1: тренд
