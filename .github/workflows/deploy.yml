@@ -18,6 +18,7 @@ jobs:
       BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
       BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
       DEPLOY_PATH: scripts/test_strategy
+      DEPLOY_TARGET: /root/scripts/test_strategy
 
     steps:
       - name: Checkout code
@@ -105,7 +106,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/root/${{ env.DEPLOY_PATH }}" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
+        target: ${{ env.DEPLOY_TARGET }} # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
