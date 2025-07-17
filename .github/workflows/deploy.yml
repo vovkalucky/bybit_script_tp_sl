@@ -104,15 +104,23 @@ jobs:
         echo "SSH_USER: ${{ secrets.SSH_USER != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
 
+#    - name: Copy files to VPS
+#      uses: appleboy/scp-action@v1.0.0
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        port: 22
+#        source: "."
+#        target: "/root/scripts/test_strategy/"
+
     - name: Copy files to VPS
-      uses: appleboy/scp-action@v1.0.0
+      uses: a-was/scp-action@v1
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22
-        source: "."
-        target: "/root/scripts/test_strategy/"
+        destination: /root/scripts/test_strategy/
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0
