@@ -99,15 +99,25 @@ jobs:
         echo "SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
         echo "SSH_SSH_PASSWORD: ${{ secrets.SSH_PASSWORD != '' && 'SET' || 'NOT SET' }}"
 
-    - name: Copy files to VPS
-      uses: appleboy/scp-action@master
+
+    - name: Copy files via SSH
+      uses: appleboy/scp-action@v1
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 46952
-        source: "."  # Копируем весь репозиторий
+        port: 22
+        source: "."
         target: "/root/scripts/test_strategy/"
+
+#      uses: appleboy/scp-action@master
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        port: 22 # Указываем порт для SSH 46952
+#        source: "."  # Копируем весь репозиторий
+#        target: "/root/scripts/test_strategy/"
 
 #    - name: Copy files to VPS
 #      uses: a-was/scp-action@v1
