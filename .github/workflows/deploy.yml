@@ -100,13 +100,23 @@ jobs:
         echo "SSH_SSH_PASSWORD: ${{ secrets.SSH_PASSWORD != '' && 'SET' || 'NOT SET' }}"
 
     - name: Copy files to VPS
-      uses: a-was/scp-action@v1
+      uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.SSH_HOST }}
-        user: ${{ secrets.SSH_USER }}
+        username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        #password: ${{ secrets.SSH_PASSWORD }}
-        destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
+        port: 22 # Указываем порт для SSH 46952
+        source: "."  # Копируем весь репозиторий
+        target: "/root/scripts/test_strategy"
+
+#    - name: Copy files to VPS
+#      uses: a-was/scp-action@v1
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        user: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        #password: ${{ secrets.SSH_PASSWORD }}
+#        destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
     - name: Execute remote SSH commands using password
       uses: appleboy/ssh-action@v1
