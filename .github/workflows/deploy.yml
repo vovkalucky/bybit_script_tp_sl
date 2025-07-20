@@ -107,7 +107,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        source: "."
+        source: "./"
         target: "/root/scripts/test_strategy/"
 
 #      uses: appleboy/scp-action@master
