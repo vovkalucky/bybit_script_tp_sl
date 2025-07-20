@@ -107,7 +107,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/test_strategy"
+        target: "/root/scripts/test_strategy/"
 
 #    - name: Copy files to VPS
 #      uses: a-was/scp-action@v1
