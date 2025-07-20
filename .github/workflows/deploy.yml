@@ -104,7 +104,7 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         user: ${{ secrets.SSH_USER }}
-        #key: ${{ secrets.SSH_PRIVATE_KEY }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
         password: ${{ secrets.SSH_PASSWORD }}
         destination: /root/${{ env.DEPLOY_PATH }} #/root/scripts/test_strategy/
 
