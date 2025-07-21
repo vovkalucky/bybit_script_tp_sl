@@ -15,12 +15,8 @@ class AnalysisCoin:
     def __init__(self, pair):
         self.pair = pair
 
-    def analyze_coin(self, timeframe, cooldown_minutes=60) -> str:
+    def analyze_coin(self, timeframe) -> str:
         try:
-            now = time.time()
-            last_time = self.last_signal_time.get(self.pair, 0)
-            if now - last_time < cooldown_minutes * 60:
-                return "No signal"
 
             ohlcv = EXCHANGE.fetch_ohlcv(self.pair, timeframe=timeframe, limit=240)
             df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
@@ -77,8 +73,6 @@ class AnalysisCoin:
             if len(close) < 210:
                 return "No signal"
 
-
-
             if any(pd.isna(x) for x in [ema_now, rsi_now, hist_now, hist_prev, adx_now, bb_low, atr_now]):
                 return "No signal"
 
@@ -104,7 +98,6 @@ class AnalysisCoin:
             in_range = adx_now < 20 and price_touching_bb and oversold_rsi and flat_macd
 
             if in_trend or in_range:
-                self.last_signal_time[self.pair] = now
                 print(f"Buy {self.pair}!")
                 return "Buy"
 
