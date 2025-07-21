@@ -105,8 +105,8 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        #key: ${{ secrets.SSH_PRIVATE_KEY }}
-        password: ${{ secrets.SSH_PASSWORD}}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        #password: ${{ secrets.SSH_PASSWORD}}
         port: 22
         source: "./"
         target: "/root/${{ env.DEPLOY_PATH }}"
@@ -116,8 +116,8 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
-        #key: ${{ secrets.SSH_PRIVATE_KEY }}
-        password: ${{ secrets.SSH_PASSWORD}}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        #password: ${{ secrets.SSH_PASSWORD}}
         port: 22
         script: |
           cd /root/scripts/test_strategy
