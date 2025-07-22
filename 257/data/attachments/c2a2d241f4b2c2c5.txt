@@ -1,0 +1,3 @@
+[check_volumes]: You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 12:08:19).
+Request → GET https://api.bybit.com/v5/market/kline: category=spot&interval=W&symbol=NEARUSDT.
+False
