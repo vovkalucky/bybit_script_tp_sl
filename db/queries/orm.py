@@ -41,7 +41,7 @@ class BaseOrm:
                     session.commit()
 
             engine.echo = False
-            print("✅ Таблицы coins, deals успешно созданы")
+            print(f"[create_tables] ✅ Таблицы {TABLE_COINS}, {TABLE_DEALS} успешно созданы")
         except Exception as e:
             print(f"[create_tables] Не удалось создать таблицы: {e}")
 
