@@ -1,6 +1,6 @@
 PROJECT_NAME = "#bybit_imbalance_22_07_25"
-TABLE_DEALS = "bybittpsl_06_07_25_deals"
-TABLE_COINS = "bybittpsl_06_07_25_coins"
+TABLE_DEALS = "bybittpsl_deals"
+TABLE_COINS = "bybittpsl_coins"
 
 DELAY = 120
 MAX_COUNT_OF_DEALS = 8
