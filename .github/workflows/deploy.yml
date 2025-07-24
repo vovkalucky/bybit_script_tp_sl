@@ -94,10 +94,10 @@ jobs:
     - name: Verify secrets availability
       run: |
         echo "List of secrets used in this job:"
-        echo "SSH_HOST: ${{ secrets.TEST_SSH_HOST != '' && 'SET' || 'NOT SET' }}"
-        echo "SSH_USER: ${{ secrets.TEST_SSH_USER != '' && 'SET' || 'NOT SET' }}"
-        echo "SSH_PRIVATE_KEY: ${{ secrets.TEST_SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
-        echo "SSH_SSH_PASSWORD: ${{ secrets.TEST_SSH_PASSWORD != '' && 'SET' || 'NOT SET' }}"
+        echo "TEST_SSH_HOST: ${{ secrets.TEST_SSH_HOST != '' && 'SET' || 'NOT SET' }}"
+        echo "TEST_SSH_USER: ${{ secrets.TEST_SSH_USER != '' && 'SET' || 'NOT SET' }}"
+        echo "TEST_SSH_PRIVATE_KEY: ${{ secrets.TEST_SSH_PRIVATE_KEY != '' && 'SET' || 'NOT SET' }}"
+        echo "TEST_SSH_SSH_PASSWORD: ${{ secrets.TEST_SSH_PASSWORD != '' && 'SET' || 'NOT SET' }}"
 
 
     - name: Copy files via SSH
