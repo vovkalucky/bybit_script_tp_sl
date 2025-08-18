@@ -20,4 +20,4 @@ pandas
 pandas-ta
 pytest-xdist
 faker
-numpy
+numpy==1.26.4
