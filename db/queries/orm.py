@@ -41,28 +41,9 @@ class BaseOrm:
                     session.commit()
 
             engine.echo = False
-            print("✅ Таблицы coins, deals успешно созданы")
+            print(f"[create_tables] ✅ Таблицы {TABLE_COINS}, {TABLE_DEALS} успешно созданы")
         except Exception as e:
             print(f"[create_tables] Не удалось создать таблицы: {e}")
-
-    # @staticmethod
-    # def create_tables():
-    #     try:
-    #         sync_engine = get_engine()
-    #         sync_engine.echo = True
-    #         Base.metadata.drop_all(sync_engine)
-    #         Base.metadata.create_all(sync_engine)
-    #         with session_factory() as session:
-    #             # Проверяем, есть ли уже данные в таблице
-    #             if session.query(Coins).count() == 0:
-    #                 # Добавляем монеты в базу данных
-    #                 session.add_all([Coins(coin=coin) for coin in COINS])
-    #                 session.commit()
-    #
-    #         sync_engine.echo = False
-    #         print("✅ Таблицы coins, deals успешно созданы")
-    #     except Exception as e:
-    #         print(f"[create_tables] Не удалось создать таблицы: {e}")
 
 
 class DealsOrm:
@@ -100,10 +81,6 @@ class DealsOrm:
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 4)
                 print(f"[update_deal] {order}")
-                # if order.side_close == "Sell":
-                #     tax_close = round(float(order.tax_close) * float(order.price), 4)
-                # else:
-                #     tax_close = round(float(order.tax_close), 4)
                 tax_close = round(float(order.tax_close), 4)
 
 
@@ -112,7 +89,6 @@ class DealsOrm:
                 print(f"[update_deal] qty_open qty_close order.price: {deal.qty_open} {order.qty_close} {order.price}")
                 if order.status != "Deactivated":
                     earn = round(money_close - deal.money_open - deal.tax_open - tax_close, 4)
-                    #(float(deal.qty_open) - float(order.qty_close)) * float(order.price)
                 deal.status = order.status
                 deal.money_close = money_close
                 deal.tax_close = tax_close

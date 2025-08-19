@@ -3,7 +3,7 @@ from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS
-from classes.strategy.AnalysisCoin_imbalance_trend_09_05_25 import AnalysisCoin
+from classes.strategy.new_13_07_2025 import AnalysisCoin
 
 class TradeManager:
     def __init__(self):
@@ -25,8 +25,8 @@ class TradeManager:
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
-            for timeframe in ["15", "30"]:
-                side = analysis.analyze_imbalance_and_trend(timeframe)
+            for timeframe in ["1h"]:
+                side = analysis.analyze_coin(timeframe)
                 if side in ["Buy", "Sell"]:
                     print(f"📣📣📣 Найден сигнал на {side} для {pair} на таймфрейме {timeframe}! 📣📣📣")
                     self.execute_trade(pair, side)

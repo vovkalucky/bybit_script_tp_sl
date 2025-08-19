@@ -1,9 +1,5 @@
-import logging
 import random
-import sys
-
 import pytest
-
 from classes.tech_analysis.TechAnalysis import TechAnalysis
 import allure
 from tests.conftest import RANDOM_COIN, TIMEFRAMES_BYBIT, RANDOM_TIMEFRAME, RANDOM_TIMEFRAME_BYBIT
