@@ -2,7 +2,7 @@ PROJECT_NAME = "#bybit_19_08_25"
 TABLE_DEALS = "bybittpsl_19_08_25_deals"
 TABLE_COINS = "bybittpsl_19_08_25_coins"
 
-DELAY = 60
+DELAY = 120
 MAX_COUNT_OF_DEALS = 8
 MONEY_FOR_ONE_ORDER = 100
 TAKE_PROFIT = 1
