@@ -15,9 +15,9 @@ sqlalchemy==2.0.38
 psycopg==3.2.5
 psycopg-binary==3.2.5
 pydantic==2.11.3
-numpy==1.26.4
 ccxt
-pandas==2.2.3
-pandas-ta==0.4.67b0
+numpy>=2.2.6
+pandas>=2.2.3
+pandas-ta==0.4.71b0
 pytest-xdist
 faker
