@@ -356,3 +356,11 @@ class SpotOrders:
         except Exception as e:
             print(f"[cancel_order] Ошибка при отмене ордера {order_id}: {e}")
             return False
+
+    def get_balance(self) -> float:
+        try:
+            sub_balance = self.session.get_wallet_balance(accountType="UNIFIED", coin="USDT")
+            print(sub_balance)
+            return sub_balance
+        except Exception as e:
+            print(f"[get_balance] Ошибка получения баланса: {e}")
