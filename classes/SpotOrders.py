@@ -4,7 +4,6 @@ from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
-#from db.queries.orm import CoinsOrm, DealsOrm
 from classes.OrdersStructure import Order
 
 
@@ -77,7 +76,6 @@ class SpotOrders:
         return None, None, None
 
 
-    #@TradeHelpsFunc.retry()
     def get_current_price_of_coin(self) -> float:
         """
         Получает текущую цену монеты на спотовом рынке.
@@ -198,7 +196,6 @@ class SpotOrders:
                       )
         return order
 
-    #@TradeHelpsFunc.retry()
     def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float = 0) -> Order:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
@@ -293,7 +290,6 @@ class SpotOrders:
             print(f"[find_open_order_id_by_name] Exception: {e}")
             return ""
 
-
     @TradeHelpsFunc.retry()
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
@@ -318,6 +314,7 @@ class SpotOrders:
 
     @TradeHelpsFunc.retry()
     def check_orders_status(self, orders: List[str]) -> List[str]:
+        """Проверка статуса ордеров из списка orders, которые подгружаютсяы из БД"""
         from db.queries.orm import CoinsOrm, DealsOrm
         try:
             for order_id in orders:
@@ -348,6 +345,7 @@ class SpotOrders:
 
 
     def cancel_order(self, order_id: str) -> bool:
+        """Отмена открытого (незаполненного) ордера по order_id"""
         try:
             canceled_order = self.session.cancel_order(category="spot", orderId=order_id)
             if canceled_order['retMsg'] == "OK":

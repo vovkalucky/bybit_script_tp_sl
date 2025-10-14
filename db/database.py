@@ -1,8 +1,8 @@
+
 from typing import Annotated
 from sqlalchemy import String, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
-
 
 sync_engine = None
 
