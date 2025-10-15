@@ -1,2 +1,0 @@
-(current_volume) 324283.078 (avg_volume) 677842.912
-False

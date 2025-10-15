@@ -1,8 +1,0 @@
-[tp_sl_order] Your api key has expired. (ErrCode: -2015) (ErrTime: 15:44:54).
-Request → POST https://api-demo.bybit.com/v5/order/create: {"category": "spot", "symbol": "LTCUSDT", "side": "Buy", "orderType": "Limit", "qty": "0.05906", "price": "101.59", "marketUnit": "quoteCoin", "takeProfit": "111.74", "stopLoss": "91.43", "slLimitPrice": "91.43", "tpLimitPrice": "111.74", "tpOrderType": "Limit", "slOrderType": "Limit", "orderFilter": "OCO", "timeInForce": "GTC"}.
-[get_info_about_tp_sl_order] API Error: 33004 | Your api key has expired.
-[get_info_about_tp_sl_order] Attempt 1 failed. Retrying in 5 seconds...
-[get_info_about_tp_sl_order] API Error: 33004 | Your api key has expired.
-[get_info_about_tp_sl_order] Attempt 2 failed. Retrying in 5 seconds...
-[get_info_about_tp_sl_order] API Error: 33004 | Your api key has expired.
-[get_info_about_tp_sl_order] Failed after 3 attempts.
