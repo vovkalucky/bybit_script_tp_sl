@@ -1,3 +1,5 @@
+import time
+
 from pybit import exceptions
 from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
@@ -27,6 +29,7 @@ class TradeManager:
             analysis = AnalysisCoin(pair)
             for timeframe in ["15", "30"]:
                 side = analysis.analyze_coin(timeframe)
+                time.sleep(0.2) #чтобы не нарываться на лимит по API 10 запросов в секунду
                 if side in ["Buy", "Sell"]:
                     print(f"📣📣📣 Найден сигнал на {side} для {pair} на таймфрейме {timeframe}! 📣📣📣")
                     self.execute_trade(pair, side)
