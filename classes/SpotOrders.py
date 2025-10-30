@@ -4,18 +4,10 @@ from pybit.unified_trading import HTTP
 from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
-#from db.queries.orm import CoinsOrm, DealsOrm
 from classes.OrdersStructure import Order
 
 
 class SpotOrders:
-    # session = HTTP(api_key=config['api_key'],
-    #                api_secret=config['api_secret'],
-    #                demo=config['demo'],
-    #                recv_window=10000,
-    #                max_retries=10,
-    #                retry_delay=10)
-
     def __init__(self, symbol):
         config = get_config()
         self.session = HTTP(api_key=config['api_key'],
@@ -84,7 +76,6 @@ class SpotOrders:
         return None, None, None
 
 
-    #@TradeHelpsFunc.retry()
     def get_current_price_of_coin(self) -> float:
         """
         Получает текущую цену монеты на спотовом рынке.
@@ -181,7 +172,6 @@ class SpotOrders:
     def get_info_about_limit_order(self, order: Order) -> Order:
         response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
         order = response_limit_order['result']['list'][0]
-        #print(f"[get_info_about_limit_order]: {order}")
         status = order['orderStatus']
         order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],
                       side_open=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
@@ -205,8 +195,7 @@ class SpotOrders:
                       )
         return order
 
-    #@TradeHelpsFunc.retry()
-    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float) -> Order:
+    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float = 0) -> Order:
         """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
         Возвращает id ордера"""
         close_price = self.price
@@ -223,7 +212,7 @@ class SpotOrders:
             return Order()
 
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
-        sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
+        #sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
 
         try:
             order = self.session.place_order(
@@ -235,12 +224,12 @@ class SpotOrders:
                 price=close_price,
                 marketUnit="quoteCoin",
                 takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                stopLoss=sl_price,
-                slLimitPrice=sl_price,
+                #stopLoss=sl_price,
+                #slLimitPrice=sl_price,
                 tpLimitPrice=tp_price,
                 tpOrderType="Limit",
-                slOrderType="Limit",
-                orderFilter = "OCO",  # Фильтр для OCO-ордера
+                #slOrderType="Limit",
+                orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
                 timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
             )
             time.sleep(5)
@@ -288,18 +277,28 @@ class SpotOrders:
             print(f"[find_open_order_id_by_tp] Exception: {e}")
             return ""
 
-
+    @TradeHelpsFunc.retry()
+    def find_open_order_id_by_name(self, status: str) -> str:
+        """Поиск открытого TP/SL ордера по названию монеты"""
+        try:
+            response_tp_sl_orders = self.session.get_open_orders(category=self.category)
+            tp_sl_orders = response_tp_sl_orders["result"]["list"]
+            tp_sl_order_list = [order for order in tp_sl_orders if order.get("symbol") == status]
+            return tp_sl_order_list[0]["orderId"]
+        except Exception as e:
+            print(f"[find_open_order_id_by_name] Exception: {e}")
+            return ""
 
     @TradeHelpsFunc.retry()
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
-            #print(f"[get_info_about_tp_sl_order]: {order}")
-            order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
+            #order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
+            order_id_close = self.find_open_order_id_by_name(order['symbol'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
             if order['side'] == "Buy":
-                tax_open = str(round(float(order['cumExecFee']) * float(order['price']),4))
+                tax_open = str(round(float(order['cumExecFee']) * float(order['price']), 4))
             else:
                 tax_open = str(round(float(order['cumExecFee']), 4))
             order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],  #qty=order['cumExecQty']
@@ -307,13 +306,14 @@ class SpotOrders:
                           money_open=order['cumExecValue'],
                           tax_open=tax_open, time_open=order['createdTime'],
                           price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
-                          order_id_close=order_id_close, money_close="0", tax_close="0" #qty_close="0", side_close="0"
+                          order_id_close=order_id_close, money_close="0", tax_close="0"
                           )
             print(f"[get_info_about_tp_sl_order]: {order}")
             return order
 
     @TradeHelpsFunc.retry()
     def check_orders_status(self, orders: List[str]) -> List[str]:
+        """Проверка статуса ордеров из списка orders, которые подгружаютсяы из БД"""
         from db.queries.orm import CoinsOrm, DealsOrm
         try:
             for order_id in orders:
@@ -344,6 +344,7 @@ class SpotOrders:
 
 
     def cancel_order(self, order_id: str) -> bool:
+        """Отмена открытого (незаполненного) ордера по order_id"""
         try:
             canceled_order = self.session.cancel_order(category="spot", orderId=order_id)
             if canceled_order['retMsg'] == "OK":
@@ -355,13 +356,12 @@ class SpotOrders:
             print(f"[cancel_order] Ошибка при отмене ордера {order_id}: {e}")
             return False
 
+    def get_trade_balance(self, coin) -> float:
+        try:
+            data = self.session.get_wallet_balance(accountType="UNIFIED", coin=coin)
+            wallet_balance = round(float(data["result"]["list"][0]["coin"][0]["walletBalance"]), 2)
+            return wallet_balance
+        except Exception as e:
+            print(f"[get_trade_balance] Ошибка при попытке получить баланс: {e}")
+            return 0.0
 
-#spot = SpotOrders(symbol="ETHUSDT")
-#print(spot.qty_decimals)
-# order = spot.tp_sl_order("Sell", 10, 4,4)
-# info = spot.get_info_about_tp_sl_order()
-# print(info)
-# print(order)
-# order = TpSlOrder(order_id='1917142573705858304')
-# info = spot.get_info_about_tp_sl_order(order)
-# print(info)

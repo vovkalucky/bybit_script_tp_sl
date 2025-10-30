@@ -2,12 +2,14 @@ from classes.OrdersStructure import Order
 from settings import PROJECT_NAME
 import requests
 from config import TLG_TOKEN, TLG_ADMIN_ID
-#from db.queries.orm import DealsOrm
 
 class TlgSendMessage:
     @staticmethod
-    def send_tlg_message_new_tp_sl_order(order: Order) -> None:
+    def send_tlg_message_new_tp_sl_order(order: Order) -> str:
         from db.queries.orm import DealsOrm
+        from classes.SpotOrders import SpotOrders
+        spot_orders = SpotOrders(symbol=order.symbol)
+        trade_balance = spot_orders.get_trade_balance("USDT")
         message_title = f"{PROJECT_NAME}\n🔻 TP/SL ордер для {order.symbol} успешно размещен\n"
         list_of_open_deals = DealsOrm.select_open_deals()
         count_open_limit_orders = len(list_of_open_deals)
@@ -23,6 +25,7 @@ class TlgSendMessage:
                    f"money_open: {round(float(order.money_open), 3)}\n"
                    f"tax_open: {round(float(order.tax_open), 3)}\n\n"
                    f"Открытых позиций: {count_open_limit_orders}"
+                   f"Торговый баланс: {trade_balance}"
                    )
         payload = {
             "chat_id": TLG_ADMIN_ID,
@@ -32,10 +35,13 @@ class TlgSendMessage:
             response = requests.post(url, json=payload)
             if response.status_code == 200:
                 print("✉️ Уведомление об установке ордера успешно отправлено.")
+                return "✉️ Уведомление об установке ордера успешно отправлено."
             else:
                 print(f"❗️Ошибка отправки уведомления: {response.status_code} {response.text}")
+                return f"❗️Ошибка отправки уведомления: {response.status_code} {response.text}"
         except requests.exceptions.RequestException as e:
             print(f"❗️Ошибка соединения: {e}")
+            return f"❗️Ошибка соединения: {e}"
 
 
     @staticmethod

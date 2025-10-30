@@ -1,10 +1,10 @@
 services:
-  bybit_trade_script:
+  bybit_gpt:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_script
-    container_name: bybit_script_2
+    image: bybit_gpt
+    container_name: bybit_gpt
     logging:
       driver: json-file
       options:
