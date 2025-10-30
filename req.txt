@@ -16,8 +16,9 @@ psycopg==3.2.5
 psycopg-binary==3.2.5
 pydantic==2.11.3
 ccxt
-pandas
-pandas-ta
+numpy>=2.2.6
+pandas>=2.2.3
+pandas-ta==0.4.71b0
 pytest-xdist
 faker
-numpy==1.26.4
+
