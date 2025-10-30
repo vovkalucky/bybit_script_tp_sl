@@ -1,7 +1,0 @@
-[limit_order] API Error: -2015 | Your api key has expired.
-[limit_order] Attempt 1 failed. Retrying in 5 seconds...
-[limit_order] API Error: -2015 | Your api key has expired.
-[limit_order] Attempt 2 failed. Retrying in 5 seconds...
-[limit_order] API Error: -2015 | Your api key has expired.
-[limit_order] Failed after 3 attempts.
-[test_limit_order] None
