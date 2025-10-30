@@ -1,4 +1,4 @@
-PROJECT_NAME = "#bybit_2_25_08_25"
+PROJECT_NAME = "#bybit_gpt_30_10_25"
 TABLE_DEALS = "bybittpsl_19_08_25_deals"
 TABLE_COINS = "bybittpsl_19_08_25_coins"
 
@@ -6,7 +6,7 @@ DELAY = 120
 MAX_COUNT_OF_DEALS = 8
 MONEY_FOR_ONE_ORDER = 100
 TAKE_PROFIT = 1
-STOP_LOSS = 50
+STOP_LOSS = 0
 DEMO_TRADE = False
 ATR_SL = 1.5
 ATR_TP = 2
