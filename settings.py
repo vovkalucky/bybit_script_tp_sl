@@ -1,6 +1,6 @@
 PROJECT_NAME = "#bybit_gpt_30_10_25"
-TABLE_DEALS = "bybit_gpt"
-TABLE_COINS = "bybit_gpt"
+TABLE_DEALS = "bybit_gpt_deals"
+TABLE_COINS = "bybit_gpt_coins"
 
 DELAY = 120
 MAX_COUNT_OF_DEALS = 8

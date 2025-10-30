@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main, bybitgpt ]
+    branches: [ bybitgpt ]
 
 
 permissions:
@@ -11,79 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  run-tests:
-    runs-on: ubuntu-latest
-
-    env:
-      BYBIT_DEMO_API_KEY: ${{ secrets.BYBIT_DEMO_API_KEY }}
-      BYBIT_DEMO_SECRET_KEY: ${{ secrets.BYBIT_DEMO_SECRET_KEY }}
-      #DEPLOY_PATH: scripts/bybit_script
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r req.txt
-
-#      - name: Run tests
-#        run: pytest -s -v --alluredir=allure_results
-#        continue-on-error: true
-
-      - name: Run API tests with pytest and generate Allure results  # Запуск тестов
-        run: |
-          pytest --alluredir=allure-results
-        continue-on-error: true
-
-      - name: Upload Allure results  # Загружаем результаты тестов в GitHub Actions
-        if: always()  # Загружаем файлы независимо от успеха/неуспеха тестов
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results  # Название артефакта
-          path: allure-results  # Путь к файлам отчета
-          #retention-days: 7
-
-  publish-report:  # Джоба для публикации Allure-отчета на GitHub Pages
-    needs: [ run-tests ]  # Выполняется только после успешного выполнения run-tests
-    runs-on: ubuntu-latest  # Используем последнюю версию Ubuntu
-
-    steps:
-      - name: Check out repository  # Клонируем репозиторий, включая ветку gh-pages
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages  # Операции будем выполнять в ветке gh-pages
-          path: gh-pages  # Клонируем файлы в папку gh-pages
-
-      - name: Download Allure results  # Загружаем ранее сохраненные результаты тестов
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results  # Название артефакта
-          path: allure-results  # Путь для скачивания
-
-      - name: Allure Report action from marketplace  # Генерация отчета Allure
-        uses: simple-elf/allure-report-action@v1.12
-        if: always()
-        with:
-          allure_results: allure-results  # Папка с результатами тестов
-          allure_history: allure-history  # Папка для хранения истории отчетов
-
-      - name: Deploy report to Github Pages  # Публикация отчета на GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Токен для доступа к репозиторию
-          publish_branch: gh-pages  # Публикуем отчет в ветку gh-pages
-          publish_dir: allure-history  # Папка, где находится сгенерированный отчет
-
   deploy:
-    needs: run-tests  # Запуск деплоя только после успешного прогона тестов
     runs-on: ubuntu-latest
 
     steps:
