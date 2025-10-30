@@ -105,7 +105,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/bybit_script_2" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
+        target: "/root/scripts/bybit_gpt" # Указываем папку на сервере /root/${{ env.DEPLOY_PATH }} /root/scripts/bybit_script
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
@@ -115,7 +115,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH  22 изменил на 46953
         script: |
-          cd /root/scripts/bybit_script_2
+          cd /root/scripts/bybit_gpt
           docker compose down
           docker system prune -af
           docker compose up -d
