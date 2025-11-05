@@ -1,4 +1,3 @@
-
 from typing import Annotated
 from sqlalchemy import String, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
