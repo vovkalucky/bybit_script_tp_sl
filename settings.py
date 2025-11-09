@@ -1,4 +1,4 @@
-PROJECT_NAME = "#bybit_gpt_31_10_25"
+PROJECT_NAME = "#bybit_gpt_09_11_25"
 TABLE_DEALS = "bybit_gpt_deals"
 TABLE_COINS = "bybit_gpt_coins"
 
