@@ -24,7 +24,7 @@ class TlgSendMessage:
                    f"price: {order.price}\n"
                    f"money_open: {round(float(order.money_open), 3)}\n"
                    f"tax_open: {round(float(order.tax_open), 3)}\n\n"
-                   f"Открытых позиций: {count_open_limit_orders}"
+                   f"Открытых позиций: {count_open_limit_orders}\n"
                    f"Торговый баланс: {trade_balance}"
                    )
         payload = {
@@ -45,8 +45,11 @@ class TlgSendMessage:
 
 
     @staticmethod
-    def send_tlg_message_close_tp_sl_order(order: Order) -> None:
+    def send_tlg_message_close_tp_sl_order(order: Order) -> str:
         from db.queries.orm import DealsOrm
+        from classes.SpotOrders import SpotOrders
+        spot_orders = SpotOrders(symbol=order.symbol)
+        trade_balance = spot_orders.get_trade_balance("USDT")
         earn = DealsOrm.get_earn(order.order_id)
         message_title = (f"{PROJECT_NAME}\n"
                          f"💰 Результат для {order.symbol}: {earn} $\n")
@@ -61,7 +64,8 @@ class TlgSendMessage:
                    f"price: {order.price}\n"
                    f"money_close: {round(float(order.money_close), 3)}\n"
                    f"tax_close: {round(float(order.tax_close), 3)}\n\n"
-                   f"Открытых позиций: {count_open_limit_orders}"
+                   f"Открытых позиций: {count_open_limit_orders}\n"
+                   f"Торговый баланс: {trade_balance}"
                    )
         payload = {
             "chat_id": TLG_ADMIN_ID,
@@ -71,7 +75,10 @@ class TlgSendMessage:
             response = requests.post(url, json=payload)
             if response.status_code == 200:
                 print("✉️ Уведомление о закрытии ордера успешно отправлено.")
+                return "✉️ Уведомление о закрытии ордера успешно отправлено."
             else:
                 print(f"❗️Ошибка отправки уведомления: {response.status_code} {response.text}")
+                return f"❗️Ошибка отправки уведомления: {response.status_code} {response.text}"
         except requests.exceptions.RequestException as e:
             print(f"❗️Ошибка соединения: {e}")
+            return f"❗️Ошибка соединения: {e}"
