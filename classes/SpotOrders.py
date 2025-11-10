@@ -172,7 +172,6 @@ class SpotOrders:
     def get_info_about_limit_order(self, order: Order) -> Order:
         response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
         order = response_limit_order['result']['list'][0]
-        #print(f"[get_info_about_limit_order]: {order}")
         status = order['orderStatus']
         order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_open=order['cumExecQty'],
                       side_open=order['side'], status=status, avgPrice=order['avgPrice'], money_open=order['cumExecValue'],
@@ -357,10 +356,12 @@ class SpotOrders:
             print(f"[cancel_order] Ошибка при отмене ордера {order_id}: {e}")
             return False
 
-    def get_balance(self) -> float:
+    def get_trade_balance(self, coin) -> float:
         try:
-            sub_balance = self.session.get_wallet_balance(accountType="UNIFIED", coin="USDT")
-            print(sub_balance)
-            return sub_balance
+            data = self.session.get_wallet_balance(accountType="UNIFIED", coin=coin)
+            wallet_balance = round(float(data["result"]["list"][0]["coin"][0]["walletBalance"]), 2)
+            return wallet_balance
         except Exception as e:
-            print(f"[get_balance] Ошибка получения баланса: {e}")
+            print(f"[get_trade_balance] Ошибка при попытке получить баланс: {e}")
+            return 0.0
+

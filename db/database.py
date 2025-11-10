@@ -1,8 +1,15 @@
-
+import asyncio
 from typing import Annotated
 from sqlalchemy import String, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
+
+# sync_engine = create_engine(
+#     url=f"postgresql+psycopg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}",
+#     echo=True, #вывод логов (все запросы алхимии к БД)
+#     # pool_size=5, размер количества соединений
+#     # max_overflow=10, дополнительные подключения к БД
+# )
 
 sync_engine = None
 
@@ -17,7 +24,24 @@ def get_engine():
         )
     return sync_engine
 
+# try:
+#     with sync_engine.connect() as connection:
+#         result = connection.execute(text("SELECT version()"))
+#         print("✅ Подключение к базе данных успешно")
+#         print("Версия PostgreSQL:", result.scalar())
+# except Exception as e:
+#     print(f"❌ Ошибка подключения к базе данных: {e}")
+
+## Проверка соединения ###
+# with sync_engine.connect() asget_engine() conn:
+#     res = conn.execute(text("SELECT VERSION()"))
+#     print(res)
+#     conn.commit()
+
+#session_factory = sessionmaker(sync_engine)
 session_factory = sessionmaker(get_engine())
+#print(session_factory)
+
 str_256 = Annotated[str, 256]
 
 class Base(DeclarativeBase):
