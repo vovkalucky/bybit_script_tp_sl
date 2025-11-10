@@ -27,7 +27,7 @@ class TradeManager:
             return
         for pair in self.coins:
             analysis = AnalysisCoin(pair)
-            for timeframe in ["1h"]:
+            for timeframe in ["15", "30"]:
                 side = analysis.analyze_coin(timeframe)
                 time.sleep(0.2) #чтобы не нарываться на лимит по API 10 запросов в секунду
                 if side in ["Buy", "Sell"]:
