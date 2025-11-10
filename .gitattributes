@@ -1,0 +1,4 @@
+settings.py merge=ours
+.env merge=ours
+docker-compose.yml merge=ours
+.github/workflows/deploy.yml merge=ours
