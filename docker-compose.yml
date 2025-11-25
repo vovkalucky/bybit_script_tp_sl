@@ -1,10 +1,10 @@
 services:
-  bybit_gpt:
+  test_strategy:
     build:
       context: .
       dockerfile: Dockerfile
-    image: bybit_gpt
-    container_name: bybit_gpt
+    image: test_strategy
+    container_name: test_strategy
     logging:
       driver: json-file
       options:
