@@ -1,7 +1,7 @@
 import ccxt
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, UTC
 
 EXCHANGE = ccxt.bybit()
 
@@ -132,7 +132,7 @@ class AnalysisCoin:
 
             # Все условия пройдены -> Buy
             # Защита повторных сигналов: не даём сигналы чаще, чем один на X минут (опционально)
-            now = datetime.utcnow()
+            now = datetime.now(UTC)
             last_ts = AnalysisCoin.last_signal_time.get(self.pair)
             cooldown_minutes = 30
             if last_ts is not None:
