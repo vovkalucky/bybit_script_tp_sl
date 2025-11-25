@@ -1,6 +1,0 @@
-[get_filters] Attempt 1: Exception: You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 17:39:56).
-Request → GET https://api.bybit.com/v5/market/instruments-info: category=spot.
-[get_filters] Attempt 2: Exception: You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 17:40:06).
-Request → GET https://api.bybit.com/v5/market/instruments-info: category=spot.
-[get_filters] Attempt 3: Exception: You have breached the ip rate limit or your ip is from the usa. (ErrCode: 403) (ErrTime: 17:40:16).
-Request → GET https://api.bybit.com/v5/market/instruments-info: category=spot.
