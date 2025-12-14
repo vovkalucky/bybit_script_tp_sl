@@ -103,7 +103,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 46952
         source: "."  # Копируем весь репозиторий
-        target: "/vladimir/scripts/test_strategy"
+        target: "/home/vladimir/scripts/test_strategy"
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
@@ -113,7 +113,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22 # Указываем порт для SSH 22 изменил на 46953
         script: |
-          cd /vladimir/scripts/test_strategy
+          cd /home/vladimir/scripts/test_strategy
           docker compose down
           docker system prune -af
           docker compose up -d
