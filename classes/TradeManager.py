@@ -41,7 +41,7 @@ class TradeManager:
                 return
             order = spot.get_info_about_tp_sl_order(order_open)
             if order:
-                CoinsOrm.delete_coin(symbol)
+                CoinsOrm.add_coin(symbol)
                 DealsOrm.append_deal(order)
                 TlgSendMessage.send_tlg_message_new_tp_sl_order(order)
 

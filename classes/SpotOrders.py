@@ -334,7 +334,7 @@ class SpotOrders:
                                   money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
                                   order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
                                   )
-                    CoinsOrm.add_coin(order.symbol)
+                    CoinsOrm.delete_coin(order.symbol)
                     DealsOrm.update_deal(order)
                     TlgSendMessage.send_tlg_message_close_tp_sl_order(order)
             return orders

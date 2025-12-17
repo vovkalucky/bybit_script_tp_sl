@@ -37,5 +37,5 @@ class Coins(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     coin: Mapped[str] = mapped_column(unique=True)
-    in_deal: Mapped[int] = mapped_column(default=5)
+    in_deal: Mapped[int] = mapped_column(default=0)
     last_deal_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
