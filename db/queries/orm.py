@@ -17,14 +17,19 @@ class BaseOrm:
 
             # Получаем все таблицы в базе
             existing_tables = inspector.get_table_names()
+            print(f"📋 Существующие таблицы: {existing_tables}")
             metadata = Base.metadata
 
             # Удаляем только указанные таблицы, если они существуют
             for table_name in [TABLE_DEALS, TABLE_COINS]:
                 if table_name in existing_tables:
-                    print(f"Dropping table: {table_name}")
-                    with engine.connect() as conn:
+                    print(f"🗑️ Удаляем таблицу: {table_name}")
+                    with engine.begin() as conn:
                         conn.execute(text(f'DROP TABLE IF EXISTS "{table_name}" CASCADE'))
+                        conn.commit()
+                        print(f"✅ Таблица {table_name} удалена")
+                else:
+                    print(f"⚠️ Таблица {table_name} не найдена в базе")
 
             # Создаём только нужные таблицы из модели (если они описаны в Base)
             metadata.create_all(engine, tables=[
