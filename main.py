@@ -5,7 +5,6 @@ from db.queries.orm import BaseOrm
 from settings import DELAY
 
 if __name__ == "__main__":
-    #create_logger()
     print("🔍 Запуск анализа сигналов...")
     BaseOrm.create_tables()
     time.sleep(10)

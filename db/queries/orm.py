@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 from sqlalchemy import insert, select, update, text, inspect
-from settings import COINS, TABLE_DEALS, TABLE_COINS
+from settings import COINS, TABLE_DEALS, TABLE_COINS, COIN_COOLDOWN_HOURS
 from classes.OrdersStructure import Order
 from db.database import session_factory, Base, get_engine
 from db.models import Deals, Coins
@@ -131,21 +131,27 @@ class DealsOrm:
 class CoinsOrm:
     @staticmethod
     def select_coins() -> List[str]:
+        """Выбирает монеты, которые доступны для сделок"""
         with session_factory() as session:
+            cooldown_time = datetime.datetime.now() - datetime.timedelta(hours=COIN_COOLDOWN_HOURS)
+
             query = (
                 select(Coins)
                 .where(Coins.in_deal > 0)
+                .where(
+                    (Coins.last_deal_time == None) |  # ✅ Монета никогда не торговалась
+                    (Coins.last_deal_time < cooldown_time)  # ✅ Прошло достаточно времени
+                )
                 .order_by(Coins.id)
             )
             res = session.execute(query)
             result = res.scalars().all()
-            coins = []
-            for coin in result:
-                coins.append(coin.coin)
+            coins = [coin.coin for coin in result]
             return coins
 
     @staticmethod
     def delete_coin(coin: str):
+        """Удаляет монету из активных сделок"""
         with session_factory() as session:
             query = (
                 update(Coins)
@@ -157,11 +163,54 @@ class CoinsOrm:
 
     @staticmethod
     def add_coin(coin: str):
+        """Добавляет монету в сделку и обновляет время последней сделки"""
         with session_factory() as session:
             query = (
                 update(Coins)
                 .where(Coins.coin == coin)
-                .values(in_deal=Coins.in_deal + 1)
+                .values(
+                    in_deal=Coins.in_deal + 1,
+                    last_deal_time=datetime.datetime.now()  # ✅ Сохраняем время сделки
+                )
             )
             session.execute(query)
             session.commit()
+            print(f"🔒 Монета {coin} заблокирована на {COIN_COOLDOWN_HOURS} часов")
+
+# class CoinsOrm:
+#     @staticmethod
+#     def select_coins() -> List[str]:
+#         with session_factory() as session:
+#             query = (
+#                 select(Coins)
+#                 .where(Coins.in_deal > 0)
+#                 .order_by(Coins.id)
+#             )
+#             res = session.execute(query)
+#             result = res.scalars().all()
+#             coins = []
+#             for coin in result:
+#                 coins.append(coin.coin)
+#             return coins
+#
+#     @staticmethod
+#     def delete_coin(coin: str):
+#         with session_factory() as session:
+#             query = (
+#                 update(Coins)
+#                 .where(Coins.coin == coin)
+#                 .values(in_deal=Coins.in_deal - 1)
+#             )
+#             session.execute(query)
+#             session.commit()
+#
+#     @staticmethod
+#     def add_coin(coin: str):
+#         with session_factory() as session:
+#             query = (
+#                 update(Coins)
+#                 .where(Coins.coin == coin)
+#                 .values(in_deal=Coins.in_deal + 1)
+#             )
+#             session.execute(query)
+#             session.commit()
