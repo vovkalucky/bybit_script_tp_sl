@@ -127,7 +127,11 @@ class CoinsOrm:
     @staticmethod
     def select_coins() -> List[str]:
         with session_factory() as session:
-            query = select(Coins).filter_by(in_deal=False).order_by(Coins.id)
+            query = (
+                select(Coins)
+                .where(Coins.in_deal > 0)
+                .order_by(Coins.id)
+            )
             res = session.execute(query)
             result = res.scalars().all()
             coins = []
@@ -138,13 +142,21 @@ class CoinsOrm:
     @staticmethod
     def delete_coin(coin: str):
         with session_factory() as session:
-            query = update(Coins).values(in_deal=True).filter_by(coin=coin)
+            query = (
+                update(Coins)
+                .where(Coins.coin == coin)
+                .values(in_deal=Coins.in_deal - 1)
+            )
             session.execute(query)
             session.commit()
 
     @staticmethod
     def add_coin(coin: str):
         with session_factory() as session:
-            query = update(Coins).values(in_deal=False).filter_by(coin=coin)
+            query = (
+                update(Coins)
+                .where(Coins.coin == coin)
+                .values(in_deal=Coins.in_deal + 1)
+            )
             session.execute(query)
             session.commit()
