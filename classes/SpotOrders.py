@@ -212,7 +212,7 @@ class SpotOrders:
             return Order()
 
         tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
-        #sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
+        sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
 
         try:
             order = self.session.place_order(
@@ -224,11 +224,11 @@ class SpotOrders:
                 price=close_price,
                 marketUnit="quoteCoin",
                 takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                #stopLoss=sl_price,
-                #slLimitPrice=sl_price,
+                stopLoss=sl_price,
+                slLimitPrice=sl_price,
                 tpLimitPrice=tp_price,
                 tpOrderType="Limit",
-                #slOrderType="Limit",
+                slOrderType="Limit",
                 orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
                 timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
             )
@@ -244,9 +244,6 @@ class SpotOrders:
             else:
                 self.cancel_order(order_id)
                 return Order()
-
-
-
         except Exception as e:
             print(f"[tp_sl_order] {e}")
             return Order()
@@ -271,6 +268,7 @@ class SpotOrders:
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category)
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
+            print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
             return tp_sl_order_list[0]["orderId"]
         except Exception as e:
@@ -293,8 +291,9 @@ class SpotOrders:
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
-            #order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
-            order_id_close = self.find_open_order_id_by_name(order['symbol'])
+            print(f"[get_info_about_tp_sl_order] order: {order}")
+            order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
+            #order_id_close = self.find_open_order_id_by_name(order['symbol'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
             if order['side'] == "Buy":
@@ -313,7 +312,7 @@ class SpotOrders:
 
     @TradeHelpsFunc.retry()
     def check_orders_status(self, orders: List[str]) -> List[str]:
-        """Проверка статуса ордеров из списка orders, которые подгружаютсяы из БД"""
+        """Проверка статуса ордеров из списка orders, которые подгружаются из БД"""
         from db.queries.orm import CoinsOrm, DealsOrm
         try:
             for order_id in orders:
@@ -331,7 +330,7 @@ class SpotOrders:
                     print(f"[check_orders_status] {order['symbol']} {order['orderId']} {order['orderStatus']}")
                     order = Order(order_id=order['orderId'], symbol=order['symbol'], qty_close=order['cumExecQty'],
                                   side_close=order['side'], status=status, avgPrice=order['avgPrice'],
-                                  money_close=order['cumExecValue'], tax_close=tax_close, #order['cumExecFee'],
+                                  money_close=order['cumExecValue'], tax_close=tax_close,
                                   order_id_close=order_id, price=order['price'], triggerPrice=order['triggerPrice']
                                   )
                     CoinsOrm.delete_coin(order.symbol)
