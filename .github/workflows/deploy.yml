@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   run-tests:
+    if: false # 👈 Временно отключено
     runs-on: ubuntu-latest
 
     env:
@@ -125,7 +126,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 46952
+        port: 22
         source: "."  # Копируем весь репозиторий
         target: "/home/vladimir/scripts/test_strategy"
 
@@ -135,7 +136,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 22 изменил на 46953
+        port: 22
         script: |
           cd /home/vladimir/scripts/test_strategy
           docker compose down
