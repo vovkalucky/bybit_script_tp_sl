@@ -11,7 +11,7 @@ DEMO_TRADE = True
 ATR_SL = 1.5
 ATR_TP = 2
 # Задержка между сделками для одной монеты (в часах)
-COIN_COOLDOWN_HOURS = 1  #16
+COIN_COOLDOWN_HOURS = 0  #16
 # Максимальное количество одновременных сделок по одной монете
 MAX_DEALS_PER_COIN = 2 #5
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT",
