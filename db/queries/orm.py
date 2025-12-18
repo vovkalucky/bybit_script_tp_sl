@@ -1,7 +1,7 @@
-import datetime
+from datetime import datetime, timedelta
 from typing import List
 from sqlalchemy import insert, select, update, text, inspect
-from settings import COINS, TABLE_DEALS, TABLE_COINS, COIN_COOLDOWN_HOURS
+from settings import COINS, TABLE_DEALS, TABLE_COINS, COIN_COOLDOWN_HOURS, MAX_DEALS_PER_COIN
 from classes.OrdersStructure import Order
 from db.database import session_factory, Base, get_engine
 from db.models import Deals, Coins
@@ -60,7 +60,7 @@ class DealsOrm:
                                              money_open=round(float(order.money_open), 3), tax_open=round(float(order.tax_open), 3),
                                              order_id_close=order.order_id_close,
                                              money_close=order.money_close, tax_close=order.tax_close,
-                                             status=order.status, time_in_deal=datetime.timedelta(seconds=0), earn=0) #time_open=time_sell, time_close=0,
+                                             status=order.status, time_in_deal=timedelta(seconds=0), earn=0) #time_open=time_sell, time_close=0,
 
                 session.execute(query)
                 session.commit()
@@ -82,7 +82,7 @@ class DealsOrm:
                     return
 
                 # Вычисления на основе найденной сделки
-                now = datetime.datetime.now()
+                now = datetime.now()
                 time_in_deal = now - deal.time_open
                 money_close = round(float(order.money_close), 4)
                 print(f"[update_deal] {order}")
@@ -133,14 +133,14 @@ class CoinsOrm:
     def select_coins() -> List[str]:
         """Выбирает монеты, которые доступны для сделок"""
         with session_factory() as session:
-            cooldown_time = datetime.datetime.now() - datetime.timedelta(hours=COIN_COOLDOWN_HOURS)
+            cooldown_time = datetime.now() - timedelta(hours=COIN_COOLDOWN_HOURS)
 
             query = (
                 select(Coins)
-                .where(Coins.in_deal > 0)
+                .where(Coins.in_deal < MAX_DEALS_PER_COIN)  # ✅ Ограничение по количеству
                 .where(
-                    (Coins.last_deal_time == None) |  # ✅ Монета никогда не торговалась
-                    (Coins.last_deal_time < cooldown_time)  # ✅ Прошло достаточно времени
+                    (Coins.last_deal_time == None) |
+                    (Coins.last_deal_time < cooldown_time)
                 )
                 .order_by(Coins.id)
             )
@@ -162,20 +162,63 @@ class CoinsOrm:
             session.commit()
 
     @staticmethod
-    def add_coin(coin: str):
-        """Добавляет монету в сделку и обновляет время последней сделки"""
+    def can_trade(coin: str) -> bool:
+        """Проверяет, можно ли открыть сделку по монете"""
         with session_factory() as session:
+            query = select(Coins).where(Coins.coin == coin)
+            result = session.execute(query).scalar_one_or_none()
+
+            if not result:
+                return False
+
+            # Проверка лимита сделок
+            if result.in_deal >= MAX_DEALS_PER_COIN:
+                print(f"⚠️ Монета {coin}: достигнут лимит сделок ({result.in_deal}/{MAX_DEALS_PER_COIN})")
+                return False
+
+            # Проверка задержки
+            if result.last_deal_time:
+                cooldown_time = datetime.now() - timedelta(hours=COIN_COOLDOWN_HOURS)
+                if result.last_deal_time > cooldown_time:
+                    time_left = result.last_deal_time + timedelta(hours=COIN_COOLDOWN_HOURS) - datetime.now()
+                    hours_left = time_left.total_seconds() / 3600
+                    print(f"⏳ Монета {coin}: в задержке (осталось {hours_left:.1f}ч)")
+                    return False
+
+            return True
+
+    @staticmethod
+    def add_coin(coin: str):
+        """Добавляет монету в сделку с проверкой лимита"""
+        with session_factory() as session:
+            # Проверяем лимит перед добавлением
+            check_query = select(Coins).where(Coins.coin == coin)
+            coin_data = session.execute(check_query).scalar_one_or_none()
+
+            if not coin_data:
+                print(f"❌ Монета {coin} не найдена в базе")
+                return False
+
+            if coin_data.in_deal >= MAX_DEALS_PER_COIN:
+                print(f"❌ Монета {coin}: лимит сделок достигнут ({coin_data.in_deal}/{MAX_DEALS_PER_COIN})")
+                return False
+
+            # Добавляем сделку
             query = (
                 update(Coins)
                 .where(Coins.coin == coin)
                 .values(
                     in_deal=Coins.in_deal + 1,
-                    last_deal_time=datetime.datetime.now()  # ✅ Сохраняем время сделки
+                    last_deal_time=datetime.now()
                 )
             )
             session.execute(query)
             session.commit()
-            print(f"🔒 Монета {coin} заблокирована на {COIN_COOLDOWN_HOURS} часов")
+
+            new_count = coin_data.in_deal + 1
+            print(f"✅ Монета {coin}: открыта сделка ({new_count}/{MAX_DEALS_PER_COIN})")
+            print(f"🔒 Задержка на {COIN_COOLDOWN_HOURS} часов")
+            return True
 
 # class CoinsOrm:
 #     @staticmethod
