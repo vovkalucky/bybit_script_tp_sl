@@ -268,7 +268,7 @@ class SpotOrders:
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category)
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
-            print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
+            #print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
             print(f"[find_open_order_id_by_tp] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
             return tp_sl_order_list[0]["orderId"]
@@ -309,7 +309,6 @@ class SpotOrders:
                           price=order['price'], take_profit=order['takeProfit'], stop_loss=order['stopLoss'],
                           order_id_close=order_id_close, money_close="0", tax_close="0"
                           )
-            print(f"[get_info_about_tp_sl_order]: {order}")
             return order
 
     @TradeHelpsFunc.retry()
