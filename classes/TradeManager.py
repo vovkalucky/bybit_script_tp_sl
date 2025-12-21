@@ -98,8 +98,6 @@ class TradeManager:
             # Регистрация монеты в базе (с установкой задержки)
             if not CoinsOrm.add_coin(symbol):
                 print(f"❌ {symbol}: не удалось зарегистрировать в базе")
-                # TODO: Возможно, нужно отменить заказ на бирже
-                # spot.cancel_order(order_open.order_id)
                 return False
 
             # Регистрация сделки в базе

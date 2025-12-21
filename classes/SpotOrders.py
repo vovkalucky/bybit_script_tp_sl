@@ -270,6 +270,7 @@ class SpotOrders:
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
             print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
+            print(f"[find_open_order_id_by_tp] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
             return tp_sl_order_list[0]["orderId"]
         except Exception as e:
             print(f"[find_open_order_id_by_tp] Exception: {e}")
@@ -291,8 +292,9 @@ class SpotOrders:
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
-            print(f"[get_info_about_tp_sl_order] order: {order}")
+            #print(f"[get_info_about_tp_sl_order] order: {order}")
             order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
+            print(f"[get_info_about_tp_sl_order] {order_id_close}")
             #order_id_close = self.find_open_order_id_by_name(order['symbol'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
             status_tp_sl_order = response_tp_sl_order['result']['list'][0]['orderStatus']
