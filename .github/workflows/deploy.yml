@@ -50,7 +50,8 @@ jobs:
           #retention-days: 7
 
   publish-report:
-    #needs: [ run-tests ]
+    if: false # 👈 Временно отключено
+    needs: [ run-tests ]
     runs-on: ubuntu-latest
 
     steps:

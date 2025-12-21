@@ -214,7 +214,7 @@ class CoinsOrm:
             session.execute(query)
             session.commit()
 
-            new_count = coin_data.in_deal + 1
+            new_count = coin_data.in_deal
             print(f"✅ Монета {coin}: открыта сделка ({new_count}/{MAX_DEALS_PER_COIN})")
             print(f"🔒 Задержка на {COIN_COOLDOWN_HOURS} часов")
             return True
