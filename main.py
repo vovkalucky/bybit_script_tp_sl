@@ -2,11 +2,12 @@ import time
 from datetime import datetime
 from classes.TradeManager import TradeManager
 from db.queries.orm import BaseOrm
-from settings import DELAY
+from settings import DELAY, DROP_TABLES
 
 if __name__ == "__main__":
     print("🔍 Запуск анализа сигналов...")
-    BaseOrm.create_tables()
+    if DROP_TABLES:
+        BaseOrm.create_tables()
     time.sleep(10)
     try:
         while True:
