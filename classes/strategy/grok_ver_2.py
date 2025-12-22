@@ -58,7 +58,7 @@ class AnalysisCoin:
             df[col] = df[col].astype(float)
         return df.sort_values('timestamp').reset_index(drop=True)
 
-    def analyze_coin(self, timeframe: str) -> str:
+    def analyze_coin(self) -> str:
         """
         Анализ на покупку на заданном timeframe (например, '5m').
         Стратегия: multi-TF с H4/H1/M15/M5, сигнал на -2 свече.
@@ -74,7 +74,7 @@ class AnalysisCoin:
             ohlcv_h4 = EXCHANGE.fetch_ohlcv(self.pair, timeframe='4h', limit=60)
             ohlcv_h1 = EXCHANGE.fetch_ohlcv(self.pair, timeframe='1h', limit=100)
             ohlcv_m15 = EXCHANGE.fetch_ohlcv(self.pair, timeframe='15m', limit=200)
-            ohlcv_tf = EXCHANGE.fetch_ohlcv(self.pair, timeframe=timeframe, limit=150)  # Используемый timeframe для entry (вместо M5)
+            ohlcv_tf = EXCHANGE.fetch_ohlcv(self.pair, timeframe='5m', limit=150)  # Используемый timeframe для entry (вместо M5)
 
             if not all([ohlcv_h4, ohlcv_h1, ohlcv_m15, ohlcv_tf]):
                 return "No signal"

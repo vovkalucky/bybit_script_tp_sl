@@ -45,7 +45,7 @@ class TradeManager:
 
             # Анализ монеты
             analysis = AnalysisCoin(pair)
-            side = analysis.analyze_coin()
+            side = analysis.analyze_coin(timeframe="15m")
 
             if side in ["Buy", "Sell"]:
                 print(f"🎯 Найден сигнал {side} для {pair}")

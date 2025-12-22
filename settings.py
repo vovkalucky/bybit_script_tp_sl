@@ -5,10 +5,8 @@ TABLE_COINS = "bybit_test_coins"
 DELAY = 120
 MAX_COUNT_OF_DEALS = 4
 MONEY_FOR_ONE_ORDER = 100
-TAKE_PROFIT = 0.8 #1
-STOP_LOSS = 0.8 #1
-TAKER_FEE = 0.001      # 0.1% комиссия Bybit
-SLIPPAGE = 0.0003     # 0.03% запас под проскальзывание SL
+TAKE_PROFIT = 1 #1
+STOP_LOSS = 0 #1
 DEMO_TRADE = True
 DROP_TABLES = True
 # Задержка между сделками для одной монеты (в часах)
