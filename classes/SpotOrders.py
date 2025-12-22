@@ -5,7 +5,6 @@ from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
 from classes.OrdersStructure import Order
-from settings import TAKER_FEE, SLIPPAGE
 
 
 class SpotOrders:
