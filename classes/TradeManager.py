@@ -3,14 +3,10 @@ from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS, COIN_COOLDOWN_HOURS
-from classes.strategy.gemini_3 import AnalysisCoin
+from classes.strategy.grok_ver_2 import AnalysisCoin
 
 
 class TradeManager:
-    # def __init__(self):
-    #     # Не храним coins в self, получаем свежий список каждый раз
-    #     pass
-
     @staticmethod
     def check_deal_limits() -> bool:
         """Проверяет общий лимит активных сделок"""
