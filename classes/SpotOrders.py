@@ -5,6 +5,7 @@ from classes.TlgSendMessage import TlgSendMessage
 from classes.TradeHelpsFunctions import TradeHelpsFunc
 from config import get_config
 from classes.OrdersStructure import Order
+from settings import TAKER_FEE, SLIPPAGE
 
 
 class SpotOrders:
@@ -195,58 +196,140 @@ class SpotOrders:
                       )
         return order
 
-    def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float = 0) -> Order:
-        """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
-        Возвращает id ордера"""
-        close_price = self.price
-        qty = money_for_one_order / close_price
-        qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
-        if side == "Buy":
-            take_profit_price = close_price * (1 + take_profit / 100)
-            stop_loss_price = close_price * (1 - stop_loss / 100)
-        elif side == "Sell":
-            take_profit_price = close_price * (1 - take_profit / 100)
-            stop_loss_price = close_price * (1 + stop_loss / 100)
-        else:
-            print(f"[tp_sl_order] Invalid side: {side}")
-            return Order()
-
-        tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
-        sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
+    def tp_sl_order(
+            self,
+            side: str,
+            money_for_one_order: float,
+            take_profit: float,
+            stop_loss: float
+    ) -> Order:
+        """
+        Установка LIMIT ордера с OCO (TP + SL).
+        take_profit и stop_loss — в процентах (например 0.8 = 0.8%)
+        """
 
         try:
+            close_price = float(self.price)
+
+            # ===== Qty с запасом под комиссию =====
+            qty = money_for_one_order / close_price
+            qty *= (1 - TAKER_FEE)  # запас под комиссию
+            qty = round(qty, self.qty_decimals)
+
+            if qty <= 0:
+                print("[tp_sl_order] qty <= 0")
+                return Order()
+
+            # ===== TP / SL с учётом комиссий =====
+            if side == "Buy":
+                tp_price = close_price * (
+                        1 + take_profit / 100 + TAKER_FEE * 2
+                )
+                sl_price = close_price * (
+                        1 - stop_loss / 100 - TAKER_FEE * 2 - SLIPPAGE
+                )
+
+            elif side == "Sell":
+                tp_price = close_price * (
+                        1 - take_profit / 100 - TAKER_FEE * 2
+                )
+                sl_price = close_price * (
+                        1 + stop_loss / 100 + TAKER_FEE * 2 + SLIPPAGE
+                )
+            else:
+                print(f"[tp_sl_order] Invalid side: {side}")
+                return Order()
+
+            # ===== Округление под Bybit =====
+            tp_price = round(tp_price, self.price_decimals)
+            sl_price = round(sl_price, self.price_decimals)
+            price = round(close_price, self.price_decimals)
+
+            # ===== Размещение ордера =====
             order = self.session.place_order(
                 category=self.category,
                 symbol=self.symbol,
                 side=side,
                 orderType="Limit",
                 qty=qty,
-                price=close_price,
+                price=price,
                 marketUnit="quoteCoin",
-                takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
+                takeProfit=tp_price,
                 stopLoss=sl_price,
-                slLimitPrice=sl_price,
-                tpLimitPrice=tp_price,
                 tpOrderType="Limit",
-                slOrderType="Limit",
-                orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
-                timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+                slOrderType="Market",  # ❗ SL всегда MARKET
+                orderFilter="OCO",
+                timeInForce="GTC"
             )
-            time.sleep(5)
-            order_id = order.get('result', {}).get('orderId')
+
+            time.sleep(3)
+
+            order_id = order.get("result", {}).get("orderId")
             if not order_id:
-                print(f"[tp_sl_order] No orderId in response")
+                print("[tp_sl_order] No orderId in response")
                 return Order()
+
             if self.check_order_status(order_id, "Filled"):
-                print(f"[tp_sl_order] {order_id}")
-                order = Order(order_id=order_id, status="Filled")
-                return order
-            else:
-                self.cancel_order(order_id)
-                return Order()
+                print(f"[tp_sl_order] Filled {order_id}")
+                return Order(order_id=order_id, status="Filled")
+
+            return Order(order_id=order_id, status="Placed")
+
         except Exception as e:
-            print(f"[tp_sl_order] {e}")
+            print(f"[tp_sl_order] Error: {e}")
             return Order()
+    # def tp_sl_order(self, side: str, money_for_one_order: float, take_profit: float, stop_loss: float = 0) -> Order:
+    #     """Установка limit order на сумму qty ($), с заданием Take Profit (%) и Stop Loss(%).
+    #     Возвращает id ордера"""
+    #     close_price = self.price
+    #     qty = money_for_one_order / close_price
+    #     qty = TradeHelpsFunc.float_trunc(qty, self.qty_decimals)
+    #     if side == "Buy":
+    #         take_profit_price = close_price * (1 + take_profit / 100)
+    #         stop_loss_price = close_price * (1 - stop_loss / 100)
+    #     elif side == "Sell":
+    #         take_profit_price = close_price * (1 - take_profit / 100)
+    #         stop_loss_price = close_price * (1 + stop_loss / 100)
+    #     else:
+    #         print(f"[tp_sl_order] Invalid side: {side}")
+    #         return Order()
+    #
+    #     tp_price = TradeHelpsFunc.float_trunc(take_profit_price, self.price_decimals)
+    #     sl_price = TradeHelpsFunc.float_trunc(stop_loss_price, self.price_decimals)
+    #
+    #     try:
+    #         order = self.session.place_order(
+    #             category=self.category,
+    #             symbol=self.symbol,
+    #             side=side,
+    #             orderType="Limit",
+    #             qty=qty,
+    #             price=close_price,
+    #             marketUnit="quoteCoin",
+    #             takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
+    #             stopLoss=sl_price,
+    #             slLimitPrice=sl_price,
+    #             tpLimitPrice=tp_price,
+    #             tpOrderType="Limit",
+    #             slOrderType="Limit",
+    #             orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
+    #             timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+    #         )
+    #         time.sleep(5)
+    #         order_id = order.get('result', {}).get('orderId')
+    #         if not order_id:
+    #             print(f"[tp_sl_order] No orderId in response")
+    #             return Order()
+    #         if self.check_order_status(order_id, "Filled"):
+    #             print(f"[tp_sl_order] {order_id}")
+    #             order = Order(order_id=order_id, status="Filled")
+    #             return order
+    #         else:
+    #             self.cancel_order(order_id)
+    #             return Order()
+    #     except Exception as e:
+    #         print(f"[tp_sl_order] {e}")
+    #         return Order()
 
     @TradeHelpsFunc.retry_until_true(6,10)
     def check_order_status(self, order_id: str, status: str) -> bool:
