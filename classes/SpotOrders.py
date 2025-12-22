@@ -255,6 +255,7 @@ class SpotOrders:
                 price=price,
                 marketUnit="quoteCoin",
                 takeProfit=tp_price,
+                tpLimitPrice=tp_price,
                 stopLoss=sl_price,
                 tpOrderType="Limit",
                 slOrderType="Market",  # ❗ SL всегда MARKET
