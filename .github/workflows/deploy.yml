@@ -109,6 +109,8 @@ jobs:
   deploy:
     #needs: run-tests  # Запуск деплоя только после успешного прогона тестов
     runs-on: ubuntu-latest
+    env: # 👈 Добавлено: переменная для пути к скрипту
+      DEPLOY_PATH: "/home/vladimir/scripts/test_strategy"
 
     steps:
     - name: Checkout code
@@ -129,7 +131,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         source: "."  # Копируем весь репозиторий
-        target: "/home/vladimir/scripts/test_strategy"
+        target: ${{ env.DEPLOY_PATH }}
 
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1.1.0 #1.0.0
@@ -139,7 +141,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd /home/vladimir/scripts/test_strategy
+          cd ${{ env.DEPLOY_PATH }}
           docker compose down
           docker system prune -af
           docker compose up -d
