@@ -28,8 +28,8 @@ class Deals(Base):
     tax_close: Mapped[float]
     status: Mapped[str]
     time_open: Mapped[datetime.datetime] = mapped_column(server_default=text("now()"))
-    time_close: Mapped[datetime.datetime] = mapped_column(nullable=True)
-    time_in_deal: Mapped[datetime.timedelta] = mapped_column(Interval, nullable=True)
+    time_close: Mapped[Optional[datetime.datetime]] = mapped_column(nullable=True)
+    time_in_deal: Mapped[Optional[datetime.timedelta]] = mapped_column(Interval, nullable=True) # time_in_deal: Mapped[Optional[datetime.datetime]] = mapped_column(Interval, nullable=True)
     earn: Mapped[float] = mapped_column(nullable=True)
 
 class Coins(Base):
@@ -38,4 +38,4 @@ class Coins(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     coin: Mapped[str] = mapped_column(unique=True)
     in_deal: Mapped[int] = mapped_column(default=0)
-    last_deal_time: Mapped[datetime.datetime] = mapped_column(nullable=True)
+    last_deal_time: Mapped[Optional[datetime.datetime]] = mapped_column(nullable=True)
