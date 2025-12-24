@@ -3,7 +3,7 @@ from classes.SpotOrders import SpotOrders
 from classes.TlgSendMessage import TlgSendMessage
 from db.queries.orm import CoinsOrm, DealsOrm
 from settings import MONEY_FOR_ONE_ORDER, TAKE_PROFIT, MAX_COUNT_OF_DEALS, STOP_LOSS, COIN_COOLDOWN_HOURS
-from classes.strategy.grok_ver_2 import AnalysisCoin
+from classes.strategy.gpt import AnalysisCoin
 
 
 class TradeManager:
