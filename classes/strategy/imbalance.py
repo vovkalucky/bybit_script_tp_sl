@@ -15,7 +15,6 @@ class AnalysisCoin:
                     "bear",
                     limit=10,
                     imbalance=0.7,
-                    profit=0.8
                 )
 
                 if imbalance_bear:

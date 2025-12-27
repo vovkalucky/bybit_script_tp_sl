@@ -100,7 +100,6 @@ class TechAnalysis:
         return close > (previous_close + atr)
 
     @classmethod
-    @classmethod
     def find_imbalance(
             cls,
             symbol: str,
