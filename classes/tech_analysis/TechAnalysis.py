@@ -112,12 +112,12 @@ class TechAnalysis:
         klines = cls.get_klines(symbol, interval, limit)
 
         if direction != "bear":
+            print(f"[find_imbalance] Invalid direction: {direction}")
             return False
 
-        third_low = float(klines[-4][3])  # low свечи 1
-        second_low = float(klines[-3][3])  # low свечи 2
-        first_high = float(klines[-2][2])  # high свечи 3
-        current = float(klines[-1][4])  # текущая цена
+        third_low = float(klines[-4][3])  # low свечи -4
+        second_low = float(klines[-3][3])  # low свечи -3
+        first_high = float(klines[-2][2])  # high свечи -2
 
         # 1️⃣ Импульс вниз
         impulse = second_low < third_low
@@ -126,15 +126,11 @@ class TechAnalysis:
         fvg_percent = (third_low - first_high) / third_low * 100
         imbalance_ok = fvg_percent >= imbalance
 
-        # 3️⃣ Цена вернулась в зону
-        in_fvg_zone = second_low <= current <= first_high
-
-        if impulse and imbalance_ok and in_fvg_zone:
-            print(f"✅ Bear imbalance + retrace найден для {symbol} [{interval}]")
+        if impulse and imbalance_ok:
+            print(f"✅ Bear imbalance найден для {symbol} [{interval}], размер: {fvg_percent:.2f}%")
             return True
 
         return False
-
     @staticmethod
     def determine_trend_ema(symbol: str, timeframe: str) -> str:
         """Функция для анализа тренда при помощи EMA100 и EMA50 + ADX

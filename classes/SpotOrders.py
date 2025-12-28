@@ -224,11 +224,11 @@ class SpotOrders:
                 price=close_price,
                 marketUnit="quoteCoin",
                 takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                stopLoss=sl_price,
-                slLimitPrice=sl_price,
+                #stopLoss=sl_price,
+                #slLimitPrice=sl_price,
                 tpLimitPrice=tp_price,
                 tpOrderType="Limit",
-                slOrderType="Limit",
+                #slOrderType="Limit",
                 orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
                 timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
             )
