@@ -223,15 +223,28 @@ class SpotOrders:
                 qty=qty,
                 price=close_price,
                 marketUnit="quoteCoin",
-                takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
-                stopLoss=sl_price,
-                slLimitPrice=sl_price,
+                takeProfit=tp_price,
                 tpLimitPrice=tp_price,
                 tpOrderType="Limit",
-                slOrderType="Limit",
-                orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
-                timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+                timeInForce="GTC"
             )
+            # order = self.session.place_order(
+            #     category=self.category,
+            #     symbol=self.symbol,
+            #     side=side,
+            #     orderType="Limit",
+            #     qty=qty,
+            #     price=close_price,
+            #     marketUnit="quoteCoin",
+            #     takeProfit=tp_price, #она же и тригерная цена. tpTriggerPrice не нужен!
+            #     stopLoss=sl_price,
+            #     slLimitPrice=sl_price,
+            #     tpLimitPrice=tp_price,
+            #     tpOrderType="Limit",
+            #     slOrderType="Limit",
+            #     orderFilter = "OCO",  #OCO Фильтр для OCO-ордера
+            #     timeInForce = "GTC"  # "Good Till Cancel" - ордер действует до отмены
+            # )
             time.sleep(5)
             order_id = order.get('result', {}).get('orderId')
             if not order_id:
@@ -268,12 +281,26 @@ class SpotOrders:
         try:
             response_tp_sl_orders = self.session.get_open_orders(category=self.category)
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
-            #print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
+            print(f"[find_open_order_id_by_tp] {tp_sl_orders}")
             tp_sl_order_list = [order for order in tp_sl_orders if order.get("takeProfit") == str(take_profit_value)]
-            #print(f"[find_open_order_id_by_tp] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
+            print(f"[find_open_order_id_by_tp] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
             return tp_sl_order_list[0]["orderId"]
         except Exception as e:
             print(f"[find_open_order_id_by_tp] Exception: {e}")
+            return ""
+
+    @TradeHelpsFunc.retry()
+    def find_open_order_id_by_trigger_price(self, trigger_price: str) -> str:
+        """Поиск TP/SL ордера по значению тригерной цены (triggerPrice)"""
+        try:
+            response_tp_sl_orders = self.session.get_open_orders(category=self.category)
+            tp_sl_orders = response_tp_sl_orders["result"]["list"]
+            print(f"[find_open_order_id_by_trigger_price] {tp_sl_orders}")
+            tp_sl_order_list = [order for order in tp_sl_orders if order.get("triggerPrice") == str(trigger_price)]
+            print(f"[find_open_order_id_by_trigger_price] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
+            return tp_sl_order_list[0]["orderId"]
+        except Exception as e:
+            print(f"[find_open_order_id_by_trigger_price] Exception: {e}")
             return ""
 
     @TradeHelpsFunc.retry()
@@ -292,8 +319,8 @@ class SpotOrders:
     def get_info_about_tp_sl_order(self, order: Order) -> Order:
             response_limit_order = self.session.get_open_orders(category=self.category, orderId=order.order_id)
             order = response_limit_order['result']['list'][0]
-            #print(f"[get_info_about_tp_sl_order] order: {order}")
-            order_id_close = self.find_open_order_id_by_tp(order['takeProfit'])
+            print(f"[get_info_about_tp_sl_order] order: {order}")
+            order_id_close = self.find_open_order_id_by_trigger_price(order['takeProfit'])
             print(f"[get_info_about_tp_sl_order] Открыт ордер на закрытие сделки: {order_id_close}")
             #order_id_close = self.find_open_order_id_by_name(order['symbol'])
             response_tp_sl_order = self.session.get_open_orders(category=self.category, orderId=order_id_close)
