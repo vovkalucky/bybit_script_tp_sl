@@ -100,78 +100,111 @@ class TechAnalysis:
         return close > (previous_close + atr)
 
     @classmethod
-    def find_imbalance(cls, symbol: str, interval: str, direction: str, limit: int = 10, imbalance: float = 0.7,
-                       profit: float = 0.7) -> bool:
-        """Функция поиска имбаланса. Определяет бычий (Bull) или медвежий (Bear) дисбаланс.
-        Для анализа берутся три последние закрытые свечи и текущая (current_kline) для входа в сделку.
+    def find_imbalance(cls, symbol: str, interval: str, limit: int = 10,
+                       imbalance: float = 0.7, profit: float = 0.7) -> bool:
+        """
+        Функция поиска медвежьего имбаланса для сигнала BUY.
+
+        Логика:
+        - Ищем gap вниз между свечами (медвежий имбаланс)
+        - Цена возвращается в зону имбаланса
+        - Покупка с расчётом на закрытие gap'а
+
         Параметры:
-        - direction: "bull" для бычьего или "bear" для медвежьего имбаланса
-        - imbalance: минимальный размер тела свечи в процентах
-        - profit: минимальная ожидаемая прибыль в процентах
+        - imbalance: минимальный размер gap'а в процентах от цены
+        - profit: минимальное расстояние текущей цены от верхней границы имбаланса (%)
+
+        Структура свечей: [-4] = third, [-3] = second, [-2] = first, [-1] = current
         """
         klines = TechAnalysis.get_klines(symbol, interval, limit)
 
-        if direction == "bear":
-            third_imb_kline = float(klines[-4][3])  # low
-            second_imb_kline = float(klines[-3][3])  # low
-            first_imb_kline = float(klines[-2][2])  # high
-            current_kline = float(klines[-1][4])  # current_price
-
-            condition_0 = second_imb_kline < third_imb_kline
-            condition_1 = (first_imb_kline - current_kline) / first_imb_kline > profit / 100
-            condition_2 = (third_imb_kline - first_imb_kline) / third_imb_kline > imbalance / 100
-            # signal = "Buy"
-        elif direction == "bull":
-            third_imb_kline = float(klines[-4][2])  # high
-            second_imb_kline = float(klines[-3][2])  # high
-            first_imb_kline = float(klines[-2][3])  # low
-            current_kline = float(klines[-1][4])  # current_price
-
-            condition_0 = second_imb_kline > third_imb_kline
-            condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100
-            condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100
-            # signal = "Sell"
-        else:
-            print(f"[find_imbalance] Invalid direction: {direction}")
+        if len(klines) < 4:
+            print(f"[find_imbalance] Недостаточно данных для {symbol}")
             return False
 
-        if all([condition_0, condition_1, condition_2]):
-            print(f"✅✅✅✅✅✅✅✅ {direction.capitalize()} Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
+        # Медвежий имбаланс: gap вниз, покупка на возврате в зону
+        third_high = float(klines[-4][2])  # High третьей свечи
+        third_close = float(klines[-4][4])  # Close третьей свечи
+        second_low = float(klines[-3][3])  # Low второй свечи
+        second_high = float(klines[-3][2])  # High второй свечи
+        second_volume = float(klines[-3][5])  # Volume второй свечи (gap формирующая)
+        first_low = float(klines[-2][3])  # Low первой свечи
+        first_close = float(klines[-2][4])  # Close первой свечи
+        first_volume = float(klines[-2][5])  # Volume первой свечи
+        current_price = float(klines[-1][4])  # Текущая цена
+        current_volume = float(klines[-1][5])  # Текущий объём
+
+        # === ОСНОВНЫЕ УСЛОВИЯ ===
+
+        # 1. Наличие gap'а (разрыва) между third и first свечой
+        gap_exists = first_low < second_low < third_high
+
+        # 2. Размер имбаланса (gap между high третьей и low первой)
+        if third_high > 0:
+            gap_size = (third_high - first_low) / third_high * 100
+            condition_imbalance_size = gap_size > imbalance
+        else:
+            condition_imbalance_size = False
+
+        # 3. Цена вернулась в зону имбаланса
+        price_in_zone = first_low < current_price < third_high
+
+        # 4. Потенциальная прибыль до верхней границы имбаланса
+        if current_price > 0:
+            potential_profit = (third_high - current_price) / current_price * 100
+            condition_profit = potential_profit > profit
+        else:
+            condition_profit = False
+
+        # 5. Вторая свеча формирует gap (находится внутри разрыва)
+        condition_gap = second_high < third_high and second_low > first_low
+
+        # === АНАЛИЗ ОБЪЁМА (ОПЦИОНАЛЬНО) ===
+
+        # 6. Проверка объёма на свече формирования gap'а
+        # Высокий объём на падении (вторая свеча) подтверждает сильное движение
+        avg_volume = (second_volume + first_volume) / 2
+        volume_spike = second_volume > avg_volume * 1.2  # Объём на 20% выше среднего
+
+        # 7. Текущий объём не должен быть чрезмерно высоким (избегаем продолжения падения)
+        current_volume_ok = current_volume < avg_volume * 1.5
+
+        # === ДОПОЛНИТЕЛЬНЫЕ ФИЛЬТРЫ ===
+
+        # 8. Импульсное движение вниз (подтверждение медвежьего имбаланса)
+        if third_close > 0:
+            price_drop = (third_close - first_close) / third_close * 100
+            strong_movement = price_drop > imbalance * 0.5  # Падение минимум на 50% от размера gap'а
+        else:
+            strong_movement = False
+
+        # === ФИНАЛЬНАЯ ПРОВЕРКА ===
+
+        # Базовые условия (обязательные)
+        basic_conditions = [gap_exists, condition_imbalance_size, price_in_zone,
+                            condition_profit, condition_gap]
+
+        # Условия с объёмом (рекомендуемые, но опциональные)
+        volume_conditions = [volume_spike, current_volume_ok]
+
+        # Вариант 1: Строгий (с объёмом)
+        if all(basic_conditions + volume_conditions + [strong_movement]):
+            print(f"✅ BEAR Imbalance [STRONG] [{symbol}] {interval}")
+            print(f"   Gap: {gap_size:.2f}% | Profit potential: {potential_profit:.2f}%")
+            print(f"   Zone: {first_low:.4f} - {third_high:.4f} | Current: {current_price:.4f}")
+            print(f"   Volume: Gap={second_volume:.0f} | Avg={avg_volume:.0f} | Current={current_volume:.0f}")
             return True
-        else:
-            return False
-    # @classmethod
-    # def find_imbalance(
-    #         cls,
-    #         symbol: str,
-    #         interval: str,
-    #         direction: str,
-    #         limit: int = 10,
-    #         imbalance: float = 0.7,
-    # ) -> bool:
-    #
-    #     klines = cls.get_klines(symbol, interval, limit)
-    #
-    #     if direction != "bear":
-    #         print(f"[find_imbalance] Invalid direction: {direction}")
-    #         return False
-    #
-    #     third_low = float(klines[-4][3])  # low свечи -4
-    #     second_low = float(klines[-3][3])  # low свечи -3
-    #     first_high = float(klines[-2][2])  # high свечи -2
-    #
-    #     # 1️⃣ Импульс вниз
-    #     impulse = second_low < third_low
-    #
-    #     # 2️⃣ Размер дисбаланса
-    #     fvg_percent = (third_low - first_high) / third_low * 100
-    #     imbalance_ok = fvg_percent >= imbalance
-    #
-    #     if impulse and imbalance_ok:
-    #         print(f"✅ Bear imbalance найден для {symbol} [{interval}], размер: {fvg_percent:.2f}%")
-    #         return True
-    #
-    #     return False
+
+        # Вариант 2: Базовый (без объёма, но с сильным движением)
+        elif all(basic_conditions + [strong_movement]):
+            print(f"⚠️  BEAR Imbalance [MODERATE] [{symbol}] {interval}")
+            print(f"   Gap: {gap_size:.2f}% | Profit potential: {potential_profit:.2f}%")
+            print(f"   Zone: {first_low:.4f} - {third_high:.4f} | Current: {current_price:.4f}")
+            print(f"   ⚠️  Volume conditions not met")
+            return True  # Можно изменить на False, если хотите только сильные сигналы
+
+        return False
+
     @staticmethod
     def determine_trend_ema(symbol: str, timeframe: str) -> str:
         """Функция для анализа тренда при помощи EMA100 и EMA50 + ADX

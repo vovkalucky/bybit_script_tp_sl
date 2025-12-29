@@ -12,7 +12,6 @@ class AnalysisCoin:
                 imbalance_bear = TechAnalysis.find_imbalance(
                     self.pair,
                     timeframe,
-                    "bear",
                     limit=10,
                     imbalance=0.7,
                 )
