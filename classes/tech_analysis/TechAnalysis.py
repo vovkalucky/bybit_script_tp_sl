@@ -100,47 +100,37 @@ class TechAnalysis:
         return close > (previous_close + atr)
 
     @classmethod
-    def find_imbalance(cls, symbol: str, interval: str, direction: str, limit: int = 10, imbalance: float = 0.7,
-                       profit: float = 0.7) -> bool:
-        """Функция поиска имбаланса. Определяет бычий (Bull) или медвежий (Bear) дисбаланс.
-        Для анализа берутся три последние закрытые свечи и текущая (current_kline) для входа в сделку.
-        Параметры:
-        - direction: "bull" для бычьего или "bear" для медвежьего имбаланса
-        - imbalance: минимальный размер тела свечи в процентах
-        - profit: минимальная ожидаемая прибыль в процентах
-        """
-        klines = TechAnalysis.get_klines(symbol, interval, limit)
+    def find_imbalance(
+            cls,
+            symbol: str,
+            interval: str,
+            direction: str,
+            limit: int = 10,
+            imbalance: float = 0.7,
+    ) -> bool:
 
-        if direction == "bear":
-            third_imb_kline = float(klines[-4][3])  # low
-            second_imb_kline = float(klines[-3][3])  # low
-            first_imb_kline = float(klines[-2][2])  # high
-            current_kline = float(klines[-1][4])  # current_price
+        klines = cls.get_klines(symbol, interval, limit)
 
-            condition_0 = second_imb_kline < third_imb_kline
-            condition_1 = (first_imb_kline - current_kline) / first_imb_kline > profit / 100
-            condition_2 = (third_imb_kline - first_imb_kline) / third_imb_kline > imbalance / 100
-            #signal = "Buy"
-        elif direction == "bull":
-            third_imb_kline = float(klines[-4][2])  # high
-            second_imb_kline = float(klines[-3][2])  # high
-            first_imb_kline = float(klines[-2][3])  # low
-            current_kline = float(klines[-1][4])  # current_price
-
-            condition_0 = second_imb_kline > third_imb_kline
-            condition_1 = (current_kline - first_imb_kline) / first_imb_kline > profit / 100
-            condition_2 = (first_imb_kline - third_imb_kline) / third_imb_kline > imbalance / 100
-            #signal = "Sell"
-        else:
+        if direction != "bear":
             print(f"[find_imbalance] Invalid direction: {direction}")
             return False
 
-        if all([condition_0, condition_1, condition_2]):
-            print(f"✅✅✅✅✅✅✅✅ {direction.capitalize()} Imbalance for {symbol} in {interval} found! ✅✅✅✅✅✅✅✅")
-            return True
-        else:
-            return False
+        third_low = float(klines[-4][3])  # low свечи -4
+        second_low = float(klines[-3][3])  # low свечи -3
+        first_high = float(klines[-2][2])  # high свечи -2
 
+        # 1️⃣ Импульс вниз
+        impulse = second_low < third_low
+
+        # 2️⃣ Размер дисбаланса
+        fvg_percent = (third_low - first_high) / third_low * 100
+        imbalance_ok = fvg_percent >= imbalance
+
+        if impulse and imbalance_ok:
+            print(f"✅ Bear imbalance найден для {symbol} [{interval}], размер: {fvg_percent:.2f}%")
+            return True
+
+        return False
     @staticmethod
     def determine_trend_ema(symbol: str, timeframe: str) -> str:
         """Функция для анализа тренда при помощи EMA100 и EMA50 + ADX
