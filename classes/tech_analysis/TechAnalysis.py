@@ -188,15 +188,15 @@ class TechAnalysis:
         volume_conditions = [volume_spike, current_volume_ok]
 
         # Вариант 1: Строгий (с объёмом)
-        if all(basic_conditions + volume_conditions + [strong_movement]):
-            print(f"✅ BEAR Imbalance [STRONG] [{symbol}] {interval}")
-            print(f"   Gap: {gap_size:.2f}% | Profit potential: {potential_profit:.2f}%")
-            print(f"   Zone: {first_low:.4f} - {third_high:.4f} | Current: {current_price:.4f}")
-            print(f"   Volume: Gap={second_volume:.0f} | Avg={avg_volume:.0f} | Current={current_volume:.0f}")
-            return True
+        # if all(basic_conditions + volume_conditions + [strong_movement]):
+        #     print(f"✅ BEAR Imbalance [STRONG] [{symbol}] {interval}")
+        #     print(f"   Gap: {gap_size:.2f}% | Profit potential: {potential_profit:.2f}%")
+        #     print(f"   Zone: {first_low:.4f} - {third_high:.4f} | Current: {current_price:.4f}")
+        #     print(f"   Volume: Gap={second_volume:.0f} | Avg={avg_volume:.0f} | Current={current_volume:.0f}")
+        #     return True
 
         # Вариант 2: Базовый (без объёма, но с сильным движением)
-        elif all(basic_conditions + [strong_movement]):
+        if all(basic_conditions + [strong_movement]):
             print(f"⚠️  BEAR Imbalance [MODERATE] [{symbol}] {interval}")
             print(f"   Gap: {gap_size:.2f}% | Profit potential: {potential_profit:.2f}%")
             print(f"   Zone: {first_low:.4f} - {third_high:.4f} | Current: {current_price:.4f}")
