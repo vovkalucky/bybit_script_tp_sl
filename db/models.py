@@ -21,6 +21,7 @@ class Deals(Base):
     qty_open: Mapped[str]
     money_open: Mapped[float]
     tax_open: Mapped[float]
+
     order_id_close: Mapped[str] = mapped_column(unique=True)
     side_close: Mapped[Optional[str]] = mapped_column(nullable=True)
     qty_close: Mapped[Optional[str]] = mapped_column(nullable=True)

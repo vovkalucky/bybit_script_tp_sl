@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.idea/
+.git/
+.gitignore
+*.log
+logs/
+tmp/
+Thumbs.db
+docker-compose.yml
+tests/
