@@ -85,7 +85,7 @@ class TradeManager:
             # Получение информации о заказе
             order = spot.get_info_about_tp_sl_order(order_open)
 
-            if not order:
+            if not order.order_id_close :
                 print(f"⚠️ {symbol}: не удалось получить информацию о заказе")
                 return False
 
