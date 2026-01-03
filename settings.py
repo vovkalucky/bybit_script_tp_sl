@@ -5,12 +5,12 @@ TABLE_COINS = "bybit_test_coins"
 DELAY = 120
 MAX_COUNT_OF_DEALS = 10
 MONEY_FOR_ONE_ORDER = 50
-TAKE_PROFIT = 0.8 #1
-STOP_LOSS = 0 #1
+TAKE_PROFIT = 0.8
+STOP_LOSS = 0
 DEMO_TRADE = True
 DROP_TABLES = True
 # Задержка между сделками для одной монеты (в часах)
-COIN_COOLDOWN_HOURS = 24  #16
+COIN_COOLDOWN_HOURS = 24
 # Максимальное количество одновременных сделок по одной монете
 MAX_DEALS_PER_COIN = 10
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT",
