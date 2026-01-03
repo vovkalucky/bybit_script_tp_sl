@@ -47,7 +47,6 @@ jobs:
         script: |
           cd ${{ env.DEPLOY_PATH }}
           docker compose down
-          docker system prune -af
           docker compose up -d
 
     - name: Send Telegram Notification
