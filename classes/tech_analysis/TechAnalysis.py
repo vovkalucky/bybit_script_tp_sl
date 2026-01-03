@@ -4,7 +4,6 @@ from tradingview_ta import TA_Handler
 from config import get_config
 import ccxt
 import pandas as pd
-import pandas_ta as ta
 
 
 config = get_config()
@@ -252,7 +251,7 @@ class TechAnalysis:
             df["ts"] = pd.to_datetime(df["ts"], unit="ms")
 
             # Расчёт ATR
-            df["atr"] = ta.atr(high=df["high"], low=df["low"], close=df["close"], length=atr_period)
+            #df["atr"] = ta.atr(high=df["high"], low=df["low"], close=df["close"], length=atr_period)
 
             # Автоматическое определение порога волатильности
             volatility_threshold = df["atr"].median() * threshold_factor
@@ -271,14 +270,6 @@ class TechAnalysis:
             if last["regime"] == "trend" and abs(price_change) >= min_trend_change:
                 trend = "Bull" if price_change > 0 else "Bear"
 
-            # print(f"Последний режим рынка: {last['regime'].upper()} (ATR = {last['atr']:.2f}), Тренд: {trend}")
-            #
-            # return {
-            #     "regime": last["regime"],
-            #     "atr": last["atr"],
-            #     "trend": trend,
-            #     "price_change_pct": round(price_change * 100, 2)
-            # }
             return trend
 
         except Exception as e:
