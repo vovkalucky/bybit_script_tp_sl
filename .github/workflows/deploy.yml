@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
 
+
 permissions:
   contents: write
   pages: write
@@ -12,6 +13,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_PATH: "/home/vladimir/scripts/bybit_imb"
 
     steps:
     - name: Checkout code
@@ -30,19 +33,19 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH 46952
+        port: 22
         source: "."  # Копируем весь репозиторий
-        target: "/root/scripts/bybit_imb"
+        target: ${{ env.DEPLOY_PATH }}
 
     - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.1.0 #1.0.0
+      uses: appleboy/ssh-action@v1.1.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22 # Указываем порт для SSH  22 изменил на 46953
+        port: 22
         script: |
-          cd /root/scripts/bybit_imb
+          cd ${{ env.DEPLOY_PATH }}
           docker compose down
           docker system prune -af
           docker compose up -d
@@ -51,4 +54,4 @@ jobs:
       run: |
         curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
         -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-        -d text="🛠 Деплой проекта успешно завершен!"
+        -d text="🛠 Деплой проекта в ${{ github.ref_name }} успешно завершен!"
