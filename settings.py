@@ -8,7 +8,7 @@ MONEY_FOR_ONE_ORDER = 50
 TAKE_PROFIT = 0.8
 STOP_LOSS = 0
 DEMO_TRADE = False
-DROP_TABLES = False
+DROP_TABLES = True
 # Задержка между сделками для одной монеты (в часах)
 COIN_COOLDOWN_HOURS = 16
 # Максимальное количество одновременных сделок по одной монете
