@@ -10,7 +10,7 @@ STOP_LOSS = 0
 DEMO_TRADE = True
 DROP_TABLES = True
 # Задержка между сделками для одной монеты (в часах)
-COIN_COOLDOWN_HOURS = 24
+COIN_COOLDOWN_HOURS = 16
 # Максимальное количество одновременных сделок по одной монете
 MAX_DEALS_PER_COIN = 10
 # COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT",
