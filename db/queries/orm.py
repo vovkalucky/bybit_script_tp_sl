@@ -150,15 +150,40 @@ class CoinsOrm:
 
     @staticmethod
     def delete_coin(coin: str):
-        """Удаляет монету из активных сделок"""
+        """Закрывает сделку по монете"""
         with session_factory() as session:
+            coin_data = session.execute(
+                select(Coins).where(Coins.coin == coin)
+            ).scalar_one_or_none()
+
+            if not coin_data:
+                return False
+
+            new_in_deal = max(coin_data.in_deal - 1, 0)
+
             query = (
                 update(Coins)
                 .where(Coins.coin == coin)
-                .values(in_deal=Coins.in_deal - 1)
+                .values(
+                    in_deal=new_in_deal,
+                    last_deal_time=None if new_in_deal == 0 else coin_data.last_deal_time
+                )
             )
+
             session.execute(query)
             session.commit()
+            return True
+    # @staticmethod
+    # def delete_coin(coin: str):
+    #     """Удаляет монету из активных сделок"""
+    #     with session_factory() as session:
+    #         query = (
+    #             update(Coins)
+    #             .where(Coins.coin == coin)
+    #             .values(in_deal=Coins.in_deal - 1)
+    #         )
+    #         session.execute(query)
+    #         session.commit()
 
     @staticmethod
     def can_trade(coin: str) -> bool:
