@@ -283,7 +283,7 @@ class SpotOrders:
             tp_sl_orders = response_tp_sl_orders["result"]["list"]
             print(f"[find_open_order_id_by_trigger_price] {tp_sl_orders}")
             tp_sl_order_list = [order for order in tp_sl_orders if float(order.get("triggerPrice")) == float(trigger_price)]
-            print(f"[find_open_order_id_by_trigger_price] Нужный ордер? {tp_sl_order_list[0]["orderId"]}")
+            print(f"[find_open_order_id_by_trigger_price] Нужный ордер? {tp_sl_order_list[0]['orderId']}")
             return tp_sl_order_list[0]["orderId"]
         except Exception as e:
             print(f"[find_open_order_id_by_trigger_price] Exception: {e}")
