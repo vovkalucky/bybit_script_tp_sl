@@ -1,17 +1,19 @@
-PROJECT_NAME = "#bybit_imbalance_01_12_25"
-TABLE_DEALS = "bybit_imb_deals"
-TABLE_COINS = "bybit_imb_coins"
+PROJECT_NAME = "#bybit_demo_trade_30_12_25"
+TABLE_DEALS = "bybit_test_deals"
+TABLE_COINS = "bybit_test_coins"
 
 DELAY = 120
-MAX_COUNT_OF_DEALS = 8
-MONEY_FOR_ONE_ORDER = 100
-TAKE_PROFIT = 1
+MAX_COUNT_OF_DEALS = 10
+MONEY_FOR_ONE_ORDER = 50
+TAKE_PROFIT = 0.8
 STOP_LOSS = 0
-DEMO_TRADE = False
-ATR_SL = 1.5
-ATR_TP = 2
-
+DEMO_TRADE = True
+DROP_TABLES = True
+# Задержка между сделками для одной монеты (в часах)
+COIN_COOLDOWN_HOURS = 24
+# Максимальное количество одновременных сделок по одной монете
+MAX_DEALS_PER_COIN = 10
 COINS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT", "ADAUSDT", "AVAXUSDT", "DOTUSDT", "LTCUSDT", "ATOMUSDT",
 "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT",
 "ONDOUSDT", "MNTUSDT", "TRXUSDT", "DOGSUSDT", "TWTUSDT", "ASTERUSDT"]
-
+#COINS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "TWTUSDT", "LINKUSDT", "ASTERUSDT"]

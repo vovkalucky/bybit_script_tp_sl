@@ -7,3 +7,4 @@ pesochnica
 db/db_test.py
 classes/strategy/old_versions
 /docker-compose-DB.yml
+script_logs.log

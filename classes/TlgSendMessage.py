@@ -1,5 +1,5 @@
 from classes.OrdersStructure import Order
-from settings import PROJECT_NAME
+from settings import PROJECT_NAME, MAX_COUNT_OF_DEALS
 import requests
 from config import TLG_TOKEN, TLG_ADMIN_ID
 
@@ -24,7 +24,7 @@ class TlgSendMessage:
                    f"price: {order.price}\n"
                    f"money_open: {round(float(order.money_open), 3)}\n"
                    f"tax_open: {round(float(order.tax_open), 3)}\n\n"
-                   f"Открытых позиций: {count_open_limit_orders}\n"
+                   f"Открытых позиций: {count_open_limit_orders}/{MAX_COUNT_OF_DEALS}\n"
                    f"Торговый баланс: {trade_balance}"
                    )
         payload = {
@@ -64,7 +64,7 @@ class TlgSendMessage:
                    f"price: {order.price}\n"
                    f"money_close: {round(float(order.money_close), 3)}\n"
                    f"tax_close: {round(float(order.tax_close), 3)}\n\n"
-                   f"Открытых позиций: {count_open_limit_orders}\n"
+                   f"Открытых позиций: {count_open_limit_orders}/{MAX_COUNT_OF_DEALS}\n"
                    f"Торговый баланс: {trade_balance}"
                    )
         payload = {

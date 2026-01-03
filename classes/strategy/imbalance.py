@@ -4,19 +4,24 @@ class AnalysisCoin:
     def __init__(self, pair):
         self.pair = pair
 
-    def analyze_coin(self, timeframe) -> str:
+    def analyze_coin(self) -> str:
         try:
-            imbalance_bear = TechAnalysis.find_imbalance(self.pair, timeframe,"bear", 10, 0.7, 0.8) #было 0.8 profit 0.9
-            #print(f"[analyze_imbalance_and_trend] imbalance_bear {self.pair} {imbalance_bear}")
-            if not imbalance_bear:
-                return "No signal"
-            #trend = TechAnalysis.detect_trend(self.pair, "15m")
-            print(f"[analyze_imbalance_and_trend] trend {self.pair}")
-            if imbalance_bear:
-                print(f"[analyze_imbalance_and_trend] Все условия для торговли {self.pair} выполнены! {imbalance_bear} на таймфрейме: {timeframe}")
-                return "Buy"
-            else:
-                return "No signal"
+            timeframes = ['15', '60']
+
+            for timeframe in timeframes:
+                imbalance_bear = TechAnalysis.find_imbalance(
+                    self.pair,
+                    timeframe,
+                    limit=10,
+                    imbalance=0.7,
+                )
+
+                if imbalance_bear:
+                    print(f"[analyze_coin] Bear imbalance найден на {timeframe} для {self.pair}")
+                    return "Buy"
+
+            return "No signal"
+
         except Exception as e:
-            print(f"⚠️ Ошибка при анализе {self.pair} на {timeframe}: {e}")
+            print(f"⚠️ Ошибка при анализе {self.pair}: {e}")
             return "No signal"
