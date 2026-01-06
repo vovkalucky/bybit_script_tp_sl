@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: bybit_imb
+    container_name: bybit_test_strategy
     logging:
       driver: json-file
       options:

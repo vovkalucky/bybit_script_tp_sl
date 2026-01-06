@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main ]
+    branches: [ test_strategy ]
 
 
 permissions:
@@ -14,7 +14,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      DEPLOY_PATH: "/home/vladimir/scripts/bybit_imb"
+      DEPLOY_PATH: "/home/vladimir/scripts/test_strategy"
 
     steps:
     - name: Checkout code

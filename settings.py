@@ -1,13 +1,13 @@
-PROJECT_NAME = "#bybit_imb_04_01_26"
-TABLE_DEALS = "bybit_imb_deals"
-TABLE_COINS = "bybit_imb_coins"
+PROJECT_NAME = "#bybit_test_04_01_26"
+TABLE_DEALS = "bybit_test_deals"
+TABLE_COINS = "bybit_test_coins"
 
 DELAY = 120
 MAX_COUNT_OF_DEALS = 10
 MONEY_FOR_ONE_ORDER = 50
 TAKE_PROFIT = 0.8
 STOP_LOSS = 0
-DEMO_TRADE = False
+DEMO_TRADE = True
 DROP_TABLES = True
 # Задержка между сделками для одной монеты (в часах)
 COIN_COOLDOWN_HOURS = 16
