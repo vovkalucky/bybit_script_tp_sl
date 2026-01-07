@@ -1,4 +1,4 @@
-PROJECT_NAME = "#bybit_imb_04_01_26"
+PROJECT_NAME = "#bybit_imb_07_01_26"
 TABLE_DEALS = "bybit_imb_deals"
 TABLE_COINS = "bybit_imb_coins"
 
@@ -8,7 +8,7 @@ MONEY_FOR_ONE_ORDER = 50
 TAKE_PROFIT = 0.8
 STOP_LOSS = 0
 DEMO_TRADE = False
-DROP_TABLES = True
+DROP_TABLES = False
 # Задержка между сделками для одной монеты (в часах)
 COIN_COOLDOWN_HOURS = 16
 # Максимальное количество одновременных сделок по одной монете
