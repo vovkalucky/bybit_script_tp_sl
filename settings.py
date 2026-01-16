@@ -17,3 +17,12 @@ MAX_DEALS_PER_COIN = 10
 # "APEUSDT", "LINKUSDT", "NEARUSDT", "PEPEUSDT", "SHIBUSDT", "IMXUSDT", "TONUSDT", "SANDUSDT", "XLMUSDT",
 # "ONDOUSDT", "MNTUSDT", "TRXUSDT", "DOGSUSDT", "TWTUSDT", "ASTERUSDT"]
 COINS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT", "AVAXUSDT", "NEARUSDT", "LINKUSDT", "ADAUSDT", "DOTUSDT"]
+COINS = [
+    "BTCUSDT",   # 1. Bitcoin - король ликвидности
+    "ETHUSDT",   # 2. Ethereum - стабильно и быстро
+    "SOLUSDT",   # 3. Solana - высокая волатильность + объемы
+    "BNBUSDT",   # 4. Binance Coin - стабильная монета биржи
+    "XRPUSDT",   # 5. Ripple - хорошие объемы
+    "AVAXUSDT",  # 6. Avalanche - умеренная ликвидность
+    "LINKUSDT",  # 7. Chainlink - хорошая для имбалансов
+]

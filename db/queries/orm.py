@@ -72,8 +72,7 @@ class DealsOrm:
         try:
             with session_factory() as session:
                 deal = session.query(Deals).filter(
-                    Deals.coin == order.symbol,
-                    Deals.status.notin_(["Filled", "Deactivated"])
+                    Deals.order_id_close == order.order_id_close
                 ).first()
 
                 if not deal:
@@ -155,7 +154,7 @@ class CoinsOrm:
             coin_data = session.execute(
                 select(Coins).where(Coins.coin == coin)
             ).scalar_one_or_none()
-
+            print(f"[delete_coin] coin_data {coin_data}")
             if not coin_data:
                 return False
 
